@@ -1,0 +1,1871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Tales Of Binary Deobfuscation - Even - A super concise theme for Hugo</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="ulexec" /><meta name="description" content="This article is going to serve as my personal reference on this topic. Since I&amp;rsquo;ve always wanted to write about it and just finished Yuma Kurogome&amp;rsquo;s course on Advance Binary Deobfuscation, I thought it would be a good time to write notes regarding what I learned in this course with a fresh state of mind on the subject matter for future reference.
+Introduction There are close to 31 known code transformations." /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.107.0 with theme even" />
+
+
+<link rel="canonical" href="http://ulexec.github.io/post/2020-03-03-deobfuscation_1/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.24b6bc5d736ac336a76f43f4279d691d2513ec072ed82cd608a6120e0aa90b85.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Tales Of Binary Deobfuscation" />
+<meta property="og:description" content="This article is going to serve as my personal reference on this topic. Since I&rsquo;ve always wanted to write about it and just finished Yuma Kurogome&rsquo;s course on Advance Binary Deobfuscation, I thought it would be a good time to write notes regarding what I learned in this course with a fresh state of mind on the subject matter for future reference.
+Introduction There are close to 31 known code transformations." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://ulexec.github.io/post/2020-03-03-deobfuscation_1/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2020-03-03T00:00:00+00:00" />
+<meta property="article:modified_time" content="2020-03-03T00:00:00+00:00" />
+
+<meta itemprop="name" content="Tales Of Binary Deobfuscation">
+<meta itemprop="description" content="This article is going to serve as my personal reference on this topic. Since I&rsquo;ve always wanted to write about it and just finished Yuma Kurogome&rsquo;s course on Advance Binary Deobfuscation, I thought it would be a good time to write notes regarding what I learned in this course with a fresh state of mind on the subject matter for future reference.
+Introduction There are close to 31 known code transformations."><meta itemprop="datePublished" content="2020-03-03T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2020-03-03T00:00:00+00:00" />
+<meta itemprop="wordCount" content="5212">
+<meta itemprop="keywords" content="reversing,malware," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Tales Of Binary Deobfuscation"/>
+<meta name="twitter:description" content="This article is going to serve as my personal reference on this topic. Since I&rsquo;ve always wanted to write about it and just finished Yuma Kurogome&rsquo;s course on Advance Binary Deobfuscation, I thought it would be a good time to write notes regarding what I learned in this course with a fresh state of mind on the subject matter for future reference.
+Introduction There are close to 31 known code transformations."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">ulexec 의 연구</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">ulexec 의 연구</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Tales Of Binary Deobfuscation</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2020-03-03 </span>
+        <div class="post-category">
+            <a href="/categories/article/"> Article </a>
+            </div>
+          <span class="more-meta"> 5212 words </span>
+          <span class="more-meta"> 25 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#introduction">Introduction</a>
+          <ul>
+            <li><a href="#circumvention">Circumvention</a></li>
+          </ul>
+        </li>
+        <li><a href="#opaque-predicates">Opaque Predicates</a>
+          <ul>
+            <li><a href="#circumvention-1">Circumvention</a></li>
+          </ul>
+        </li>
+        <li><a href="#range-dividers">Range Dividers</a>
+          <ul>
+            <li><a href="#circumvention-2">Circumvention</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <p>This article is going to serve as my personal reference on this topic. Since I&rsquo;ve always wanted to write about it and just finished Yuma Kurogome&rsquo;s course on <a href="https://github.com/malrev/ABD">Advance Binary Deobfuscation</a>, I thought it would be a good time to write notes regarding what I learned in this course with a fresh state of mind on the subject matter for future reference.</p>
+<h2 id="introduction">Introduction</h2>
+<p>There are close to 31 known <a href="https://mediatum.ub.tum.de/doc/1367533/1367533.pdf">code transformations</a>. However, In this article we will focus on grouping these transformation in categories based on their behavior, and we will cover some of the most relevant techniques today on a conceptual point of view.
+We will be also covering practical approaches to the aforementioned techniques using the reverse engineering framework MIASM (0.1.3.dev39).</p>
+<p>Despite the large number of transformations, obfuscation techniques can be group up into 3 different categories:</p>
+<ul>
+<li>Confusion oriented:
+<ul>
+<li>Unreachable Code Insertion</li>
+<li>Dead Code Insertion</li>
+</ul>
+</li>
+<li>Syntax Modification
+<ul>
+<li>Instruction Substitution</li>
+<li>Constant Folding/Unfolding</li>
+</ul>
+</li>
+<li>Semantic Modification
+<ul>
+<li>Opaque Predicates</li>
+<li>Range Dividers</li>
+<li>Virtualization</li>
+<li>Control Flow Flattening</li>
+</ul>
+</li>
+</ul>
+<p>We will be discussing each of these techniques on a conceptual level, although we will be also covering practical examples.
+The purpose of this article is to crystallize concepts instead of being a strict technical reference, although further technical reading will be linked all throughout the article along with practical implementations on how to remediate some of these techniques.</p>
+<br/>
+## Unreachable/Dead Code, Constant Unfolding and Instruction Substitution
+<p>In this section we will be covering 3 different transformations which have a close correlation between one another, and consequently a similar approach for circumvention.</p>
+<ul>
+<li><strong>Unreachable Code</strong>: is defined as inserted code into a target application which is never going to be executed, serving the purpose of an unexpensive way of distracting the analyst for a few minutes.
+an example of Junk code is the following:</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-nasm" data-lang="nasm"><span class="line"><span class="cl"><span class="nf">jz</span> <span class="nv">loc_key1</span>      <span class="c1">; lets imagine this conditional branch is not really conditional</span>
+</span></span><span class="line"><span class="cl"><span class="nf">xor</span> <span class="nb">eax</span><span class="p">,</span> <span class="nb">eax</span>     <span class="c1">; * this will never execute</span>
+</span></span><span class="line"><span class="cl"><span class="nf">pushf</span> 	         <span class="c1">; *</span>
+</span></span><span class="line"><span class="cl"><span class="nf">pop</span> <span class="nb">ebx</span>          <span class="c1">; *</span>
+</span></span><span class="line"><span class="cl"><span class="nf">and</span> <span class="nb">ebx</span><span class="p">,</span> <span class="mh">0x100</span>   <span class="c1">; *</span>
+</span></span><span class="line"><span class="cl"><span class="nf">cmp</span> <span class="nb">ebx</span><span class="p">,</span> <span class="mh">0x100</span>   <span class="c1">; *</span>
+</span></span><span class="line"><span class="cl"><span class="nf">je</span> <span class="nv">loc_key2</span>      <span class="c1">; *</span>
+</span></span><span class="line"><span class="cl"><span class="nl">loc_key1:</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><br/>
+<ul>
+<li><strong>Dead Code</strong>: is defined as inserted code into a target application which, although it may be executed, it does not change the original control flow of the program.
+Again this technique&rsquo;s pupose is to just confuse the analyst to make him/her spend a bit more time understanding the purpose of the aforementioned instructions.
+The following is an example:</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-nasm" data-lang="nasm"><span class="line"><span class="cl"><span class="nf">mov</span> <span class="nb">edx</span><span class="p">,</span> <span class="mh">0xdeadc00d</span>  <span class="c1">; * this specific instruction is deadcode</span>
+</span></span><span class="line"><span class="cl"><span class="nf">mov</span> <span class="nb">eax</span><span class="p">,</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">+</span><span class="nv">arg_4</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="nf">mov</span> <span class="nb">ecx</span><span class="p">,</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">+</span><span class="nv">arg_0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="nf">mov</span> <span class="nb">edx</span><span class="p">,</span> <span class="mi">5</span>           <span class="c1">; * edx gets overriden here, also deadcode</span>
+</span></span><span class="line"><span class="cl"><span class="nf">mov</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">+</span><span class="nv">var_4</span><span class="p">],</span> <span class="nb">ecx</span>
+</span></span><span class="line"><span class="cl"><span class="nf">mov</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">+</span><span class="nv">var_8</span><span class="p">],</span> <span class="nb">eax</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><br/>
+<ul>
+<li><strong>Instruction Substitution</strong>: defined as to replace a given set of instructions with another more complex set of instructions with identical semantic meaning. This kind of techniques have been heavely employed by metamorphic code engines in the past and may highly affect the legibility of the affected code.
+Lets imagine that originally we have the following set of instructions:</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-nasm" data-lang="nasm"><span class="line"><span class="cl"><span class="nf">mov</span> <span class="nb">eax</span><span class="p">,</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">+</span><span class="nv">var_8</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="nf">add</span> <span class="nb">eax</span><span class="p">,</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">+</span><span class="nv">var_C</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="nf">add</span> <span class="nb">eax</span><span class="p">,</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">+</span><span class="nv">var_10</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="nf">add</span> <span class="nb">eax</span><span class="p">,</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">+</span><span class="nv">var_4</span><span class="p">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>This set of instruction can be transform to the following one, being much harder to interpret and understand having the same semantic meaning:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-nasm" data-lang="nasm"><span class="line"><span class="cl"><span class="nf">mov</span> <span class="nb">eax</span><span class="p">,</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">+</span><span class="nv">var_C</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="nf">mov</span> <span class="nb">edx</span><span class="p">,</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">+</span><span class="nv">var_10</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="nf">sub</span> <span class="nb">eax</span><span class="p">,</span> <span class="mh">2598A32Bh</span>
+</span></span><span class="line"><span class="cl"><span class="nf">add</span> <span class="nb">eax</span><span class="p">,</span> <span class="nb">edx</span>
+</span></span><span class="line"><span class="cl"><span class="nf">add</span> <span class="nb">eax</span><span class="p">,</span> <span class="mh">2598A32Bh</span>
+</span></span><span class="line"><span class="cl"><span class="nf">mov</span> <span class="nb">edx</span><span class="p">,</span> <span class="p">[</span><span class="nb">ebp</span><span class="o">+</span><span class="nv">var_4</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="nf">mov</span> <span class="nb">esi</span><span class="p">,</span> <span class="nb">ecx</span>
+</span></span><span class="line"><span class="cl"><span class="nf">sub</span> <span class="nb">esi</span><span class="p">,</span> <span class="nb">eax</span>
+</span></span><span class="line"><span class="cl"><span class="nf">mov</span> <span class="nb">eax</span><span class="p">,</span> <span class="nb">ecx</span>
+</span></span><span class="line"><span class="cl"><span class="nf">sub</span> <span class="nb">eax</span><span class="p">,</span> <span class="nb">edx</span>
+</span></span><span class="line"><span class="cl"><span class="nf">add</span> <span class="nb">esi</span><span class="p">,</span> <span class="nb">eax</span>
+</span></span><span class="line"><span class="cl"><span class="nf">mov</span> <span class="nb">eax</span><span class="p">,</span> <span class="nb">ecx</span>
+</span></span><span class="line"><span class="cl"><span class="nf">sub</span> <span class="nb">eax</span><span class="p">,</span> <span class="nb">esi</span>
+</span></span><span class="line"><span class="cl"><span class="nf">mov</span> <span class="nb">edx</span><span class="p">,[</span><span class="nb">ebp</span><span class="o">+</span><span class="nv">var_8</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="nf">sub</span> <span class="nb">ecx</span><span class="p">,</span> <span class="nb">edx</span>
+</span></span><span class="line"><span class="cl"><span class="nf">sub</span> <span class="nb">eax</span><span class="p">,</span> <span class="nb">ecx</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><br/>
+<h3 id="circumvention">Circumvention</h3>
+<p>In order to mitigate these transformations we can do a variety of techniques based on Data Flow Analysis. Before we introduce these techniques, is important to understand that in order to succesfully implement Data Flow Analysis strategies we have to rely on a Intermediate Representation of the subject code. Compilers also rely on IRs to apply their program synthesis and code optimitations capabilities. In other words, We can deobfuscate these transformations by using the same techniques used by compilers for
+their own optimization purposes.</p>
+<p>These techniques are the following:</p>
+<br/>
+<h4 id="reachable-definition-analysis">Reachable Definition Analysis</h4>
+<ul>
+<li>Forward dataflow analysis</li>
+<li>Analyze where the value of each variable was defined when a certain point in the program was reached</li>
+<li>Application:
+<ul>
+<li>Constant propagation/folding</li>
+<li>Transform expressions</li>
+</ul>
+</li>
+</ul>
+<p>An overview of how Reachability Analysis work can be shown in the following picture from Yuma&rsquo;s Course:
+<br/></p>
+<div style="text-align:center">
+<img src="/Reachability_Analysis.png"/>
+</div>
+<br/>
+The theoritical model to apply Reachability Analysis is the following"
+<br/>
+<div style="text-align:center">
+<img src="/RA_equ.png"/>
+</div>
+<br/>
+<h4 id="liveless-analysis">Liveless Analysis</h4>
+<ul>
+<li>Backward dataflow analysis</li>
+<li>Analyze whether the value x in the program point p may be used when following the edge starting from p in the flow graph with respect to x</li>
+<li>Application:
+<ul>
+<li>Dead code elimination</li>
+</ul>
+</li>
+</ul>
+<p>An overview of how Liveless Analysis work can be shown in the following picture from Yuma&rsquo;s Course:
+<br/></p>
+<div style="text-align:center">
+<img src="/Liveless_Analysis.png"/>
+</div>
+<br/>
+The theoritical model to apply Liveless Analysis is the following"
+<br/>
+<div style="text-align:center">
+<img src="/LA_equ.png"/>
+</div>
+<br/>
+<p>Both reachable definition analysis and liveness analysis are IR optimization techniques used by a compiler backend, and are also useful for binary analysis.</p>
+<br/>
+<h4 id="practical-example-deobfuscating-ollvms-instruction-substitution-pass">Practical Example. Deobfuscating OLLVM&rsquo;s Instruction Substitution Pass</h4>
+<p>For this example we will be using the given example compiled with o-llvm -sub flag to enable OLLVM&rsquo;s Intruction Substitution Pass.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">unsigned</span> <span class="kt">int</span> <span class="nf">target_function</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span><span class="p">,</span><span class="n">r</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">a</span> <span class="o">=</span> <span class="mi">12</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">b</span> <span class="o">=</span> <span class="mi">56</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">c</span> <span class="o">=</span> <span class="mi">127</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">r</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="o">+</span> <span class="n">c</span> <span class="o">+</span> <span class="n">n</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">r</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="nf">target_function</span><span class="p">(</span><span class="n">argc</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;n=%d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="n">n</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Both target_functions before and after obfuscation look like this:</p>
+<br/>
+<div style="text-align:center">
+<img src="/inst_sub_r2.png"/>
+</div>
+<br/>
+<p>Since we need a framework to lift the code to an IR to apply these types of optimization analyses, we can use MIASM&rsquo;s Data Flow Analysis modules to deobfuscate transformations such as instruction substitution, dead/junk code or constant unfolding.</p>
+<p>MIASM has a simple way of retrieving and lifting the subject function to MIASM IR:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Opening Target File and Storing it in a &#39;Container&#39; Object</span>
+</span></span><span class="line"><span class="cl"><span class="n">cont</span> <span class="o">=</span> <span class="n">Container</span><span class="o">.</span><span class="n">from_stream</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Instantiating disassembler</span>
+</span></span><span class="line"><span class="cl"><span class="n">machine</span> <span class="o">=</span> <span class="n">Machine</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">architecture</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">architecture</span> <span class="k">else</span> <span class="n">cont</span><span class="o">.</span><span class="n">arch</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">dis</span> <span class="o">=</span> <span class="n">machine</span><span class="o">.</span><span class="n">dis_engine</span><span class="p">(</span><span class="n">cont</span><span class="o">.</span><span class="n">bin_stream</span><span class="p">,</span> <span class="n">loc_db</span><span class="o">=</span><span class="n">cont</span><span class="o">.</span><span class="n">loc_db</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Disassembling and Extracting CFG</span>
+</span></span><span class="line"><span class="cl"><span class="n">asmcfg</span> <span class="o">=</span> <span class="n">dis</span><span class="o">.</span><span class="n">dis_multiblock</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">addr</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Extracting IR archive and IRCFG</span>
+</span></span><span class="line"><span class="cl"><span class="n">ir_arch</span> <span class="o">=</span> <span class="n">machine</span><span class="o">.</span><span class="n">ira</span><span class="p">(</span><span class="n">cont</span><span class="o">.</span><span class="n">loc_db</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">ircfg</span> <span class="o">=</span> <span class="n">ir_arch</span><span class="o">.</span><span class="n">new_ircfg_from_asmcfg</span><span class="p">(</span><span class="n">asmcfg</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Simplifying IR</span>
+</span></span><span class="line"><span class="cl"><span class="n">deadrm</span> <span class="o">=</span> <span class="n">DeadRemoval</span><span class="p">(</span><span class="n">ir_arch</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">entry_points</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">dis</span><span class="o">.</span><span class="n">loc_db</span><span class="o">.</span><span class="n">get_offset_location</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">addr</span><span class="p">)])</span>
+</span></span><span class="line"><span class="cl"><span class="n">init_infos</span> <span class="o">=</span> <span class="n">ir_arch</span><span class="o">.</span><span class="n">arch</span><span class="o">.</span><span class="n">regs</span><span class="o">.</span><span class="n">regs_init</span>
+</span></span><span class="line"><span class="cl"><span class="n">cst_propag_link</span> <span class="o">=</span> <span class="n">propagate_cst_expr</span><span class="p">(</span><span class="n">ir_arch</span><span class="p">,</span> <span class="n">ircfg</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">addr</span><span class="p">,</span> <span class="n">init_infos</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># deadrm(ircfg)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># remove_empty_assignblks(ircfg)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># This line simplifies the IR with the same features as above and more</span>
+</span></span><span class="line"><span class="cl"><span class="n">ircfg</span><span class="o">.</span><span class="n">simplify</span><span class="p">(</span><span class="n">expr_simp_high_to_explicit</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>At this point we will be able to optimise the given subject function and consequently mitigate the aforementioned obfuscation techniques. In order to show the result in a more readable format, it would be nice to transform the optimized IR function representation back to x86, the original architecture we compiled our test case.
+Unfortunatelly, MIASM&rsquo;s IR is not backwards compatible with x86, however MIASM provide capabilities to translate MIASM&rsquo;s IR to LLVM IR to then retrieve back the optimized subject function in its native representation.</p>
+<p>In order to do this we can do the following:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Instantiate an LLVM context and Function to fill</span>
+</span></span><span class="line"><span class="cl"><span class="n">context</span> <span class="o">=</span> <span class="n">LLVMContext_IRCompilation</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">context</span><span class="o">.</span><span class="n">ir_arch</span> <span class="o">=</span> <span class="n">ir_arch</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">func</span> <span class="o">=</span> <span class="n">LLVMFunction_IRCompilation</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&#34;test&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">func</span><span class="o">.</span><span class="n">ret_type</span> <span class="o">=</span> <span class="n">llvm_ir</span><span class="o">.</span><span class="n">VoidType</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">func</span><span class="o">.</span><span class="n">init_fc</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">...</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># IRCFG is imported, without the final &#34;ret void&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">func</span><span class="o">.</span><span class="n">from_ircfg</span><span class="p">(</span><span class="n">ircfg</span><span class="p">,</span> <span class="n">append_ret</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Finish the function</span>
+</span></span><span class="line"><span class="cl"><span class="n">func</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">ret_void</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Parsing LLVM IR</span>
+</span></span><span class="line"><span class="cl"><span class="n">M</span> <span class="o">=</span> <span class="n">llvm</span><span class="o">.</span><span class="n">parse_assembly</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">func</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">M</span><span class="o">.</span><span class="n">verify</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Initialising Native Exporter</span>
+</span></span><span class="line"><span class="cl"><span class="n">llvm</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">llvm</span><span class="o">.</span><span class="n">initialize_native_target</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">llvm</span><span class="o">.</span><span class="n">initialize_native_asmprinter</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Optimisation to clean value computation</span>
+</span></span><span class="line"><span class="cl"><span class="n">pmb</span> <span class="o">=</span> <span class="n">llvm</span><span class="o">.</span><span class="n">create_pass_manager_builder</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">pmb</span><span class="o">.</span><span class="n">opt_level</span> <span class="o">=</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl"><span class="n">pm</span> <span class="o">=</span> <span class="n">llvm</span><span class="o">.</span><span class="n">create_module_pass_manager</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">pmb</span><span class="o">.</span><span class="n">populate</span><span class="p">(</span><span class="n">pm</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">pm</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Generate Binary output</span>
+</span></span><span class="line"><span class="cl"><span class="n">target</span> <span class="o">=</span> <span class="n">llvm</span><span class="o">.</span><span class="n">Target</span><span class="o">.</span><span class="n">from_default_triple</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">target</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">from_triple</span><span class="p">(</span><span class="s1">&#39;i386-pc-linux-gnu&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">target_machine</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">create_target_machine</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">obj_bin</span> <span class="o">=</span> <span class="n">target_machine</span><span class="o">.</span><span class="n">emit_object</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">obj</span> <span class="o">=</span> <span class="n">llvm</span><span class="o">.</span><span class="n">ObjectFileRef</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">obj_bin</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">open</span><span class="p">(</span><span class="s2">&#34;./</span><span class="si">%s</span><span class="s2">-</span><span class="si">%s</span><span class="s2">.o&#34;</span> <span class="o">%</span> <span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="nb">hex</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">addr</span><span class="p">,</span> <span class="mi">0</span><span class="p">))),</span> <span class="s2">&#34;wb&#34;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">obj_bin</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The full script can be downloaded <a href="https://github.com/ulexec/ulexec.github.io/raw/master/files/optimize.py">here</a></p>
+<p>After running the previous script, we will see it will generate an ET_REL type ELF file containing the native version of our deobfuscated function by optimization.
+The following is the result of this:</p>
+<br/>
+<div style="text-align:center">
+<img src="/deobfuscated_func.png"/>
+</div>
+<br/>
+<p>As we can see in the previous screenshot, there is some dead code resident in the optimized function. This dead code represents the local variables used in the obfuscated (and original) version of the function.</p>
+<p>Data Flow Analysis and optimizations are restricted to memory writes along with other constraints such as variables involved in conditional jumps.
+Despite this, we can clearly see that Data Flow Analysis can be very effective for instruction subtitution deobfuscation giving us a simplified version of what the function may have looked like after and even before obfuscation.</p>
+<p>As we mentioned there are some additional contraints while removing some of the dead code after simplification, such as memory writes or variables needed for conditional branches. In regards to conditional branches, in the next section we will cover the concept of opaque predicates and what we can do to indentify and mitigate them.</p>
+<br/>
+<h2 id="opaque-predicates">Opaque Predicates</h2>
+<p>Opaque predicates in a nutshell is a commonly used technique in code obfuscation intended to add complexity to control flow usually implemented as conditional branches although these conditional branches have a deterministic control flow.</p>
+<p>A simple example of what opaque predicates are can be shown in the following C code:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span> <span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="n">argv</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">a</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">4</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span><span class="p">(</span><span class="n">a</span> <span class="o">==</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span>        <span class="c1">// opaque predicate
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="nf">puts</span><span class="p">(</span><span class="s">&#34;This is never going to execute&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">puts</span><span class="p">(</span><span class="s">&#34;predifined control flow&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>		
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The previous C snippet is an over-simplified opaque predicate example, however its important to illustrate the concept we are trying to tackle. As we can see in the  example, a and b local variables are never going to satisfy the equality condition of the if statement since the values of a and b are not dependant on function&rsquo;s input, therefore the condition itself is not prone to change.</p>
+<p>This same concept can be extrapolated to more complex equalities/conditions usually appearing in high volume on a subject obfuscated application.
+Depending on the implementation sophistication of this technique, control flow clarity can be highly affected and therefore the interpretation and time of analysis of a subject application.</p>
+<br/>
+<h3 id="circumvention-1">Circumvention</h3>
+<p>One approach to identify opaque predicates is to use Symbolic Execution along with an SMT solver in order to check feasibility on conditional branches.</p>
+<p>How it works:</p>
+<ul>
+<li>Execute a program sequentially while treating input values as symbols that represent all possible values.</li>
+<li>Add constraints on symbols.
+<ul>
+<li>Path Constraint: Constraints to execute a path.</li>
+<li>Symbolic Store: Updated symbol information.</li>
+</ul>
+</li>
+<li>When the target address of the conditional jump is reached, solve the constraints with a SMT solver and get a concrete input value.
+<ul>
+<li>Need to convert IR to SMT solver-acceptable expressions.</li>
+</ul>
+</li>
+</ul>
+<p>Opaque predicates have a deterministic feasibility regardless of input values.
+Therefore, we can invoke a SMT solver at every conditional branch and verify whether there is an input value that evaluates the condition to a True or False result.
+If a subject conditional branch is not dependant on a input value the branch should be an opaque predicate.
+We can apply the technique discussed above and attempt to detect opaque predicates via Symbolic Execution + SMT solver.</p>
+<br/>
+<h4 id="practical-example-deobfuscating-x-tunnel-opaque-predicates">Practical Example. Deobfuscating X-Tunnel Opaque Predicates</h4>
+<p>The binary file we are going to use for this example is the following:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">X</span><span class="o">-</span><span class="nl">Tunnel</span><span class="p">:</span> <span class="n">a979c5094f75548043a22b174aa10e1f2025371bd9e1249679f052b168e194b3</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The first thing we have to do is to write a path exploration function based on Symbolic Execution.
+We can do this with MIASM as follows:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">explore</span><span class="p">(</span><span class="n">ir</span><span class="p">,</span> <span class="n">start_addr</span><span class="p">,</span> <span class="n">start_symbols</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ircfg</span><span class="p">,</span> <span class="n">cond_limit</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">uncond_limit</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">lbl_stop</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">final_states</span><span class="o">=</span><span class="p">[]):</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="nf">codepath_walk</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">symbols</span><span class="p">,</span> <span class="n">conds</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">final_states</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="o">...</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># Instantiate MIASM Symbolic Execution Engine</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sb</span> <span class="o">=</span> <span class="n">SymbolicExecutionEngine</span><span class="p">(</span><span class="n">ir</span><span class="p">,</span> <span class="n">symbols</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">uncond_limit</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">addr</span><span class="p">,</span> <span class="n">ExprInt</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">                <span class="c1"># recursion delimiter</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="n">addr</span><span class="o">.</span><span class="n">_get_int</span><span class="p">()</span> <span class="o">==</span> <span class="n">lbl_stop</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">final_states</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">FinalState</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">sb</span><span class="p">,</span> <span class="n">conds</span><span class="p">,</span> <span class="n">path</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">return</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="c1"># Append all executed Paths</span>
+</span></span><span class="line"><span class="cl">            <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="c1"># Run Symbolic Engine at block</span>
+</span></span><span class="line"><span class="cl">            <span class="n">pc</span> <span class="o">=</span> <span class="n">sb</span><span class="o">.</span><span class="n">run_block_at</span><span class="p">(</span><span class="n">ircfg</span><span class="p">,</span> <span class="n">addr</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="c1"># if IR expression is a condition</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pc</span><span class="p">,</span> <span class="n">ExprCond</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                <span class="c1"># Create conditions that satisfy true or false paths</span>
+</span></span><span class="line"><span class="cl">                <span class="n">cond_true</span>  <span class="o">=</span> <span class="p">{</span><span class="n">pc</span><span class="o">.</span><span class="n">cond</span><span class="p">:</span> <span class="n">ExprInt</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">32</span><span class="p">)}</span>
+</span></span><span class="line"><span class="cl">                <span class="n">cond_false</span> <span class="o">=</span> <span class="p">{</span><span class="n">pc</span><span class="o">.</span><span class="n">cond</span><span class="p">:</span> <span class="n">ExprInt</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">32</span><span class="p">)}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                <span class="c1"># Compute the destination addr of the true or false paths</span>
+</span></span><span class="line"><span class="cl">                <span class="n">addr_true</span>  <span class="o">=</span> <span class="n">expr_simp</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">sb</span><span class="o">.</span><span class="n">eval_expr</span><span class="p">(</span><span class="n">pc</span><span class="o">.</span><span class="n">replace_expr</span><span class="p">(</span><span class="n">cond_true</span><span class="p">),</span> <span class="p">{}))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                <span class="n">addr_false</span> <span class="o">=</span> <span class="n">expr_simp</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">sb</span><span class="o">.</span><span class="n">eval_expr</span><span class="p">(</span><span class="n">pc</span><span class="o">.</span><span class="n">replace_expr</span><span class="p">(</span><span class="n">cond_false</span><span class="p">),</span> <span class="p">{}))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                <span class="c1"># Adding previous conditions of previous</span>
+</span></span><span class="line"><span class="cl">                <span class="c1"># blocks in path to satisfy reachability of current block</span>
+</span></span><span class="line"><span class="cl">                <span class="n">conds_true</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">conds</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">cond_true</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">                <span class="n">conds_false</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">conds</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">cond_false</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                <span class="c1"># Check feasibility of True condition on conditional branch</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="n">check_path_feasibility</span><span class="p">(</span><span class="n">conds_true</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">                    <span class="c1"># If True path is feasible, continue with Symbolic Execution</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">codepath_walk</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">                        <span class="n">addr_true</span><span class="p">,</span> <span class="n">sb</span><span class="o">.</span><span class="n">symbols</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+</span></span><span class="line"><span class="cl">                        <span class="n">conds_true</span><span class="p">,</span> <span class="n">depth</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">final_states</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">                <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                    <span class="c1"># If not, store the current block and stop recursion</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">final_states</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">FinalState</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">sb</span><span class="p">,</span> <span class="n">conds_true</span><span class="p">,</span> <span class="n">path</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="n">check_path_feasibility</span><span class="p">(</span><span class="n">conds_false</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">                    <span class="c1"># If False path is feasible, continue with Symbolic Execution</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">codepath_walk</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">                        <span class="n">addr_false</span><span class="p">,</span> <span class="n">sb</span><span class="o">.</span><span class="n">symbols</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+</span></span><span class="line"><span class="cl">                        <span class="n">conds_false</span><span class="p">,</span> <span class="n">depth</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">final_states</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">                <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                    <span class="c1"># If not, store the current block and stop recursion</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">final_states</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">FinalState</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">sb</span><span class="p">,</span> <span class="n">conds_false</span><span class="p">,</span> <span class="n">path</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                <span class="k">return</span>
+</span></span><span class="line"><span class="cl">            <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="c1"># If current IR expression is not a Condition,</span>
+</span></span><span class="line"><span class="cl">                <span class="c1"># simplify block expresion</span>
+</span></span><span class="line"><span class="cl">                <span class="n">addr</span> <span class="o">=</span> <span class="n">expr_simp</span><span class="p">(</span><span class="n">sb</span><span class="o">.</span><span class="n">eval_expr</span><span class="p">(</span><span class="n">pc</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># Append Final state</span>
+</span></span><span class="line"><span class="cl">        <span class="n">final_states</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">FinalState</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">sb</span><span class="p">,</span> <span class="n">conds</span><span class="p">,</span> <span class="n">path</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Start by walking function from its start address</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">codepath_walk</span><span class="p">(</span><span class="n">start_addr</span><span class="p">,</span> <span class="n">start_symbols</span><span class="p">,</span> <span class="p">[],</span> <span class="mi">0</span><span class="p">,</span> <span class="n">final_states</span><span class="p">,</span> <span class="p">[])</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>As seen in the previous snippet, the overall steps of our path exploration algorithm are the following:</p>
+<ul>
+<li>Symbolically Execute every block in current function until it finds a conditional IR expression (which would be the same as a conditional instruction in its native representation).</li>
+<li>Once this conditional expression is reached, we then evaluate both the branch destination address if the condition would be satisfied and if it wouldn&rsquo;t accordingly.</li>
+<li>When we have identified the two different branch addresses, then we compute the feasibility of each subject branch (which includes all previous conditions to reach to the designated destination address) and if its feasible we continue symbolically executing the branch. If not we mark that current path as finished and we store it.</li>
+</ul>
+<p>The feasibility of the branch condition can be done via MIASM&rsquo;s z3 SMT Solver Translator:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">check_path_feasibility</span><span class="p">(</span><span class="n">conds</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">solver</span> <span class="o">=</span> <span class="n">z3</span><span class="o">.</span><span class="n">Solver</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">lval</span><span class="p">,</span> <span class="n">rval</span> <span class="ow">in</span> <span class="n">conds</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">z3_cond</span> <span class="o">=</span> <span class="n">Translator</span><span class="o">.</span><span class="n">to_language</span><span class="p">(</span><span class="s2">&#34;z3&#34;</span><span class="p">)</span><span class="o">.</span><span class="n">from_expr</span><span class="p">(</span><span class="n">lval</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">solver</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">z3_cond</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">rval</span><span class="o">.</span><span class="n">arg</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">rslt</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">rslt</span> <span class="o">==</span> <span class="n">z3</span><span class="o">.</span><span class="n">sat</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">True</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">False</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>After Symbolic Execution of our target function is done, we will have an array of all of the stored final states of each path in the function.
+These final states will contained every executed block.
+In order to identify blocks which have not been executed, we do the following:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">...</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># The IR nodes in final_states array are the path nodes that were executed.</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># We collect the &#39;lock_key&#39; or block labels of each of the nodes executed</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">final_state</span> <span class="ow">in</span> <span class="n">final_states</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">final_state</span><span class="o">.</span><span class="n">result</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">final_state</span><span class="o">.</span><span class="n">path_history</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">                <span class="n">lbl</span> <span class="o">=</span> <span class="n">ircfg</span><span class="o">.</span><span class="n">get_loc_key</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ExprInt</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">                <span class="n">lbl</span> <span class="o">=</span> <span class="n">ircfg</span><span class="o">.</span><span class="n">get_loc_key</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">_get_int</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">LocKey</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">                <span class="n">lbl</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">loc_key</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="n">lbl</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">executed_lockey</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="n">executed_lockey</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lbl</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># We then collect the non-executed blocks by comparing the executed ones</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># with the totality of the blocks in the IRCFG</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">lbl</span><span class="p">,</span> <span class="n">irblock</span> <span class="ow">in</span> <span class="n">viewitems</span><span class="p">(</span><span class="n">ircfg</span><span class="o">.</span><span class="n">blocks</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">lbl</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">executed_lockey</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">unexecuted_lockey</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lbl</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">...</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Once we have the locations of the blocks that haven&rsquo;t been executed, we can do a variety of things.
+We could simply mark the non-executed blocks in order to inspect the target function for further analysis.
+Yuma Kurogome shows how to do this in his course by dynamically creating an IDC script based on the context retrieved in previous stages:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">to_idc</span><span class="p">(</span><span class="n">lockeys</span><span class="p">,</span> <span class="n">asmcfg</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">header</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s1">#include &lt;idc.idc&gt;
+</span></span></span><span class="line"><span class="cl"><span class="s1">static main(){
+</span></span></span><span class="line"><span class="cl"><span class="s1">&#39;&#39;&#39;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">footer</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s1">}
+</span></span></span><span class="line"><span class="cl"><span class="s1">&#39;&#39;&#39;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">body</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;op-color.idc&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">lbl</span> <span class="ow">in</span> <span class="n">lockeys</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">asmblk</span> <span class="o">=</span> <span class="n">asmcfg</span><span class="o">.</span><span class="n">loc_key_to_block</span><span class="p">(</span><span class="n">lbl</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">asmblk</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">asmblk</span><span class="o">.</span><span class="n">lines</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="nb">print</span><span class="p">(</span><span class="nb">hex</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">offset</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">                <span class="n">body</span> <span class="o">+=</span> <span class="s1">&#39;SetColor(0x</span><span class="si">%08x</span><span class="s1">, CIC_ITEM, 0xc7c7ff);</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">offset</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">header</span><span class="o">+</span><span class="n">body</span><span class="o">+</span><span class="n">footer</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>After applying this we can obtain the following results (function at 0x40A6A0):</p>
+<br/>
+<div style="text-align:center">
+<img src="/x-tunnel_ops_detect.png"/>
+</div>
+<br/>
+<p>This can help us to figure out the logic of the implementation of the subject opaque predicates. Once this is clear, we can then write a solution to patch the binary to obtain a more clear view of the function&rsquo;s control flow to apply further analysis to it such as optimizations or data flow analysis after opaque predicates are removed.
+I decided to write a solution to remove X-Tunnel&rsquo;s opaque predicates by using radare2 via its r2pipe Python binding:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">remove_xtunnel_op</span><span class="p">(</span><span class="n">lockeys</span><span class="p">,</span> <span class="n">asmcfg</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Opening File in r2</span>
+</span></span><span class="line"><span class="cl">    <span class="n">r2</span> <span class="o">=</span> <span class="n">r2pipe</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&#34;./x-tunnel.bin&#34;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&#34;-w&#34;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># applying reference analysis</span>
+</span></span><span class="line"><span class="cl">    <span class="n">r2</span><span class="o">.</span><span class="n">cmd</span><span class="p">(</span><span class="s2">&#34;aar&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># iterating for each block label</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">lbl</span> <span class="ow">in</span> <span class="n">lockeys</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># retrieving block from label</span>
+</span></span><span class="line"><span class="cl">        <span class="n">asmblk</span> <span class="o">=</span> <span class="n">asmcfg</span><span class="o">.</span><span class="n">loc_key_to_block</span><span class="p">(</span><span class="n">lbl</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">asmblk</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">asmblk</span><span class="o">.</span><span class="n">lines</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="c1"># seeking to address of instruction</span>
+</span></span><span class="line"><span class="cl">                <span class="n">r2</span><span class="o">.</span><span class="n">cmd</span><span class="p">(</span><span class="s2">&#34;s </span><span class="si">%s</span><span class="s2">&#34;</span> <span class="o">%</span> <span class="nb">hex</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">offset</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                <span class="c1"># checking if there is any xrefs to</span>
+</span></span><span class="line"><span class="cl">                <span class="c1"># current instruction</span>
+</span></span><span class="line"><span class="cl">                <span class="n">xref</span> <span class="o">=</span> <span class="n">r2</span><span class="o">.</span><span class="n">cmdj</span><span class="p">(</span><span class="s2">&#34;axtj&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span>  <span class="n">xref</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                    <span class="c1"># retrieving the reference source address</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">xref_from</span> <span class="o">=</span> <span class="n">xref</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;from&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                    <span class="c1"># retrieving the opcode</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">opcode</span> <span class="o">=</span> <span class="n">xref</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;opcode&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                    <span class="c1"># seeking to reference source address</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">r2</span><span class="o">.</span><span class="n">cmd</span><span class="p">(</span><span class="s2">&#34;s </span><span class="si">%s</span><span class="s2">&#34;</span> <span class="o">%</span> <span class="nb">hex</span><span class="p">(</span><span class="n">xref_from</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                    <span class="c1"># changing opcode for nop if its a je or a non</span>
+</span></span><span class="line"><span class="cl">                    <span class="c1"># conditional jump if its any other branch instruction</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">r2</span><span class="o">.</span><span class="n">cmd</span><span class="p">(</span><span class="s2">&#34;wao </span><span class="si">%s</span><span class="s2">&#34;</span> <span class="o">%</span> <span class="p">(</span><span class="s2">&#34;nop&#34;</span> <span class="k">if</span> <span class="s1">&#39;je&#39;</span> <span class="ow">in</span> <span class="n">opcode</span> <span class="k">else</span> <span class="s2">&#34;nocj&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                <span class="c1"># seek back to original block instrution</span>
+</span></span><span class="line"><span class="cl">                <span class="n">r2</span><span class="o">.</span><span class="n">cmd</span><span class="p">(</span><span class="s2">&#34;s </span><span class="si">%s</span><span class="s2">&#34;</span> <span class="o">%</span> <span class="nb">hex</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">offset</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                <span class="c1"># patching instruction with a nop</span>
+</span></span><span class="line"><span class="cl">                <span class="n">r2</span><span class="o">.</span><span class="n">cmd</span><span class="p">(</span><span class="s2">&#34;wao nop&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                <span class="c1"># seeking to previous instruction</span>
+</span></span><span class="line"><span class="cl">                <span class="n">r2</span><span class="o">.</span><span class="n">cmd</span><span class="p">(</span><span class="s2">&#34;so -1&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                <span class="c1"># retrieving its opcode</span>
+</span></span><span class="line"><span class="cl">                <span class="n">opcode</span> <span class="o">=</span> <span class="n">r2</span><span class="o">.</span><span class="n">cmdj</span><span class="p">(</span><span class="s2">&#34;pdj 1&#34;</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;opcode&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                <span class="c1"># if its a jne, change it to its</span>
+</span></span><span class="line"><span class="cl">                <span class="c1"># non-conditional form</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="s1">&#39;jne&#39;</span> <span class="ow">in</span> <span class="n">opcode</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">r2</span><span class="o">.</span><span class="n">cmd</span><span class="p">(</span><span class="s2">&#34;wao nocj&#34;</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The full script can be downloaded <a href="https://github.com/ulexec/ulexec.github.io/raw/master/files/remove_xtunnel_ops.py">here</a></p>
+<p>After applying this script we can obtain results as follows (function at 0x40A6A0):</p>
+<br/>
+<div style="text-align:center">
+<img src="/x-tunnel_ops.png"/>
+</div>
+<br/>
+<p>This approach can work for deterministic opaque perdicates although it has the following limitations:</p>
+<ul>
+<li>Path exploration algorithm can be very slow.</li>
+<li>SMT solver may have difficulties to solve specific contraints such as cryptographic schemes or hashing algorithms.</li>
+<li>Possibility of Path Explosion if input-dependant loops or recursion are found among other <a href="https://arxiv.org/pdf/1908.01549.pdf">techniques</a>.</li>
+</ul>
+<p>There are known attacks against Symbolic Execution Analysis:</p>
+<ul>
+<li>Input Dependant loops.</li>
+<li>Range Dividers.</li>
+</ul>
+<p>Another approach to detect opaque predicates: Abstract Interpretation (TODO. Some nice <a href="https://www.msreverseengineering.com/blog/2018/2/26/concrete-and-abstract-interpretation-explained-through-chess">reference</a> by Rolf Rolles)</p>
+<p>In the following section we will cover an approach to detect Range Dividers and how we can circumvent them.</p>
+<br/>
+<h2 id="range-dividers">Range Dividers</h2>
+<p><a href="https://www.researchgate.net/publication/311491954_Code_obfuscation_against_symbolic_execution_attacks">Range dividers</a> are branch conditions that can be inserted at an arbitrary position inside a basic block, such that they divide the input range into multiple sets.</p>
+<p>A simple example to illustrate this technique can be shown below:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">unsigned</span> <span class="kt">char</span> <span class="o">*</span><span class="n">str</span> <span class="o">=</span> <span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">hash</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span> <span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nf">strlen</span><span class="p">(</span><span class="n">str</span><span class="p">);</span> <span class="n">str</span><span class="o">++</span> <span class="p">,</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">char</span> <span class="n">chr</span> <span class="o">=</span> <span class="o">*</span><span class="n">str</span> <span class="o">-</span> <span class="mh">0x20</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">switch</span> <span class="p">(</span><span class="n">chr</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">case</span> <span class="mi">1</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">                <span class="n">hash</span> <span class="o">=</span> <span class="p">(</span><span class="n">hash</span> <span class="o">&lt;&lt;</span> <span class="mi">7</span><span class="p">)</span> <span class="o">^</span> <span class="n">chr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">                <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="k">case</span> <span class="mi">2</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">                <span class="n">hash</span> <span class="o">=</span> <span class="p">(</span><span class="n">hash</span> <span class="o">*</span> <span class="mi">128</span><span class="p">)</span> <span class="o">^</span> <span class="n">chr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">                <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="k">case</span> <span class="mi">3</span><span class="o">:</span>     <span class="c1">// obfuscated version of case 1
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="p">...</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="k">default</span><span class="o">:</span>    <span class="c1">// obfuscated version of case 1
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>                <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="p">...</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>In contrast to opaque predicates, range divider predicates may have multiple branches, any of which could be true and false depending on program input. This will cause symbolic execution engines to explore all branches of a range divider.</p>
+<ul>
+<li>Branch execution is dependant on an input value</li>
+<li>All predicate branches have the same semantic meaning</li>
+<li>Robust against Symbolic Execution/Abstract Interpretation</li>
+<li>Almost like a n-way Opaque Predicate</li>
+</ul>
+<p>The eﬀectiveness of a range divider predicate against symbolic execution depends on:</p>
+<ul>
+<li>Number of branches of the predicate</li>
+<li>The number of times the predicate is executed</li>
+</ul>
+<br/>
+<h3 id="circumvention-2">Circumvention</h3>
+<p>An approach to identify Range Dividers is by Semtantic Equivalence Checking.
+Semantic Equivalence is an apporach to identify if two given sets of instructions have the same behavior based on the following premise:</p>
+<ul>
+<li>Same Code: Syntactically Equivalent</li>
+<li>Same Behavior: Semantically Equivalent</li>
+</ul>
+<p>How it works:</p>
+<ul>
+<li>Perform Symbolic Execution per basic block on a given function.</li>
+<li>Check for basic blocks semantic and syntactic equivalence within a given function.</li>
+<li>Can be also seen as Semantic basic block diffing</li>
+</ul>
+<br/>
+<h4 id="practical-example-deobfuscating-asprox-range-dividers">Practical Example. Deobfuscating Asprox Range Dividers</h4>
+<p>The binary file we are going to use for this example is the following:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="nl">Asprox</span><span class="p">:</span> <span class="n">c56792bea8ac5fbf893ae3df1be0c3c878a615db6b24fd5253e5cbbc2e3e1dd3</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The first thing we have to do is to retrieve all blocks from the subject obfuscated function.
+Then we should compare for syntactic and semantic equivalence every block in the funtion with one another.
+We can do this as follows:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="o">...</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># enumerate all blogs in target function</span>
+</span></span><span class="line"><span class="cl">    <span class="n">target_blocks</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">cn</span><span class="p">,</span> <span class="n">block</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">asmcfg</span><span class="o">.</span><span class="n">blocks</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="n">target_blocks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">block</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># iterate over all blocks to select src block</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">src_blk</span> <span class="ow">in</span> <span class="n">target_blocks</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># retrieve src block label from src block</span>
+</span></span><span class="line"><span class="cl">        <span class="n">src_ldl</span> <span class="o">=</span> <span class="n">src_blk</span><span class="o">.</span><span class="n">_loc_key</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># Skip a basic blocks containing only single instruction</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">src_blk</span><span class="o">.</span><span class="n">lines</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">src_blk</span><span class="o">.</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dstflow</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">            <span class="k">continue</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># iterate through all blocks again</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># to select dst block</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">dst_blk</span> <span class="ow">in</span> <span class="n">target_blocks</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># retrieve dst block label from dst block</span>
+</span></span><span class="line"><span class="cl">            <span class="n">dst_ldl</span> <span class="o">=</span> <span class="n">dst_blk</span><span class="o">.</span><span class="n">_loc_key</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="c1"># Skip a basic block containing only single instruction</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dst_blk</span><span class="o">.</span><span class="n">lines</span><span class="p">)</span> <span class="o">&lt;</span> <span class="o">==</span>  <span class="ow">and</span> <span class="n">dst_blk</span><span class="o">.</span><span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dstflow</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">                <span class="k">continue</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="c1"># Skip if src and dst block are the same block</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="n">src_ldl</span> <span class="o">==</span> <span class="n">dst_ldl</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="k">continue</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="c1"># Skip if src and dst blocks have already been matched</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">(</span><span class="n">src_ldl</span><span class="p">,</span> <span class="n">dst_ldl</span><span class="p">)</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">or</span> \
+</span></span><span class="line"><span class="cl">                    <span class="p">(</span><span class="n">dst_ldl</span><span class="p">,</span> <span class="n">src_ldl</span><span class="p">)</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">                <span class="k">continue</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="c1"># Check for syntax equivalence</span>
+</span></span><span class="line"><span class="cl">            <span class="n">r_syntax</span> <span class="o">=</span> <span class="n">syntax_compare</span><span class="p">(</span><span class="n">src_blk</span><span class="p">,</span> <span class="n">dst_blk</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="n">r_syntax</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="c1"># If the syntax of two blocks is same, then the semantics of them is also same.</span>
+</span></span><span class="line"><span class="cl">                <span class="n">r_semantic</span> <span class="o">=</span> <span class="kc">True</span>
+</span></span><span class="line"><span class="cl">            <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="c1"># Check for semantic equivalence</span>
+</span></span><span class="line"><span class="cl">                <span class="n">r_semantic</span> <span class="o">=</span> <span class="n">semantic_compare</span><span class="p">(</span><span class="n">src_blk</span><span class="p">,</span> <span class="n">dst_blk</span><span class="p">,</span> <span class="n">ir_arch0</span><span class="p">,</span> <span class="n">ir_arch1</span><span class="p">,</span> <span class="n">asmcfg</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="c1"># save results of syntax and semantic checks</span>
+</span></span><span class="line"><span class="cl">            <span class="n">results</span><span class="p">[(</span><span class="n">src_ldl</span><span class="p">,</span> <span class="n">dst_ldl</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[(</span><span class="n">r_syntax</span><span class="p">,</span> <span class="n">r_semantic</span><span class="p">)]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">            <span class="o">...</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Syntactic equivalence is fairly straight forward, for this we don&rsquo;t even need to lift the subject block into IR.
+This is how it can be implemented:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">syntax_compare</span><span class="p">(</span><span class="n">blk0</span><span class="p">,</span> <span class="n">blk1</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># if blocks do not contain the same</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># number of instructions return</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">blk0</span><span class="o">.</span><span class="n">lines</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">blk1</span><span class="o">.</span><span class="n">lines</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">False</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># iterate through all instructions in blocks</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">l0</span><span class="p">,</span> <span class="n">l1</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">blk0</span><span class="o">.</span><span class="n">lines</span><span class="p">,</span> <span class="n">blk1</span><span class="o">.</span><span class="n">lines</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># if intruction is a branch</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">l0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;J&#39;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># retrieve instruction opcode</span>
+</span></span><span class="line"><span class="cl">            <span class="n">instr0</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">l0</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">            <span class="n">instr1</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">l1</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="n">instr0</span> <span class="o">!=</span> <span class="n">instr1</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="kc">False</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># any other instruction</span>
+</span></span><span class="line"><span class="cl">        <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">l0</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">str</span><span class="p">(</span><span class="n">l1</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span> <span class="kc">False</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="kc">True</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>On the other hand, for Semantic equivalence its slightly more complicated:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">semantic_compare</span><span class="p">(</span><span class="n">blk0</span><span class="p">,</span> <span class="n">blk1</span><span class="p">,</span> <span class="n">ir_arch0</span><span class="p">,</span> <span class="n">ir_arch1</span><span class="p">,</span> <span class="n">asmcfg</span><span class="p">,</span> <span class="n">flag_cmp</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># create empty IR CFG for src block</span>
+</span></span><span class="line"><span class="cl">    <span class="n">src_ircfg</span> <span class="o">=</span> <span class="n">IRCFG</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">ir_arch0</span><span class="o">.</span><span class="n">loc_db</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">try</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># add src block to empty IR CFG</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ir_arch0</span><span class="o">.</span><span class="n">add_asmblock_to_ircfg</span><span class="p">(</span><span class="n">blk0</span><span class="p">,</span> <span class="n">src_ircfg</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">False</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># create empty IR CFG for dst block</span>
+</span></span><span class="line"><span class="cl">    <span class="n">dst_ircfg</span> <span class="o">=</span> <span class="n">IRCFG</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">ir_arch1</span><span class="o">.</span><span class="n">loc_db</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">try</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># add dst block to empty IR CFG</span>
+</span></span><span class="line"><span class="cl">        <span class="n">ir_arch1</span><span class="o">.</span><span class="n">add_asmblock_to_ircfg</span><span class="p">(</span><span class="n">blk1</span><span class="p">,</span> <span class="n">dst_ircfg</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">False</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Check if blocks were added to their IRCFG correctly</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">src_ircfg</span><span class="o">.</span><span class="n">blocks</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dst_ircfg</span><span class="o">.</span><span class="n">blocks</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="kc">False</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">src_lbl</span><span class="p">,</span> <span class="n">dst_lbl</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">src_ircfg</span><span class="o">.</span><span class="n">blocks</span><span class="p">,</span> <span class="n">dst_ircfg</span><span class="o">.</span><span class="n">blocks</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># retrieve both src and dst blocks from their labels</span>
+</span></span><span class="line"><span class="cl">        <span class="n">src_irb</span> <span class="o">=</span> <span class="n">src_ircfg</span><span class="o">.</span><span class="n">blocks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">src_lbl</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">dst_irb</span> <span class="o">=</span> <span class="n">dst_ircfg</span><span class="o">.</span><span class="n">blocks</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">dst_lbl</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># symbolically execute them to evaluate</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># semantic equivalence</span>
+</span></span><span class="line"><span class="cl">        <span class="n">r</span> <span class="o">=</span> <span class="n">execute_symbolic_execution</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">                            <span class="n">src_irb</span><span class="p">,</span> <span class="n">dst_irb</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                            <span class="n">ir_arch0</span><span class="p">,</span> <span class="n">ir_arch1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                            <span class="n">src_ircfg</span><span class="p">,</span> <span class="n">dst_ircfg</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                            <span class="n">flag_cmp</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">r</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="kc">False</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="kc">True</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>We lift both of the ASMBlock into IR ones (IRBlock of AssignBlocks) and then we symbolically execute them.
+In order to sucessfully symbolically execute both of them, some default setup for each IR block has to be done:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="o">...</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Initialize symbol context with register context</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">all_regs_ids</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="n">src_symbols</span><span class="p">[</span><span class="n">r</span><span class="p">]</span> <span class="o">=</span> <span class="n">all_regs_ids_init</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="n">dst_symbols</span><span class="p">[</span><span class="n">r</span><span class="p">]</span> <span class="o">=</span> <span class="n">all_regs_ids_init</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Instantiate Symbolic Execution Engine for src block</span>
+</span></span><span class="line"><span class="cl">    <span class="n">src_sb</span> <span class="o">=</span> <span class="n">SymbolicExecutionEngine</span><span class="p">(</span><span class="n">ir_arch0</span><span class="p">,</span> <span class="n">src_symbols</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># for each IR instruction in src block</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">assignblk</span> <span class="ow">in</span> <span class="n">src_irb</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">skip_update</span> <span class="o">=</span> <span class="kc">False</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># retrieve IR expression and operand in block</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">dst</span><span class="p">,</span> <span class="n">src</span> <span class="ow">in</span> <span class="n">viewitems</span><span class="p">(</span><span class="n">assignblk</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># If operand involves EIP or ret</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">dst</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;EIP&#39;</span><span class="p">,</span> <span class="s1">&#39;IRDst&#39;</span><span class="p">]:</span>
+</span></span><span class="line"><span class="cl">                <span class="c1"># skip symbolic execution</span>
+</span></span><span class="line"><span class="cl">                <span class="n">skip_update</span> <span class="o">=</span> <span class="kc">True</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># otherwise symbolically execute IR expression</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="ow">not</span> <span class="n">skip_update</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">src_sb</span><span class="o">.</span><span class="n">eval_updt_assignblk</span><span class="p">(</span><span class="n">assignblk</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Instantiate Symbolic Execution Engine for dest block</span>
+</span></span><span class="line"><span class="cl">    <span class="n">dst_sb</span> <span class="o">=</span> <span class="n">SymbolicExecutionEngine</span><span class="p">(</span><span class="n">ir_arch1</span><span class="p">,</span> <span class="n">dst_symbols</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># retrieve IR expression and operand in block</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">assignblk</span> <span class="ow">in</span> <span class="n">dst_irb</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">skip_update</span> <span class="o">=</span> <span class="kc">False</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># If operand involves EIP or ret</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">dst</span><span class="p">,</span> <span class="n">src</span> <span class="ow">in</span> <span class="n">viewitems</span><span class="p">(</span><span class="n">assignblk</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">dst</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;EIP&#39;</span><span class="p">,</span> <span class="s1">&#39;IRDst&#39;</span><span class="p">]:</span>
+</span></span><span class="line"><span class="cl">                <span class="c1"># skip symbolic execution</span>
+</span></span><span class="line"><span class="cl">                <span class="n">skip_update</span> <span class="o">=</span> <span class="kc">True</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="ow">not</span> <span class="n">skip_update</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># otherwise symbolically execute IR expression</span>
+</span></span><span class="line"><span class="cl">            <span class="n">dst_sb</span><span class="o">.</span><span class="n">eval_updt_assignblk</span><span class="p">(</span><span class="n">assignblk</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># set stack top for each symbolic engine</span>
+</span></span><span class="line"><span class="cl">    <span class="n">src_sb</span><span class="o">.</span><span class="n">del_mem_above_stack</span><span class="p">(</span><span class="n">ir_arch0</span><span class="o">.</span><span class="n">sp</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">dst_sb</span><span class="o">.</span><span class="n">del_mem_above_stack</span><span class="p">(</span><span class="n">ir_arch1</span><span class="o">.</span><span class="n">sp</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="o">...</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>As we can see we have to configure the symbols we desire to symbolize, create one symbolic instance per block, Symbolically execute block and set up the top of the stack of each symbolic engine.</p>
+<p>When this is done then we can start checking for semantic equivalence by evaluating each of the symbol&rsquo;s contraints of each symbolically executed block:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="o">...</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">     <span class="c1"># Retrieve all memory accesses from src and dst symbolic engines</span>
+</span></span><span class="line"><span class="cl">    <span class="n">all_memory_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">dst_sb</span><span class="o">.</span><span class="n">symbols</span><span class="o">.</span><span class="n">memory</span><span class="p">()]</span> <span class="o">+</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">src_sb</span><span class="o">.</span><span class="n">symbols</span><span class="o">.</span><span class="n">memory</span><span class="p">()]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># iterate through all register and memory symbols</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># from both symbolic engines</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">all_regs_ids</span> <span class="o">+</span> <span class="n">all_memory_ids</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># keep iterating if symbol is EIP</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;EIP&#39;</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">continue</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># keep iterating if symbol is eflags</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="ow">not</span> <span class="n">flag_cmp</span> <span class="ow">and</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="n">zf</span><span class="p">,</span> <span class="n">nf</span><span class="p">,</span> <span class="n">pf</span><span class="p">,</span> <span class="n">of</span><span class="p">,</span> <span class="n">cf</span><span class="p">,</span> <span class="n">af</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">tf</span><span class="p">]:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">continue</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># retrieve value of symbol from each symbolic engine</span>
+</span></span><span class="line"><span class="cl">        <span class="n">v0</span> <span class="o">=</span> <span class="n">src_sb</span><span class="o">.</span><span class="n">symbols</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="n">v1</span> <span class="o">=</span> <span class="n">dst_sb</span><span class="o">.</span><span class="n">symbols</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># keep iterating if symbol value is the same</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">v0</span> <span class="o">==</span> <span class="n">v1</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">continue</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># instantiate z3 SAT solver</span>
+</span></span><span class="line"><span class="cl">        <span class="n">solver</span> <span class="o">=</span> <span class="n">z3</span><span class="o">.</span><span class="n">Solver</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="k">try</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># translate src symbol constraints to z3 readable form</span>
+</span></span><span class="line"><span class="cl">            <span class="n">z3_r_cond</span> <span class="o">=</span> <span class="n">Translator</span><span class="o">.</span><span class="n">to_language</span><span class="p">(</span><span class="s1">&#39;z3&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">from_expr</span><span class="p">(</span><span class="n">v0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="kc">False</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">try</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># translate dst symbol constraints to z3 readable form</span>
+</span></span><span class="line"><span class="cl">            <span class="n">z3_l_cond</span> <span class="o">=</span> <span class="n">Translator</span><span class="o">.</span><span class="n">to_language</span><span class="p">(</span><span class="s1">&#39;z3&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">from_expr</span><span class="p">(</span><span class="n">v1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="kc">False</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># add equality condition to solver</span>
+</span></span><span class="line"><span class="cl">        <span class="n">solver</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">z3</span><span class="o">.</span><span class="n">Not</span><span class="p">(</span><span class="n">z3_r_cond</span> <span class="o">==</span> <span class="n">z3_l_cond</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># if condition was unsatisfiable</span>
+</span></span><span class="line"><span class="cl">        <span class="n">r</span> <span class="o">=</span> <span class="n">solver</span><span class="o">.</span><span class="n">check</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">r</span> <span class="o">==</span> <span class="n">z3</span><span class="o">.</span><span class="n">unsat</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># IR expression were equivalent</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># keep iterating</span>
+</span></span><span class="line"><span class="cl">            <span class="k">continue</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="o">...</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>After this we will have a list of all function&rsquo;s blocks evaluation with each other in terms of syntactic and semantic equivalence:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="o">...</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># save results of syntax and semantic checks</span>
+</span></span><span class="line"><span class="cl"><span class="n">results</span><span class="p">[(</span><span class="n">src_ldl</span><span class="p">,</span> <span class="n">dst_ldl</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[(</span><span class="n">r_syntax</span><span class="p">,</span> <span class="n">r_semantic</span><span class="p">)]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">...</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Having this we can create a graph based on this relationship and utilize it to mark the equivalent blocks in a given subject function:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">...</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># create graph</span>
+</span></span><span class="line"><span class="cl">    <span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># add nodes</span>
+</span></span><span class="line"><span class="cl">    <span class="n">G</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">(</span><span class="n">target_blocks</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># add edges based on syntax/semantic equivalence</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">viewitems</span><span class="p">(</span><span class="n">results</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># if blocks have syntactic or semantic equivalence</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]:</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># add edge on block labels</span>
+</span></span><span class="line"><span class="cl">            <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">k</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">random_colors</span> <span class="o">=</span> <span class="n">gen_random_color</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="n">body</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Iterate through the blocks which are equivalent</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">conn_nodes</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">connected_components</span><span class="p">(</span><span class="n">G</span><span class="p">)):</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">conn_nodes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">continue</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">conn_nodes</span><span class="p">:</span>  <span class="c1"># node is asmblk</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># set the same color for equivalent nodes</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">LocKey</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">                <span class="n">asmblk</span> <span class="o">=</span> <span class="n">asmcfg</span><span class="o">.</span><span class="n">loc_key_to_block</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="n">asmblk</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">asmblk</span><span class="o">.</span><span class="n">lines</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                        <span class="n">body</span> <span class="o">+=</span> <span class="s1">&#39;SetColor(0x</span><span class="si">%08x</span><span class="s1">, CIC_ITEM, 0x</span><span class="si">%x</span><span class="s1">);</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">offset</span><span class="p">,</span> <span class="n">random_colors</span><span class="p">[</span><span class="n">n</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">            <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">lines</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">body</span> <span class="o">+=</span> <span class="s1">&#39;SetColor(0x</span><span class="si">%08x</span><span class="s1">, CIC_ITEM, 0x</span><span class="si">%x</span><span class="s1">);</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">offset</span><span class="p">,</span> <span class="n">random_colors</span><span class="p">[</span><span class="n">n</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">header</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s1">#include &lt;idc.idc&gt;
+</span></span></span><span class="line"><span class="cl"><span class="s1">static main()
+</span></span></span><span class="line"><span class="cl"><span class="s1">{
+</span></span></span><span class="line"><span class="cl"><span class="s1">&#39;&#39;&#39;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">footer</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s1">}
+</span></span></span><span class="line"><span class="cl"><span class="s1">&#39;&#39;&#39;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;eq-color.idc&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">header</span> <span class="o">+</span> <span class="n">body</span> <span class="o">+</span> <span class="n">footer</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The full script can be downloaded <a href="https://github.com/ulexec/ulexec.github.io/raw/master/files/range_divider_detector.py">here</a></p>
+<p>After applying the previous script to a given obfuscated function (0x10009B82) and slightly refine the results, we can obtain the following:</p>
+<br/>
+<div style="text-align:center">
+<img src="/asprox_range_divider.png"/>
+</div>
+<br/>
+<p>After this is trivial to remove the range divider predicates from the subject function. All we need is to identify the initial conditional branch that diverges into each individual predicate and apply the correspondent chnages to it appropietly.
+The following are the before and after effects:</p>
+<br/>
+<div style="text-align:center">
+<img src="/asprox_range_divider2.png"/>
+</div>
+<br/>
+<p>In the particular case of Asprox I found that it wasn&rsquo;t implementing a high number of Range Divider predicates, usually two. Therefore it was trivial to clean the code after identifying them.
+All needed to do was to either patch the intial conditional branch that diverges into each individual predicate so that it becomes unconditional or patch the conditional branch in a way so that it becomes NOPed.
+We can apply either of these approaches accordingly to chose the predicate that will drive the control flow and remove the remaining ones.</p>
+<p>Is also important to emphasize that the Range Divider cleaning process may not be as trivial if higher numbers of predicates where encountered or if the structure of the predicates would make each predicate to overlap with one another. Also lets not forget that this approach is assuming that the correct comparison unit is a basic block, which is true for Asprox predicates but is not necessarily generic. For example Tigress obfuscator implements Range Divider predicates on a function granuality. Therefore, this approach wont work, but could be adapted to support Tigress predicates re-defining the granuality for comparison and equivalence computation.</p>
+<p>To finish this section on a high note, we can see that by marking blocks from a given function based on syntax and semantic equivalence can help us to indentify this obfuscation technique.</p>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content">ulexec</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2020-03-03
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/reversing/">reversing</a>
+          <a href="/tags/malware/">malware</a>
+          </div>
+      <nav class="post-nav">
+        <a class="prev" href="/post/2021-04-08-shelfloading/">
+            <i class="iconfont icon-left"></i>
+            <span class="prev-text nav-default">SHELF Loading</span>
+            <span class="prev-text nav-mobile">Prev</span>
+          </a>
+        <a class="next" href="/post/2017-11-17-unpacking_a_linux_tsunami_sample/">
+            <span class="next-text nav-default">Dissecting the Internals of custom Linux Binary Packers</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="ulexecve@protonmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://twitter.com/ulexec" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://linkedin.com/in/ignacio-sanmillan-1aa244b8" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://github.com/ulexec" class="iconfont icon-github" title="github"></a>
+  <a href="http://ulexec.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2017 - 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>ulexec</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

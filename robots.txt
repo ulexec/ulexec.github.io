@@ -1,0 +1,2 @@
+User-agent: *
+Sitemap: http://ulexec.github.io/sitemap.xml
