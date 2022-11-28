@@ -52,7 +52,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
 <meta itemprop="description" content="Notes on XNU IPC This blog is intended to be a dedicated effort to structure information in relation to XNU IPC in a way that I can remember and use as a reference for the future.
 Often as a vulnerability researcher, attack-surfaces involving compromising other adyacent processes relative to a preliminar target are increasingly important with todays enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication possible is vital to understand and tackle adyacent attack surfaces."><meta itemprop="datePublished" content="2022-11-01T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2022-11-01T00:00:00+00:00" />
-<meta itemprop="wordCount" content="2531">
+<meta itemprop="wordCount" content="2560">
 <meta itemprop="keywords" content="macOS,IPC," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Notes on XNU IPC"/>
 <meta name="twitter:description" content="Notes on XNU IPC This blog is intended to be a dedicated effort to structure information in relation to XNU IPC in a way that I can remember and use as a reference for the future.
@@ -136,8 +136,8 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
         <div class="post-category">
             <a href="/categories/article/"> Article </a>
             </div>
-          <span class="more-meta"> 2531 words </span>
-          <span class="more-meta"> 12 mins read </span>
+          <span class="more-meta"> 2560 words </span>
+          <span class="more-meta"> 13 mins read </span>
         
       </div>
     </header>
@@ -164,6 +164,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
             <li><a href="#client-side">Client side</a></li>
           </ul>
         </li>
+        <li><a href="#references">References</a></li>
       </ul>
     </li>
   </ul>
@@ -206,34 +207,59 @@ The microkernel size is small than the monolithic kernel because only the kernel
 <p>Given the challenges of a microkernel design, XNU uses a hybrid design. Much of the functionality lives in the kernel space, but also many subsystems are backed by user space daemons.</p>
 <p>Mach messages are relevant in this context as it implements the core technology for IPC communication between kernel and user-space processes in the Mach microkernel architecture.</p>
 <h2 id="mach-messages">Mach Messages</h2>
-<p>Mach messages are a message queue type of an IPC mechanism, in which endpoints are required to receive and send messages through. In Mach, these endpoints are called mach ports. Mach ports are a kernel level abstraction and is not directly exposed to user-space, instead these mach ports can be accessed through port rights.</p>
+<p>Mach messages are an IPC mechanism based on a message queue, in which endpoints are required to receive and send messages through. In Mach, these endpoints are called mach ports. Mach ports are a kernel level abstraction and is not directly exposed to user-space, instead these mach ports can be accessed through port rights.</p>
 <p>Each task has its own namespace of port rights, and these are represented as 32bit integers. Is due to this reason that many Mach port APIs take an explicit task argument in order to disambiguate the respective mach port name.</p>
-<p>Is important to note that mach ports are not only used to establish a means of IPC communication for services or processes, but they also serve as an endpoint for resources. As an example, in user-space all tasks, threads or even semaphores handles are used as port rights to ports representing the underlying resources.</p>
-<p>Here for example are some typedefs from mach/mach_types.h showcasing this abstraction:</p>
+<p>Is important to note that mach ports are not only used to establish a means of IPC communication for services or processes, but to also serve as an endpoint for resources. As an example, in user-space all tasks, threads or even semaphores handles are used as port rights to ports representing the underlying resources.</p>
+<p>Here for example are some typedefs from <a href="https://opensource.apple.com/source/xnu/xnu-792/osfmk/mach/mach_types.h"><code>mach/mach_types.h</code></a> showcasing this abstraction:</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span><span class="lnt">5
-</span><span class="lnt">6
-</span><span class="lnt">7
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="n">mach_port_t</span>             <span class="n">task_t</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="n">mach_port_t</span>             <span class="n">thread_t</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="n">mach_port_t</span>             <span class="n">semaphore_t</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="n">mach_port_t</span>             <span class="n">lock_set_t</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="n">mach_port_t</span>             <span class="n">ledger_t</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="n">mach_port_t</span>             <span class="n">alarm_t</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="n">mach_port_t</span>             <span class="n">clock_serv_t</span><span class="p">;</span>   
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * If we are not in the kernel, then these will all be represented by
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * ports at user-space.
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="n">mach_port_t</span>		<span class="n">task_t</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="n">mach_port_t</span>		<span class="n">thread_t</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span>	<span class="n">mach_port_t</span>		<span class="n">thread_act_t</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="n">mach_port_t</span>		<span class="n">ipc_space_t</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="n">mach_port_t</span>		<span class="n">host_t</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="n">mach_port_t</span>		<span class="n">host_priv_t</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="n">mach_port_t</span>		<span class="n">host_security_t</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="n">mach_port_t</span>		<span class="n">processor_t</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="n">mach_port_t</span>		<span class="n">processor_set_t</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="n">mach_port_t</span>		<span class="n">processor_set_control_t</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="n">mach_port_t</span>		<span class="n">semaphore_t</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="n">mach_port_t</span>		<span class="n">lock_set_t</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="n">mach_port_t</span>		<span class="n">ledger_t</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="n">mach_port_t</span>		<span class="n">alarm_t</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="n">mach_port_t</span>		<span class="n">clock_serv_t</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="n">mach_port_t</span>		<span class="n">clock_ctrl_t</span><span class="p">;</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="mach-port-foundational-concepts">Mach port foundational concepts</h3>
-<p>Mach ports are the IPC primitives under Mach. They are conceptually similar to Unix pipes, sockets or message queues.</p>
-<p>A mach porrt is conceptually a message queue maintained by the kernel. Tasks and the kernel itself can enqueue and dequeue messages to/from a port via a port right to that port.</p>
-<p>A port right is a handle to a port that allows either sending (enqueuing) or receiving (dequeuing) messages, a lot like a file descriptor connected to either the read or the write end of a pipe. There are the following kinds of port rights:</p>
+<p>Mach ports are the IPC primitives under Mach. A mach port is conceptually a message queue maintained by the kernel. Tasks and the kernel itself can enqueue and dequeue messages to/from a port via a port right to that port.</p>
+<p>A port right is a handle to a port that allows either sending (enqueuing) or receiving (dequeuing) messages. There are the following kinds of port rights:</p>
 <ul>
 <li>Receive right: allows receiving messages sent to the port.
 <ul>
@@ -320,13 +346,12 @@ The role of this bootstrap server in XNU is fulfilled by <code>launchd</code>, a
 <h2 id="a-basic-exchange-over-mach-messages">A Basic exchange over Mach messages</h2>
 <p>This section will describe a minimalist example of an exchange between two parties over mach messages.
 This will be divided into two parts, being the server and client side roles.</p>
-<p>An overview of the tasks each component will perform is the following:</p>
 <h3 id="server-side">Server side</h3>
-<p>The server side functionality is summerized in the following bulletpoints:</p>
+<p>The server side functionality is summerized in the following steps:</p>
 <ol>
 <li>Create a Mach port receive right</li>
 <li>Add a send right to the port for the bootstrap server to use</li>
-<li>Retrieving a Mach port to communicate with the broker, as it uses Mach messages for the service registration</li>
+<li>Retrieving a Mach port to communicate with the broker</li>
 <li>Registering our service</li>
 <li>Message receiving</li>
 </ol>
@@ -399,7 +424,7 @@ This will be divided into two parts, being the server and client side roles.</p>
 </span></span><span class="line"><span class="cl">  <span class="p">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>register mach port to service name via the bootstrap server</p>
+</div><p>Register mach port to service name via the bootstrap server</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -413,7 +438,7 @@ This will be divided into two parts, being the server and client side roles.</p>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h4 id="wait-to-receiver-messages">Wait to receiver messages</h4>
-<p>We wait in an infinite loop for messages to arrive</p>
+<p>Wait in an infinite loop for messages to arrive</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -486,13 +511,13 @@ This will be divided into two parts, being the server and client side roles.</p>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="client-side">Client side</h3>
-<p>The server side functionality is summerized in the following bulletpoints:</p>
+<p>The server side functionality is summerized in the following steps:</p>
 <ol>
 <li>Retrieve the bootstrap server port to query it for the service port</li>
 <li>Query bootstrap for the service port</li>
 <li>Setup message header</li>
-<li>Fill message body
-5 Send the message</li>
+<li>Fill message body</li>
+<li>Send the message</li>
 </ol>
 <h4 id="retrieve-target-service-port">Retrieve target service port</h4>
 <p>Retrieve the bootstrap server prot</p>
@@ -530,7 +555,7 @@ This will be divided into two parts, being the server and client side roles.</p>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h4 id="setup-message-header">Setup message header</h4>
-<p>In order to understand this section first we have to review a specific macros which is used to set bits into <code>mach_msg_bits_t</code>. This macro is <code>MACH_MSGH_BITS_SET</code> from <code>mach/message.h.auto.html</code>:</p>
+<p>In order to understand this section first we have to review a specific macros which is used to set bits into <code>mach_msg_bits_t</code>. This macro is <code>MACH_MSGH_BITS_SET</code> from <a href="https://opensource.apple.com/source/xnu/xnu-4570.41.2/osfmk/mach/message.h.auto.html"><code>mach/message.h.auto.html</code></a>:</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -632,7 +657,7 @@ The complex bit must be specified if the message body contains additional port r
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">  <span class="n">strcpy</span><span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#34;Hello Mach!&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="n">strcpy</span><span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#34;Some Message :)&#34;</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">  <span class="n">mach_msg_return_t</span> <span class="n">ret</span> <span class="o">=</span> <span class="n">mach_msg</span><span class="p">(</span>
 </span></span><span class="line"><span class="cl">    <span class="p">(</span><span class="n">mach_msg_header_t</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">message</span><span class="p">,</span>    <span class="c1">// msg 
@@ -649,7 +674,16 @@ The complex bit must be specified if the message body contains additional port r
 </span></span><span class="line"><span class="cl">  <span class="p">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div>
+</div><h2 id="references">References</h2>
+<ol>
+<li><a href="https://dmcyk.xyz">Damian Malarczyk</a></li>
+<li><a href="http://newosxbook.com/">macOS and *OS Internals</a></li>
+<li><a href="https://developer.apple.com/library/archive/documentation/Darwin/Conceptual/KernelProgramming/Mach/Mach.html">Mach Overview</a></li>
+<li><a href="https://www.gnu.org/software/hurd/gnumach-doc/Exchanging-Port-Rights.html">Exchanging port rights</a></li>
+<li><a href="https://docs.darlinghq.org/internals/macos-specifics/mach-ports.html">About Mach Ports</a></li>
+<li><a href="https://blog.wuntee.sexy/reaching-the-mach-layer">Reaching the mach layer</a></li>
+</ol>
+
     </div>
 
     <div class="post-copyright">
