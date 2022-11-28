@@ -643,7 +643,7 @@ This will be divided into two parts, being the server and client side roles.</p>
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">MACH_RCV_MSG</span><span class="p">,</span>                   <span class="c1">// option            
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="mi">0</span><span class="p">,</span>                              <span class="c1">// send size
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">sizeof</span><span class="p">(</span><span class="n">message</span><span class="p">),</span>                <span class="c1">// receive size
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">port</span><span class="p">,</span>                       <span class="c1">// recv_name
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">port</span><span class="p">,</span>                           <span class="c1">// recv_name
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">MACH_MSG_TIMEOUT_NONE</span><span class="p">,</span>          <span class="c1">// timeout
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">MACH_PORT_NULL</span><span class="p">);</span>                <span class="c1">// notify port
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>  
@@ -769,7 +769,7 @@ This will be divided into two parts, being the server and client side roles.</p>
 </span></span><span class="line"><span class="cl">    <span class="n">Message</span> <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
 </span></span><span class="line"><span class="cl">    <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_remote_port</span> <span class="o">=</span> <span class="n">port</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="c1">// copy send right to the remote port
+</span></span><span class="line"><span class="cl">    <span class="c1">// Copy send right to the remote port
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_bits</span> <span class="o">=</span> <span class="n">MACH_MSGH_BITS_SET</span><span class="p">(</span>
 </span></span><span class="line"><span class="cl">        <span class="n">MACH_MSG_TYPE_COPY_SEND</span><span class="p">,</span>        <span class="c1">// remote
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="mi">0</span><span class="p">,</span>                              <span class="c1">// local
