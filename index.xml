@@ -23,7 +23,7 @@ I’m a Vulnerability Researcher experienced in Malware Analysis, Forensics and 
       <pubDate>Mon, 28 Nov 2022 00:00:00 +0000</pubDate>
       
       <guid>http://ulexec.github.io/post/2022-12-01-xnu_ipc/</guid>
-      <description>Introduction This blog is intended to be a dedicated effort to structure digested information in relation to XNU IPC in a way that I can remember and use as a reference for the future.
+      <description>Introduction This blog is intended to be a dedicated effort to structure information in relation to Mach Messages in a way that I can remember and use as a reference for the future.
 Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with today&amp;rsquo;s enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces.</description>
     </item>
     

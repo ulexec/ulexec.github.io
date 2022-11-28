@@ -16,7 +16,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="ulexec" /><meta name="description" content="Introduction This blog is intended to be a dedicated effort to structure digested information in relation to XNU IPC in a way that I can remember and use as a reference for the future.
+<meta name="author" content="ulexec" /><meta name="description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to Mach Messages in a way that I can remember and use as a reference for the future.
 Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with today&amp;rsquo;s enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces." /><meta name="keywords" content="Hugo, theme, even" />
 
 
@@ -41,7 +41,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
 
 
 <meta property="og:title" content="Notes on Mach IPC" />
-<meta property="og:description" content="Introduction This blog is intended to be a dedicated effort to structure digested information in relation to XNU IPC in a way that I can remember and use as a reference for the future.
+<meta property="og:description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to Mach Messages in a way that I can remember and use as a reference for the future.
 Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with today&rsquo;s enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://ulexec.github.io/post/2022-12-01-xnu_ipc/" /><meta property="article:section" content="post" />
@@ -49,13 +49,13 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
 <meta property="article:modified_time" content="2022-11-28T00:00:00+00:00" />
 
 <meta itemprop="name" content="Notes on Mach IPC">
-<meta itemprop="description" content="Introduction This blog is intended to be a dedicated effort to structure digested information in relation to XNU IPC in a way that I can remember and use as a reference for the future.
+<meta itemprop="description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to Mach Messages in a way that I can remember and use as a reference for the future.
 Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with today&rsquo;s enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces."><meta itemprop="datePublished" content="2022-11-28T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2022-11-28T00:00:00+00:00" />
-<meta itemprop="wordCount" content="3020">
+<meta itemprop="wordCount" content="3019">
 <meta itemprop="keywords" content="macOS,IPC," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Notes on Mach IPC"/>
-<meta name="twitter:description" content="Introduction This blog is intended to be a dedicated effort to structure digested information in relation to XNU IPC in a way that I can remember and use as a reference for the future.
+<meta name="twitter:description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to Mach Messages in a way that I can remember and use as a reference for the future.
 Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with today&rsquo;s enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces."/>
 
 <!--[if lte IE 9]>
@@ -136,7 +136,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
         <div class="post-category">
             <a href="/categories/article/"> Article </a>
             </div>
-          <span class="more-meta"> 3020 words </span>
+          <span class="more-meta"> 3019 words </span>
           <span class="more-meta"> 15 mins read </span>
         
       </div>
@@ -184,7 +184,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
 </div>
     <div class="post-content">
       <h1 id="introduction">Introduction</h1>
-<p>This blog is intended to be a dedicated effort to structure digested information in relation to XNU IPC in a way that I can remember and use as a reference for the future.</p>
+<p>This blog is intended to be a dedicated effort to structure information in relation to Mach Messages in a way that I can remember and use as a reference for the future.</p>
 <p>Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with today&rsquo;s enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces.</p>
 <h1 id="overview">Overview</h1>
 <p>XNU is the computer operating system kernel in use on macOS operating system, and released as free and open-source software as part of the Darwin OS, which in addition to macOS is also the basis for the Apple TV Software, iOS, iPadOS, watchOS, and tvOS OSes. XNU is an abbreviation of <code>X is Not Unix</code>.</p>
