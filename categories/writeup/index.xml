@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Writeup on Even - A super concise theme for Hugo</title>
+    <title>Writeup on ulexec | blog</title>
     <link>http://ulexec.github.io/categories/writeup/</link>
-    <description>Recent content in Writeup on Even - A super concise theme for Hugo</description>
+    <description>Recent content in Writeup on ulexec | blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
     <lastBuildDate>Thu, 20 May 2021 00:00:00 +0000</lastBuildDate><atom:link href="http://ulexec.github.io/categories/writeup/index.xml" rel="self" type="application/rss+xml" />
