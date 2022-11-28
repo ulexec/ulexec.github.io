@@ -52,7 +52,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
 <meta itemprop="description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to Mach Messages in a way that I can remember and use as a reference for the future.
 Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with today&rsquo;s enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces."><meta itemprop="datePublished" content="2022-11-28T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2022-11-28T00:00:00+00:00" />
-<meta itemprop="wordCount" content="2938">
+<meta itemprop="wordCount" content="2936">
 <meta itemprop="keywords" content="macOS,IPC," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Notes on Mach IPC"/>
 <meta name="twitter:description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to Mach Messages in a way that I can remember and use as a reference for the future.
@@ -136,7 +136,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
         <div class="post-category">
             <a href="/categories/article/"> Article </a>
             </div>
-          <span class="more-meta"> 2938 words </span>
+          <span class="more-meta"> 2936 words </span>
           <span class="more-meta"> 14 mins read </span>
         
       </div>
@@ -427,7 +427,6 @@ This will be divided into two parts, being the server and client side roles.</p>
 </span><span class="lnt">57
 </span><span class="lnt">58
 </span><span class="lnt">59
-</span><span class="lnt">60
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="c1">// server.c
@@ -485,7 +484,6 @@ This will be divided into two parts, being the server and client side roles.</p>
 </span></span><span class="line"><span class="cl">        <span class="n">printf</span><span class="p">(</span><span class="s">&#34;[+] Received message!</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">        <span class="n">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\t</span><span class="s">msgh_id</span><span class="se">\t\t</span><span class="s">: %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_id</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">        <span class="n">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\t</span><span class="s">message.body</span><span class="se">\t</span><span class="s">: %s</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">message</span><span class="p">.</span><span class="n">body</span><span class="p">);</span>
-</span></span><span class="line"><span class="cl">    
 </span></span><span class="line"><span class="cl">    <span class="p">}</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">EXIT_SUCCESS</span><span class="p">;</span>
@@ -595,7 +593,6 @@ This will be divided into two parts, being the server and client side roles.</p>
 </span><span class="lnt">17
 </span><span class="lnt">18
 </span><span class="lnt">19
-</span><span class="lnt">20
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">  
@@ -616,7 +613,6 @@ This will be divided into two parts, being the server and client side roles.</p>
 </span></span><span class="line"><span class="cl">    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;[+] Received message!</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\t</span><span class="s">msgh_id</span><span class="se">\t\t</span><span class="s">: %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_id</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\t</span><span class="s">message.body</span><span class="se">\t</span><span class="s">: %s</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">message</span><span class="p">.</span><span class="n">body</span><span class="p">);</span>
-</span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
