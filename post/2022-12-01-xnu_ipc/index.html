@@ -52,7 +52,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
 <meta itemprop="description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to XNU IPC in a way that I can remember and use as a reference for the future.
 Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with todays enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces."><meta itemprop="datePublished" content="2022-11-28T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2022-11-28T00:00:00+00:00" />
-<meta itemprop="wordCount" content="2558">
+<meta itemprop="wordCount" content="2551">
 <meta itemprop="keywords" content="macOS,IPC," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Notes on XNU IPC"/>
 <meta name="twitter:description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to XNU IPC in a way that I can remember and use as a reference for the future.
@@ -136,8 +136,8 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
         <div class="post-category">
             <a href="/categories/article/"> Article </a>
             </div>
-          <span class="more-meta"> 2558 words </span>
-          <span class="more-meta"> 13 mins read </span>
+          <span class="more-meta"> 2551 words </span>
+          <span class="more-meta"> 12 mins read </span>
         
       </div>
     </header>
@@ -151,15 +151,15 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
     <li><a href="#overview">Overview</a></li>
     <li><a href="#mach-messages">Mach Messages</a>
       <ul>
-        <li><a href="#mach-port-foundational-concepts">Mach port foundational concepts</a></li>
-        <li><a href="#bidirectional-communication-concepts">Bidirectional communication concepts</a></li>
-        <li><a href="#establishing-a-connection-to-a-task">Establishing a connection to a task</a></li>
+        <li><a href="#mach-ports">Mach Ports</a></li>
+        <li><a href="#mach-port-rights">Mach Port Rights</a></li>
+        <li><a href="#establishing-a-connection">Establishing a connection</a></li>
         <li><a href="#messages">Messages</a></li>
       </ul>
     </li>
-    <li><a href="#a-basic-exchange-over-mach-messages">A Basic exchange over Mach messages</a>
+    <li><a href="#a-basic-example">A Basic Example</a>
       <ul>
-        <li><a href="#server-side">Server side</a>
+        <li><a href="#server-side">Server Side</a>
           <ul>
             <li><a href="#create-a-mach-port-receive-right">Create a Mach port receive right</a></li>
             <li><a href="#add-a-send-right-to-the-port-for-the-bootstrap-server-to-use">Add a send right to the port for the bootstrap server to use</a></li>
@@ -167,7 +167,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
             <li><a href="#wait-to-receive-messages">Wait to receive messages</a></li>
           </ul>
         </li>
-        <li><a href="#client-side">Client side</a>
+        <li><a href="#client-side">Client Side</a>
           <ul>
             <li><a href="#retrieve-target-service-port">Retrieve target service port</a></li>
             <li><a href="#setup-message-header">Setup message header</a></li>
@@ -215,11 +215,11 @@ The microkernel size is small than the monolithic kernel because only the kernel
 <p><img src="https://upload.wikimedia.org/wikipedia/commons/d/d0/OS-structure2.svg" alt=""></p>
 <p>Running the core of an operating system as separated processes, allows for great flexibility but this often reduces performance due to time-consuming kernel/user mode context switches and overhead stemming from mapping or copying messages between the address spaces of the kernel and that of the service daemons.</p>
 <p>Given the challenges of a microkernel design, XNU uses a hybrid design. Much of the functionality lives in the kernel space, but also many subsystems are backed by user space daemons.</p>
-<p>Mach messages are relevant in this context as it implements the core technology for IPC communication between kernel and user-space processes in the Mach microkernel architecture.</p>
+<p>Mach messages are relevant in this context as it implements the core technology for IPC communication between kernel and user-space tasks in the Mach microkernel architecture.</p>
 <h1 id="mach-messages">Mach Messages</h1>
-<p>Mach messages are an IPC mechanism based on a message queue, in which endpoints are required to receive and send messages through. In Mach, these endpoints are called mach ports. Mach ports are a kernel level abstraction and is not directly exposed to user-space, instead these mach ports can be accessed through port rights.</p>
+<p>Mach messages are a message queue mechanism based IPC mechanism, in which endpoints are required to receive and send messages through. In Mach, these endpoints are called mach ports. Mach ports are a kernel level abstraction and are not directly exposed to user-space, instead these mach ports can be accessed through port rights.</p>
 <p>Each task has its own namespace of port rights, and these are represented as 32bit integers. Is due to this reason that many Mach port APIs take an explicit task argument in order to disambiguate the respective mach port name.</p>
-<p>Is important to note that mach ports are not only used to establish a means of IPC communication for services or processes, but to also serve as an endpoint for resources. As an example, in user-space all tasks, threads or even semaphores handles are used as port rights to ports representing the underlying resources.</p>
+<p>Is important to note that mach ports are not only used to establish a means of IPC communication for the kernel and user-space services, but to also serve as an abstraction for resources. As an example, in user-space all tasks, threads or even semaphores handles are used as port rights to ports representing the underlying resources.</p>
 <p>Here for example are some typedefs from <a href="https://opensource.apple.com/source/xnu/xnu-792/osfmk/mach/mach_types.h"><code>mach/mach_types.h</code></a> showcasing this abstraction:</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -267,7 +267,7 @@ The microkernel size is small than the monolithic kernel because only the kernel
 </span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="n">mach_port_t</span>		<span class="n">clock_ctrl_t</span><span class="p">;</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h2 id="mach-port-foundational-concepts">Mach port foundational concepts</h2>
+</div><h2 id="mach-ports">Mach Ports</h2>
 <p>Mach ports are the IPC primitives under Mach. A mach port is conceptually a message queue maintained by the kernel. Tasks and the kernel itself can enqueue and dequeue messages to/from a port via a port right to that port.</p>
 <p>A port right is a handle to a port that allows either sending (enqueuing) or receiving (dequeuing) messages. There are the following kinds of port rights:</p>
 <ul>
@@ -292,7 +292,7 @@ The microkernel size is small than the monolithic kernel because only the kernel
 </ul>
 <p>In addition, A port right name is a specific integer value a task uses to refer to a port right it holds, a lot like a file descriptor that a process uses to refer to an open file.
 * Sending a port right name, the integer, to another task does not allow it to use the name to access the port right, because the name is only meaningful in the context of the port right namespace of the original task.</p>
-<h2 id="bidirectional-communication-concepts">Bidirectional communication concepts</h2>
+<h2 id="mach-port-rights">Mach Port Rights</h2>
 <p>Mach ports are an unidirectional communication channel by design. Therefore there can only exists one holder of a receive right to a port, however there can be multiple send right owners.
 Rights can be transfered over messages. There can be only one receive right, and this can only be moved (in case it wants to be send to a different task). However, send rights can either be moved or copied to other tasks.</p>
 <p>Given a unidirectional channel a bidirectional communication can be established.
@@ -305,7 +305,7 @@ The following describes how this process works:</p>
 <li>He transfers the send right to this port over a message to Alice</li>
 </ol>
 <p>Now both Bob and Alice own a receive and send rights to ports they can leverage to communicate with one another. Syncing up the communication over different ports is not very convenient or efficient, therefore a mach message can optionally include a repy port which can be used to send a message response.</p>
-<h2 id="establishing-a-connection-to-a-task">Establishing a connection to a task</h2>
+<h2 id="establishing-a-connection">Establishing a connection</h2>
 <p>In Darwin, there is a centralised broker service, also known as the bootstrap server, which serves as an orchestrator to establish connections between tasks/services.
 The role of this bootstrap server in XNU is fulfilled by <code>launchd</code>, although before launchd, the init process and the bootstrap server where separated.</p>
 <p>Each spawned service/task holds an implicit send right to the broker service. The bootstrap server is resposible for service registration and lookup, and allows to establish a connection between two parties. As an example to showcase the role of the bootstrap server, the following describes a scenario in which two tasks establish a connection via the broker server:</p>
@@ -353,10 +353,10 @@ The role of this bootstrap server in XNU is fulfilled by <code>launchd</code>, a
 <li><code>msgh_id</code> - user defined message identifier</li>
 </ul>
 <p>When receiving a message, messages can optionally contain a field known as trailer at the end of the message. Trailers contain information about the message. Trailers will be covered in more detailed in a future section.</p>
-<h1 id="a-basic-exchange-over-mach-messages">A Basic exchange over Mach messages</h1>
+<h1 id="a-basic-example">A Basic Example</h1>
 <p>This section will describe a minimalist example of an exchange between two parties over mach messages.
 This will be divided into two parts, being the server and client side roles.</p>
-<h2 id="server-side">Server side</h2>
+<h2 id="server-side">Server Side</h2>
 <p>The server side functionality is summerized in the following steps:</p>
 <ol>
 <li>Create a Mach port receive right</li>
@@ -520,7 +520,7 @@ This will be divided into two parts, being the server and client side roles.</p>
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h2 id="client-side">Client side</h2>
+</div><h2 id="client-side">Client Side</h2>
 <p>The server side functionality is summerized in the following steps:</p>
 <ol>
 <li>Retrieve the bootstrap server port to query it for the service port</li>
