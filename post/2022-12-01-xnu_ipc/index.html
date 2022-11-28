@@ -164,13 +164,14 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
             <li><a href="#create-a-mach-port-receive-right">Create a Mach port receive right</a></li>
             <li><a href="#add-a-send-right-to-the-port-for-the-bootstrap-server-to-use">Add a send right to the port for the bootstrap server to use</a></li>
             <li><a href="#registering-service-to-bootstrap-server">Registering service to bootstrap server</a></li>
-            <li><a href="#wait-to-receiver-messages">Wait to receiver messages</a></li>
+            <li><a href="#wait-to-receive-messages">Wait to receive messages</a></li>
           </ul>
         </li>
         <li><a href="#client-side">Client side</a>
           <ul>
             <li><a href="#retrieve-target-service-port">Retrieve target service port</a></li>
             <li><a href="#setup-message-header">Setup message header</a></li>
+            <li><a href="#send-the-message">Send the message</a></li>
           </ul>
         </li>
       </ul>
@@ -446,7 +447,7 @@ This will be divided into two parts, being the server and client side roles.</p>
 </span></span><span class="line"><span class="cl">  <span class="p">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h3 id="wait-to-receiver-messages">Wait to receiver messages</h3>
+</div><h3 id="wait-to-receive-messages">Wait to receive messages</h3>
 <p>Wait in an infinite loop for messages to arrive</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -643,7 +644,7 @@ The complex bit must be specified if the message body contains additional port r
 </span></span><span class="line"><span class="cl">  <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_size</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">message</span><span class="p">);</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h4 id="send-the-message">Send the message</h4>
+</div><h3 id="send-the-message">Send the message</h3>
 <p>Here we simply populate the message body, and we proceed to call <code>mach_msg</code> with the <code>MACH_SEND_MSG</code> option</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
