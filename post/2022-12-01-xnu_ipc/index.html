@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <title>Notes on XNU IPC - ulexec | blog</title>
+  <title>Notes on Mach IPC - ulexec | blog</title>
   <meta name="renderer" content="webkit" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
 
@@ -16,8 +16,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="ulexec" /><meta name="description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to XNU IPC in a way that I can remember and use as a reference for the future.
-Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with todays enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces." /><meta name="keywords" content="Hugo, theme, even" />
+<meta name="author" content="ulexec" /><meta name="description" content="Introduction This blog is intended to be a dedicated effort to structure digested information in relation to XNU IPC in a way that I can remember and use as a reference for the future.
+Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with today&amp;rsquo;s enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces." /><meta name="keywords" content="Hugo, theme, even" />
 
 
 
@@ -40,23 +40,23 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="Notes on XNU IPC" />
-<meta property="og:description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to XNU IPC in a way that I can remember and use as a reference for the future.
-Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with todays enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces." />
+<meta property="og:title" content="Notes on Mach IPC" />
+<meta property="og:description" content="Introduction This blog is intended to be a dedicated effort to structure digested information in relation to XNU IPC in a way that I can remember and use as a reference for the future.
+Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with today&rsquo;s enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://ulexec.github.io/post/2022-12-01-xnu_ipc/" /><meta property="article:section" content="post" />
 <meta property="article:published_time" content="2022-11-28T00:00:00+00:00" />
 <meta property="article:modified_time" content="2022-11-28T00:00:00+00:00" />
 
-<meta itemprop="name" content="Notes on XNU IPC">
-<meta itemprop="description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to XNU IPC in a way that I can remember and use as a reference for the future.
-Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with todays enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces."><meta itemprop="datePublished" content="2022-11-28T00:00:00+00:00" />
+<meta itemprop="name" content="Notes on Mach IPC">
+<meta itemprop="description" content="Introduction This blog is intended to be a dedicated effort to structure digested information in relation to XNU IPC in a way that I can remember and use as a reference for the future.
+Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with today&rsquo;s enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces."><meta itemprop="datePublished" content="2022-11-28T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2022-11-28T00:00:00+00:00" />
-<meta itemprop="wordCount" content="2555">
+<meta itemprop="wordCount" content="3020">
 <meta itemprop="keywords" content="macOS,IPC," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Notes on XNU IPC"/>
-<meta name="twitter:description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to XNU IPC in a way that I can remember and use as a reference for the future.
-Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with todays enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces."/>
+<meta name="twitter:title" content="Notes on Mach IPC"/>
+<meta name="twitter:description" content="Introduction This blog is intended to be a dedicated effort to structure digested information in relation to XNU IPC in a way that I can remember and use as a reference for the future.
+Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with today&rsquo;s enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces."/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -129,15 +129,15 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
           <article class="post">
     
     <header class="post-header">
-      <h1 class="post-title">Notes on XNU IPC</h1>
+      <h1 class="post-title">Notes on Mach IPC</h1>
 
       <div class="post-meta">
         <span class="post-time"> 2022-11-28 </span>
         <div class="post-category">
             <a href="/categories/article/"> Article </a>
             </div>
-          <span class="more-meta"> 2555 words </span>
-          <span class="more-meta"> 12 mins read </span>
+          <span class="more-meta"> 3020 words </span>
+          <span class="more-meta"> 15 mins read </span>
         
       </div>
     </header>
@@ -151,13 +151,12 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
     <li><a href="#overview">Overview</a></li>
     <li><a href="#mach-messages">Mach Messages</a>
       <ul>
-        <li><a href="#mach-ports">Mach Ports</a></li>
-        <li><a href="#mach-port-rights">Mach Port Rights</a></li>
+        <li><a href="#mach-ports-and-mach-port-rights">Mach Ports and Mach Port Rights</a></li>
         <li><a href="#establishing-a-connection">Establishing a connection</a></li>
         <li><a href="#messages">Messages</a></li>
       </ul>
     </li>
-    <li><a href="#a-basic-unidirectional-example">A Basic Unidirectional Example</a>
+    <li><a href="#unidirectional-message-example">Unidirectional Message Example</a>
       <ul>
         <li><a href="#server-side">Server Side</a>
           <ul>
@@ -176,7 +175,8 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
         </li>
       </ul>
     </li>
-    <li><a href="#a-bidirectional-example">A Bidirectional Example</a></li>
+    <li><a href="#bidirectionalcomplex-message-example">Bidirectional/Complex Message Example</a></li>
+    <li><a href="#ool-complex-message-example">OOL Complex Message Example</a></li>
     <li><a href="#references">References</a></li>
   </ul>
 </nav>
@@ -184,8 +184,8 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
 </div>
     <div class="post-content">
       <h1 id="introduction">Introduction</h1>
-<p>This blog is intended to be a dedicated effort to structure information in relation to XNU IPC in a way that I can remember and use as a reference for the future.</p>
-<p>Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with todays enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces.</p>
+<p>This blog is intended to be a dedicated effort to structure digested information in relation to XNU IPC in a way that I can remember and use as a reference for the future.</p>
+<p>Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with today&rsquo;s enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces.</p>
 <h1 id="overview">Overview</h1>
 <p>XNU is the computer operating system kernel in use on macOS operating system, and released as free and open-source software as part of the Darwin OS, which in addition to macOS is also the basis for the Apple TV Software, iOS, iPadOS, watchOS, and tvOS OSes. XNU is an abbreviation of <code>X is Not Unix</code>.</p>
 <p>XNU is a hybrid kernel, containing features of both monolithic and microkernel designs. An overview of the comparison of the distinct characteristics between monolithic and microkernel architctures are the following:</p>
@@ -268,24 +268,24 @@ The microkernel size is small than the monolithic kernel because only the kernel
 </span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="n">mach_port_t</span>		<span class="n">clock_ctrl_t</span><span class="p">;</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h2 id="mach-ports">Mach Ports</h2>
+</div><h2 id="mach-ports-and-mach-port-rights">Mach Ports and Mach Port Rights</h2>
 <p>Mach ports are the IPC primitives under Mach. A mach port is conceptually a message queue maintained by the kernel. Tasks and the kernel itself can enqueue and dequeue messages to/from a port via a port right to that port.</p>
 <p>A port right is a handle to a port that allows either sending (enqueuing) or receiving (dequeuing) messages. There are the following kinds of port rights:</p>
 <ul>
-<li>Receive right: allows receiving messages sent to the port.
+<li><code>Receive right</code>: allows receiving messages sent to the port.
 <ul>
 <li>Mach ports are MPSC (multiple-producer, single-consumer) queues, which means that there may only ever be one receive right for each port in the whole system.</li>
 </ul>
 </li>
-<li>Send right: allows sending messages to the port.</li>
-<li>Send-once: allows sending one message to the port and then disappears.</li>
-<li>Port set: denotes a port set rather than a single port.
+<li><code>Send right</code>: allows sending messages to the port.</li>
+<li><code>Send-once</code>: allows sending one message to the port and then disappears.</li>
+<li><code>Port set</code>: denotes a port set rather than a single port.
 <ul>
 <li>Dequeuing a message from a port set dequeues a message from one of the ports it contains.</li>
 <li>Port sets can be used to listen on several ports simultaneously, a lot like select/poll/epoll/kqueue in Unix.</li>
 </ul>
 </li>
-<li>Dead name: This is not an actual port right, but merely a placeholder.
+<li><code>Dead name</code>: This is not an actual port right, but merely a placeholder.
 <ul>
 <li>When a port is destroyed, all existing port rights to the port turn into dead names.</li>
 </ul>
@@ -293,7 +293,6 @@ The microkernel size is small than the monolithic kernel because only the kernel
 </ul>
 <p>In addition, A port right name is a specific integer value a task uses to refer to a port right it holds, a lot like a file descriptor that a process uses to refer to an open file.
 * Sending a port right name, the integer, to another task does not allow it to use the name to access the port right, because the name is only meaningful in the context of the port right namespace of the original task.</p>
-<h2 id="mach-port-rights">Mach Port Rights</h2>
 <p>Mach ports are an unidirectional communication channel by design. Therefore there can only exists one holder of a receive right to a port, however there can be multiple send right owners.
 Rights can be transfered over messages. There can be only one receive right, and this can only be moved (in case it wants to be send to a different task). However, send rights can either be moved or copied to other tasks.</p>
 <p>Given a unidirectional channel a bidirectional communication can be established.
@@ -308,7 +307,7 @@ The following describes how this process works:</p>
 <p>Now both Bob and Alice own a receive and send rights to ports they can leverage to communicate with one another. Syncing up the communication over different ports is not very convenient or efficient, therefore a mach message can optionally include a repy port which can be used to send a message response.</p>
 <h2 id="establishing-a-connection">Establishing a connection</h2>
 <p>In Darwin, there is a centralised broker service, also known as the bootstrap server, which serves as an orchestrator to establish connections between tasks/services.
-The role of this bootstrap server in XNU is fulfilled by <code>launchd</code>, although before launchd, the init process and the bootstrap server where separated.</p>
+The role of this bootstrap server in XNU is fulfilled by <code>launchd</code> (although before launchd, the init process and the bootstrap server where separated).</p>
 <p>Each spawned service/task holds an implicit send right to the broker service. The bootstrap server is resposible for service registration and lookup, and allows to establish a connection between two parties. As an example to showcase the role of the bootstrap server, the following describes a scenario in which two tasks establish a connection via the broker server:</p>
 <ol>
 <li>Alice registers her service with the bootstrap server using some name. eg <code>com.test-service.alice</code>.</li>
@@ -354,8 +353,8 @@ The role of this bootstrap server in XNU is fulfilled by <code>launchd</code>, a
 <li><code>msgh_id</code> - user defined message identifier</li>
 </ul>
 <p>When receiving a message, messages can optionally contain a field known as trailer at the end of the message. Trailers contain information about the message. Trailers will be covered in more detailed in a future section.</p>
-<h1 id="a-basic-unidirectional-example">A Basic Unidirectional Example</h1>
-<p>This section will describe a minimalist example of an exchange between two parties over mach messages.
+<h1 id="unidirectional-message-example">Unidirectional Message Example</h1>
+<p>This section will describe a minimalist example of an unidirectional exchange between two parties over mach messages.
 This will be divided into two parts, being the server and client side roles.</p>
 <h2 id="server-side">Server Side</h2>
 <p>The server side functionality is summerized in the following steps:</p>
@@ -366,7 +365,148 @@ This will be divided into two parts, being the server and client side roles.</p>
 <li>Registering our service</li>
 <li>Message receiving</li>
 </ol>
-<h3 id="create-a-mach-port-receive-right">Create a Mach port receive right</h3>
+<p>The full source code for the server is shown as follows:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="c1">// server.c
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="cp">#include</span> <span class="cpf">&lt;bootstrap.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;mach/mach.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;mach/message.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">mach_msg_header_t</span> <span class="n">header</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">char</span> <span class="n">body</span><span class="p">[</span><span class="mi">32</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">    <span class="n">mach_msg_trailer_t</span> <span class="n">trailer</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">Message</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">mach_msg_return_t</span> <span class="nf">receive_msg</span><span class="p">(</span><span class="n">mach_port_name_t</span> <span class="n">port</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Message</span> <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">mach_msg_return_t</span> <span class="n">ret</span> <span class="o">=</span> <span class="n">mach_msg</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">        <span class="p">(</span><span class="n">mach_msg_header_t</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">message</span><span class="p">,</span>  <span class="c1">// msg 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">MACH_RCV_MSG</span><span class="p">,</span>                   <span class="c1">// option            
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="mi">0</span><span class="p">,</span>                              <span class="c1">// send size
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">sizeof</span><span class="p">(</span><span class="n">message</span><span class="p">),</span>                <span class="c1">// receive size
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">port</span><span class="p">,</span>                           <span class="c1">// recv_name
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">MACH_MSG_TIMEOUT_NONE</span><span class="p">,</span>          <span class="c1">// timeout
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">MACH_PORT_NULL</span><span class="p">);</span>                <span class="c1">// notify port
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">ret</span> <span class="o">!=</span> <span class="n">MACH_MSG_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;[+] Received message!</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\t</span><span class="s">msgh_id</span><span class="se">\t\t</span><span class="s">: %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_id</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\t</span><span class="s">message.body</span><span class="se">\t</span><span class="s">: %s</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">message</span><span class="p">.</span><span class="n">body</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">MACH_MSG_SUCCESS</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">mach_port_t</span> <span class="n">task</span> <span class="o">=</span> <span class="n">mach_task_self</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">mach_port_name_t</span> <span class="n">recv_port</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">mach_port_allocate</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">MACH_PORT_RIGHT_RECEIVE</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">recv_port</span><span class="p">)</span> <span class="o">!=</span> <span class="n">KERN_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">mach_port_insert_right</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">recv_port</span><span class="p">,</span> <span class="n">recv_port</span><span class="p">,</span> <span class="n">MACH_MSG_TYPE_MAKE_SEND</span><span class="p">)</span> <span class="o">!=</span> <span class="n">KERN_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">mach_port_t</span> <span class="n">bootstrap_port</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">task_get_special_port</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">TASK_BOOTSTRAP_PORT</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">bootstrap_port</span><span class="p">)</span> <span class="o">!=</span> <span class="n">KERN_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">bootstrap_register</span><span class="p">(</span><span class="n">bootstrap_port</span><span class="p">,</span> <span class="s">&#34;com.test-service.alice&#34;</span><span class="p">,</span> <span class="n">recv_port</span><span class="p">)</span> <span class="o">!=</span> <span class="n">KERN_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">while</span> <span class="p">(</span><span class="nb">true</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">mach_msg_return_t</span> <span class="n">ret</span> <span class="o">=</span> <span class="n">receive_msg</span><span class="p">(</span><span class="n">recv_port</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">ret</span> <span class="o">!=</span> <span class="n">MACH_MSG_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">printf</span><span class="p">(</span><span class="s">&#34;[-] Failed to receive a message: %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">ret</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">EXIT_SUCCESS</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="create-a-mach-port-receive-right">Create a Mach port receive right</h3>
 <p>Defining our message structure composed of a <code>mach_msg_header_t</code> header, a body and a default <code>mach_msg_trailer_t</code>, although this last one is not neccesary for now.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -395,10 +535,10 @@ This will be divided into two parts, being the server and client side roles.</p>
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"> <span class="n">mach_port_t</span> <span class="n">task</span> <span class="o">=</span> <span class="n">mach_task_self</span><span class="p">();</span>
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">  <span class="n">mach_port_t</span> <span class="n">task</span> <span class="o">=</span> <span class="n">mach_task_self</span><span class="p">();</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">  <span class="n">mach_port_name_t</span> <span class="n">recvPort</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">mach_port_allocate</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">MACH_PORT_RIGHT_RECEIVE</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">recvPort</span><span class="p">)</span> <span class="o">!=</span> <span class="n">KERN_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">mach_port_name_t</span> <span class="n">recv_port</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">mach_port_allocate</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">MACH_PORT_RIGHT_RECEIVE</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">recv_port</span><span class="p">)</span> <span class="o">!=</span> <span class="n">KERN_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="p">}</span>
 </span></span></code></pre></td></tr></table>
@@ -410,11 +550,9 @@ This will be divided into two parts, being the server and client side roles.</p>
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span><span class="lnt">2
 </span><span class="lnt">3
-</span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">mach_port_insert_right</span><span class="p">(</span>
-</span></span><span class="line"><span class="cl">          <span class="n">task</span><span class="p">,</span> <span class="n">recvPort</span><span class="p">,</span> <span class="n">recvPort</span><span class="p">,</span> <span class="n">MACH_MSG_TYPE_MAKE_SEND</span><span class="p">)</span> <span class="o">!=</span> <span class="n">KERN_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">mach_port_insert_right</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">recv_port</span><span class="p">,</span> <span class="n">recv_port</span><span class="p">,</span> <span class="n">MACH_MSG_TYPE_MAKE_SEND</span><span class="p">)</span> <span class="o">!=</span> <span class="n">KERN_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="p">}</span>
 </span></span></code></pre></td></tr></table>
@@ -429,8 +567,8 @@ This will be divided into two parts, being the server and client side roles.</p>
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">  <span class="n">mach_port_t</span> <span class="n">bootstrapPort</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">task_get_special_port</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">TASK_BOOTSTRAP_PORT</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">bootstrapPort</span><span class="p">)</span> <span class="o">!=</span> <span class="n">KERN_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">  <span class="n">mach_port_t</span> <span class="n">bootstrap_port</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">task_get_special_port</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">TASK_BOOTSTRAP_PORT</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">bootstrap_port</span><span class="p">)</span> <span class="o">!=</span> <span class="n">KERN_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="p">}</span>
 </span></span></code></pre></td></tr></table>
@@ -443,7 +581,7 @@ This will be divided into two parts, being the server and client side roles.</p>
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">bootstrap_register</span><span class="p">(</span><span class="n">bootstrapPort</span><span class="p">,</span> <span class="s">&#34;com.test-service.alice&#34;</span><span class="p">,</span> <span class="n">recvPort</span><span class="p">)</span> <span class="o">!=</span> <span class="n">KERN_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">bootstrap_register</span><span class="p">(</span><span class="n">bootstrap_port</span><span class="p">,</span> <span class="s">&#34;com.test-service.alice&#34;</span><span class="p">,</span> <span class="n">recv_port</span><span class="p">)</span> <span class="o">!=</span> <span class="n">KERN_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="p">}</span>
 </span></span></code></pre></td></tr></table>
@@ -461,9 +599,9 @@ This will be divided into two parts, being the server and client side roles.</p>
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">  <span class="k">while</span> <span class="p">(</span><span class="nb">true</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">    <span class="n">mach_msg_return_t</span> <span class="n">ret</span> <span class="o">=</span> <span class="n">receive_msg</span><span class="p">(</span><span class="n">recvPort</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">mach_msg_return_t</span> <span class="n">ret</span> <span class="o">=</span> <span class="n">receive_msg</span><span class="p">(</span><span class="n">recv_port</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">ret</span> <span class="o">!=</span> <span class="n">MACH_MSG_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">      <span class="n">printf</span><span class="p">(</span><span class="s">&#34;Failed to receive a message: %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">ret</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">      <span class="n">printf</span><span class="p">(</span><span class="s">&#34;[-] Failed to receive a message: %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">ret</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">    <span class="p">}</span>
 </span></span><span class="line"><span class="cl">  <span class="p">}</span>
 </span></span></code></pre></td></tr></table>
@@ -496,7 +634,7 @@ This will be divided into two parts, being the server and client side roles.</p>
 </span><span class="lnt">23
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">mach_msg_return_t</span> <span class="nf">receive_msg</span><span class="p">(</span><span class="n">mach_port_name_t</span> <span class="n">recvPort</span><span class="p">)</span> <span class="p">{</span>
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">mach_msg_return_t</span> <span class="nf">receive_msg</span><span class="p">(</span><span class="n">mach_port_name_t</span> <span class="n">port</span><span class="p">)</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">  <span class="n">Message</span> <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
 </span></span><span class="line"><span class="cl">
@@ -505,7 +643,7 @@ This will be divided into two parts, being the server and client side roles.</p>
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">MACH_RCV_MSG</span><span class="p">,</span>                   <span class="c1">// option            
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="mi">0</span><span class="p">,</span>                              <span class="c1">// send size
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">sizeof</span><span class="p">(</span><span class="n">message</span><span class="p">),</span>                <span class="c1">// receive size
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">recvPort</span><span class="p">,</span>                       <span class="c1">// recv_name
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">port</span><span class="p">,</span>                       <span class="c1">// recv_name
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">MACH_MSG_TIMEOUT_NONE</span><span class="p">,</span>          <span class="c1">// timeout
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">MACH_PORT_NULL</span><span class="p">);</span>                <span class="c1">// notify port
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>  
@@ -530,7 +668,140 @@ This will be divided into two parts, being the server and client side roles.</p>
 <li>Fill message body</li>
 <li>Send the message</li>
 </ol>
-<h3 id="retrieve-target-service-port">Retrieve target service port</h3>
+<p>The full source of the client is shown as follows:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="c1">// client.c
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="cp">#include</span> <span class="cpf">&lt;bootstrap.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;mach/mach_init.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;mach/mach_port.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;mach/message.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;mach/port.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;mach/task.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;unistd.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">mach_msg_header_t</span> <span class="n">header</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">char</span> <span class="n">body</span><span class="p">[</span><span class="mi">32</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">Message</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">mach_port_name_t</span> <span class="n">task</span> <span class="o">=</span> <span class="n">mach_task_self</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">mach_port_t</span> <span class="n">bootstrap_port</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">task_get_special_port</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">TASK_BOOTSTRAP_PORT</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">bootstrap_port</span><span class="p">)</span> <span class="o">!=</span> <span class="n">KERN_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">mach_port_t</span> <span class="n">port</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">bootstrap_look_up</span><span class="p">(</span><span class="n">bootstrap_port</span><span class="p">,</span> <span class="s">&#34;com.test-service.alice&#34;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">port</span><span class="p">)</span> <span class="o">!=</span> <span class="n">KERN_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">Message</span> <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+</span></span><span class="line"><span class="cl">    <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_remote_port</span> <span class="o">=</span> <span class="n">port</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// copy send right to the remote port
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_bits</span> <span class="o">=</span> <span class="n">MACH_MSGH_BITS_SET</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">        <span class="n">MACH_MSG_TYPE_COPY_SEND</span><span class="p">,</span>        <span class="c1">// remote
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="mi">0</span><span class="p">,</span>                              <span class="c1">// local
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="mi">0</span><span class="p">,</span>                              <span class="c1">// voucher
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="mi">0</span><span class="p">);</span>                             <span class="c1">// other
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">    <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_id</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_size</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">message</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">strcpy</span><span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#34;Some Message Body Data :)&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">mach_msg_return_t</span> <span class="n">ret</span> <span class="o">=</span> <span class="n">mach_msg</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">        <span class="p">(</span><span class="n">mach_msg_header_t</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">message</span><span class="p">,</span>    <span class="c1">// msg 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">MACH_SEND_MSG</span><span class="p">,</span>                    <span class="c1">// option
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">sizeof</span><span class="p">(</span><span class="n">message</span><span class="p">),</span>                  <span class="c1">// send size
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="mi">0</span><span class="p">,</span>                                <span class="c1">// recv size
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">MACH_PORT_NULL</span><span class="p">,</span>                   <span class="c1">// recv name
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">MACH_MSG_TIMEOUT_NONE</span><span class="p">,</span>            <span class="c1">// timeout
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="n">MACH_PORT_NULL</span><span class="p">);</span>                  <span class="c1">// notify port
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">ret</span> <span class="o">!=</span> <span class="n">MACH_MSG_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">printf</span><span class="p">(</span><span class="s">&#34;[-] Failed mach_msg: %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">ret</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">sleep</span><span class="p">(</span><span class="mi">120</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">EXIT_SUCCESS</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="retrieve-target-service-port">Retrieve target service port</h3>
 <p>Retrieve the bootstrap server prot</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -544,8 +815,8 @@ This will be divided into two parts, being the server and client side roles.</p>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">  <span class="n">mach_port_name_t</span> <span class="n">task</span> <span class="o">=</span> <span class="n">mach_task_self</span><span class="p">();</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">  <span class="n">mach_port_t</span> <span class="n">bootstrapPort</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">task_get_special_port</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">TASK_BOOTSTRAP_PORT</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">bootstrapPort</span><span class="p">)</span> <span class="o">!=</span> <span class="n">KERN_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">mach_port_t</span> <span class="n">bootstrap_port</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">task_get_special_port</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">TASK_BOOTSTRAP_PORT</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">bootstrap_port</span><span class="p">)</span> <span class="o">!=</span> <span class="n">KERN_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="p">}</span>
 </span></span></code></pre></td></tr></table>
@@ -560,7 +831,7 @@ This will be divided into two parts, being the server and client side roles.</p>
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">  <span class="n">mach_port_t</span> <span class="n">port</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">bootstrap_look_up</span><span class="p">(</span><span class="n">bootstrapPort</span><span class="p">,</span> <span class="s">&#34;com.test-service.alice&#34;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">port</span><span class="p">)</span> <span class="o">!=</span> <span class="n">KERN_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">bootstrap_look_up</span><span class="p">(</span><span class="n">bootstrap_port</span><span class="p">,</span> <span class="s">&#34;com.test-service.alice&#34;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">port</span><span class="p">)</span> <span class="o">!=</span> <span class="n">KERN_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="p">}</span>
 </span></span></code></pre></td></tr></table>
@@ -634,12 +905,12 @@ The complex bit must be specified if the message body contains additional port r
 <pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">  <span class="n">Message</span> <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
 </span></span><span class="line"><span class="cl">  <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_remote_port</span> <span class="o">=</span> <span class="n">port</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">  <span class="c1">// copy send right to the remote port
+</span></span><span class="line"><span class="cl">  <span class="c1">// Copy send right to the remote port
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_bits</span> <span class="o">=</span> <span class="n">MACH_MSGH_BITS_SET</span><span class="p">(</span>
-</span></span><span class="line"><span class="cl">    <span class="n">MACH_MSG_TYPE_COPY_SEND</span><span class="p">,</span>    <span class="c1">// remote
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="mi">0</span><span class="p">,</span>                          <span class="c1">// local
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="mi">0</span><span class="p">,</span>                          <span class="c1">// voucher
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="mi">0</span><span class="p">);</span>                         <span class="c1">// other
+</span></span><span class="line"><span class="cl">    <span class="n">MACH_MSG_TYPE_COPY_SEND</span><span class="p">,</span>        <span class="c1">// remote
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="mi">0</span><span class="p">,</span>                              <span class="c1">// local
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="mi">0</span><span class="p">,</span>                              <span class="c1">// voucher
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="mi">0</span><span class="p">);</span>                             <span class="c1">// other
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>  
 </span></span><span class="line"><span class="cl">  <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_id</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_size</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">message</span><span class="p">);</span>
@@ -668,7 +939,7 @@ The complex bit must be specified if the message body contains additional port r
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">  <span class="n">strcpy</span><span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#34;Some Message :)&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="n">strcpy</span><span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#34;Some Message Body Data :)&#34;</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">  <span class="n">mach_msg_return_t</span> <span class="n">ret</span> <span class="o">=</span> <span class="n">mach_msg</span><span class="p">(</span>
 </span></span><span class="line"><span class="cl">    <span class="p">(</span><span class="n">mach_msg_header_t</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">message</span><span class="p">,</span>    <span class="c1">// msg 
@@ -680,12 +951,13 @@ The complex bit must be specified if the message body contains additional port r
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">MACH_PORT_NULL</span><span class="p">);</span>                  <span class="c1">// notify port
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>
 </span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">ret</span> <span class="o">!=</span> <span class="n">MACH_MSG_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;Failed mach_msg: %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">ret</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;[-] Failed mach_msg: %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">ret</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="p">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h1 id="a-bidirectional-example">A Bidirectional Example</h1>
+</div><h1 id="bidirectionalcomplex-message-example">Bidirectional/Complex Message Example</h1>
+<h1 id="ool-complex-message-example">OOL Complex Message Example</h1>
 <h1 id="references">References</h1>
 <ol>
 <li><a href="https://dmcyk.xyz">Damian Malarczyk</a></li>

@@ -8,13 +8,13 @@
     <language>en</language>
     <lastBuildDate>Mon, 28 Nov 2022 00:00:00 +0000</lastBuildDate><atom:link href="http://ulexec.github.io/post/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Notes on XNU IPC</title>
+      <title>Notes on Mach IPC</title>
       <link>http://ulexec.github.io/post/2022-12-01-xnu_ipc/</link>
       <pubDate>Mon, 28 Nov 2022 00:00:00 +0000</pubDate>
       
       <guid>http://ulexec.github.io/post/2022-12-01-xnu_ipc/</guid>
-      <description>Introduction This blog is intended to be a dedicated effort to structure information in relation to XNU IPC in a way that I can remember and use as a reference for the future.
-Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with todays enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces.</description>
+      <description>Introduction This blog is intended to be a dedicated effort to structure digested information in relation to XNU IPC in a way that I can remember and use as a reference for the future.
+Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with today&amp;rsquo;s enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces.</description>
     </item>
     
     <item>
