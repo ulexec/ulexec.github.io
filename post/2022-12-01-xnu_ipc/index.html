@@ -17,7 +17,7 @@
 
 
 <meta name="author" content="ulexec" /><meta name="description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to XNU IPC in a way that I can remember and use as a reference for the future.
-Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with todays enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication possible is vital to understand and tackle adyacent attack surfaces." /><meta name="keywords" content="Hugo, theme, even" />
+Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with todays enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces." /><meta name="keywords" content="Hugo, theme, even" />
 
 
 
@@ -42,21 +42,21 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
 
 <meta property="og:title" content="Notes on XNU IPC" />
 <meta property="og:description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to XNU IPC in a way that I can remember and use as a reference for the future.
-Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with todays enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication possible is vital to understand and tackle adyacent attack surfaces." />
+Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with todays enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://ulexec.github.io/post/2022-12-01-xnu_ipc/" /><meta property="article:section" content="post" />
-<meta property="article:published_time" content="2022-11-01T00:00:00+00:00" />
-<meta property="article:modified_time" content="2022-11-01T00:00:00+00:00" />
+<meta property="article:published_time" content="2022-11-28T00:00:00+00:00" />
+<meta property="article:modified_time" content="2022-11-28T00:00:00+00:00" />
 
 <meta itemprop="name" content="Notes on XNU IPC">
 <meta itemprop="description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to XNU IPC in a way that I can remember and use as a reference for the future.
-Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with todays enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication possible is vital to understand and tackle adyacent attack surfaces."><meta itemprop="datePublished" content="2022-11-01T00:00:00+00:00" />
-<meta itemprop="dateModified" content="2022-11-01T00:00:00+00:00" />
-<meta itemprop="wordCount" content="2557">
+Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with todays enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces."><meta itemprop="datePublished" content="2022-11-28T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2022-11-28T00:00:00+00:00" />
+<meta itemprop="wordCount" content="2558">
 <meta itemprop="keywords" content="macOS,IPC," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Notes on XNU IPC"/>
 <meta name="twitter:description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to XNU IPC in a way that I can remember and use as a reference for the future.
-Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with todays enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication possible is vital to understand and tackle adyacent attack surfaces."/>
+Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with todays enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces."/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -132,11 +132,11 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
       <h1 class="post-title">Notes on XNU IPC</h1>
 
       <div class="post-meta">
-        <span class="post-time"> 2022-11-01 </span>
+        <span class="post-time"> 2022-11-28 </span>
         <div class="post-category">
             <a href="/categories/article/"> Article </a>
             </div>
-          <span class="more-meta"> 2557 words </span>
+          <span class="more-meta"> 2558 words </span>
           <span class="more-meta"> 13 mins read </span>
         
       </div>
@@ -184,7 +184,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
     <div class="post-content">
       <h1 id="introduction">Introduction</h1>
 <p>This blog is intended to be a dedicated effort to structure information in relation to XNU IPC in a way that I can remember and use as a reference for the future.</p>
-<p>Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with todays enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication possible is vital to understand and tackle adyacent attack surfaces.</p>
+<p>Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with todays enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces.</p>
 <h1 id="overview">Overview</h1>
 <p>XNU is the computer operating system kernel in use on macOS operating system, and released as free and open-source software as part of the Darwin OS, which in addition to macOS is also the basis for the Apple TV Software, iOS, iPadOS, watchOS, and tvOS OSes. XNU is an abbreviation of <code>X is Not Unix</code>.</p>
 <p>XNU is a hybrid kernel, containing features of both monolithic and microkernel designs. An overview of the comparison of the distinct characteristics between monolithic and microkernel architctures are the following:</p>
@@ -704,7 +704,7 @@ The complex bit must be specified if the message body contains additional port r
   <p class="copyright-item">
     <span class="item-title">LastMod</span>
     <span class="item-content">
-        2022-11-01
+        2022-11-28
         
     </span>
   </p>

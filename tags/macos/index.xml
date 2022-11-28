@@ -6,15 +6,15 @@
     <description>Recent content in macOS on ulexec | blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Tue, 01 Nov 2022 00:00:00 +0000</lastBuildDate><atom:link href="http://ulexec.github.io/tags/macos/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 28 Nov 2022 00:00:00 +0000</lastBuildDate><atom:link href="http://ulexec.github.io/tags/macos/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Notes on XNU IPC</title>
       <link>http://ulexec.github.io/post/2022-12-01-xnu_ipc/</link>
-      <pubDate>Tue, 01 Nov 2022 00:00:00 +0000</pubDate>
+      <pubDate>Mon, 28 Nov 2022 00:00:00 +0000</pubDate>
       
       <guid>http://ulexec.github.io/post/2022-12-01-xnu_ipc/</guid>
       <description>Introduction This blog is intended to be a dedicated effort to structure information in relation to XNU IPC in a way that I can remember and use as a reference for the future.
-Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with todays enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication possible is vital to understand and tackle adyacent attack surfaces.</description>
+Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with todays enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces.</description>
     </item>
     
   </channel>
