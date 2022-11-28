@@ -52,7 +52,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
 <meta itemprop="description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to XNU IPC in a way that I can remember and use as a reference for the future.
 Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with todays enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces."><meta itemprop="datePublished" content="2022-11-28T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2022-11-28T00:00:00+00:00" />
-<meta itemprop="wordCount" content="2551">
+<meta itemprop="wordCount" content="2555">
 <meta itemprop="keywords" content="macOS,IPC," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Notes on XNU IPC"/>
 <meta name="twitter:description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to XNU IPC in a way that I can remember and use as a reference for the future.
@@ -136,7 +136,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
         <div class="post-category">
             <a href="/categories/article/"> Article </a>
             </div>
-          <span class="more-meta"> 2551 words </span>
+          <span class="more-meta"> 2555 words </span>
           <span class="more-meta"> 12 mins read </span>
         
       </div>
@@ -157,7 +157,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
         <li><a href="#messages">Messages</a></li>
       </ul>
     </li>
-    <li><a href="#a-basic-example">A Basic Example</a>
+    <li><a href="#a-basic-unidirectional-example">A Basic Unidirectional Example</a>
       <ul>
         <li><a href="#server-side">Server Side</a>
           <ul>
@@ -176,6 +176,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
         </li>
       </ul>
     </li>
+    <li><a href="#a-bidirectional-example">A Bidirectional Example</a></li>
     <li><a href="#references">References</a></li>
   </ul>
 </nav>
@@ -353,7 +354,7 @@ The role of this bootstrap server in XNU is fulfilled by <code>launchd</code>, a
 <li><code>msgh_id</code> - user defined message identifier</li>
 </ul>
 <p>When receiving a message, messages can optionally contain a field known as trailer at the end of the message. Trailers contain information about the message. Trailers will be covered in more detailed in a future section.</p>
-<h1 id="a-basic-example">A Basic Example</h1>
+<h1 id="a-basic-unidirectional-example">A Basic Unidirectional Example</h1>
 <p>This section will describe a minimalist example of an exchange between two parties over mach messages.
 This will be divided into two parts, being the server and client side roles.</p>
 <h2 id="server-side">Server Side</h2>
@@ -684,7 +685,8 @@ The complex bit must be specified if the message body contains additional port r
 </span></span><span class="line"><span class="cl">  <span class="p">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h1 id="references">References</h1>
+</div><h1 id="a-bidirectional-example">A Bidirectional Example</h1>
+<h1 id="references">References</h1>
 <ol>
 <li><a href="https://dmcyk.xyz">Damian Malarczyk</a></li>
 <li><a href="http://newosxbook.com/">macOS and *OS Internals</a></li>
