@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Notes on XNU IPC - Even - A super concise theme for Hugo</title>
+  <meta name="renderer" content="webkit" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+
+<meta name="author" content="ulexec" /><meta name="description" content="Notes on XNU IPC This blog is intended to be a dedicated effort to structure information in relation to XNU IPC in a way that I can remember and use as a reference for the future.
+Often as a vulnerability researcher, attack-surfaces involving compromising other adyacent processes relative to a preliminar target are increasingly important with todays enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication possible is vital to understand and tackle adyacent attack surfaces." /><meta name="keywords" content="Hugo, theme, even" />
+
+
+
+
+
+
+<meta name="generator" content="Hugo 0.107.0 with theme even" />
+
+
+<link rel="canonical" href="http://ulexec.github.io/post/2022-12-01-xnu_ipc/" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+
+
+<link href="/sass/main.min.f73a6ffa72be6986c3a367201316a0ad5a90db5f09b95dc0bbaedb923d419e87.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
+
+
+<meta property="og:title" content="Notes on XNU IPC" />
+<meta property="og:description" content="Notes on XNU IPC This blog is intended to be a dedicated effort to structure information in relation to XNU IPC in a way that I can remember and use as a reference for the future.
+Often as a vulnerability researcher, attack-surfaces involving compromising other adyacent processes relative to a preliminar target are increasingly important with todays enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication possible is vital to understand and tackle adyacent attack surfaces." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://ulexec.github.io/post/2022-12-01-xnu_ipc/" /><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2022-11-01T00:00:00+00:00" />
+<meta property="article:modified_time" content="2022-11-01T00:00:00+00:00" />
+
+<meta itemprop="name" content="Notes on XNU IPC">
+<meta itemprop="description" content="Notes on XNU IPC This blog is intended to be a dedicated effort to structure information in relation to XNU IPC in a way that I can remember and use as a reference for the future.
+Often as a vulnerability researcher, attack-surfaces involving compromising other adyacent processes relative to a preliminar target are increasingly important with todays enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication possible is vital to understand and tackle adyacent attack surfaces."><meta itemprop="datePublished" content="2022-11-01T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2022-11-01T00:00:00+00:00" />
+<meta itemprop="wordCount" content="589">
+<meta itemprop="keywords" content="macOS,IPC," /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Notes on XNU IPC"/>
+<meta name="twitter:description" content="Notes on XNU IPC This blog is intended to be a dedicated effort to structure information in relation to XNU IPC in a way that I can remember and use as a reference for the future.
+Often as a vulnerability researcher, attack-surfaces involving compromising other adyacent processes relative to a preliminar target are increasingly important with todays enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication possible is vital to understand and tackle adyacent attack surfaces."/>
+
+<!--[if lte IE 9]>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+  <div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/" class="logo">ulexec 의 연구</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list">
+    <a href="/">
+        <li class="mobile-menu-item">Home</li>
+      </a><a href="/post/">
+        <li class="mobile-menu-item">Archives</li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags</li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About</li>
+      </a>
+  </ul>
+
+  
+
+
+</nav>
+
+  <div class="container" id="mobile-panel">
+    <header id="header" class="header">
+        <div class="logo-wrapper">
+  <a href="/" class="logo">ulexec 의 연구</a>
+</div>
+
+
+
+
+
+<nav class="site-navbar">
+  <ul id="menu" class="menu">
+    <li class="menu-item">
+        <a class="menu-item-link" href="/">Home</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/post/">Archives</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/tags/">Tags</a>
+      </li><li class="menu-item">
+        <a class="menu-item-link" href="/about/">About</a>
+      </li>
+  </ul>
+</nav>
+
+    </header>
+
+    <main id="main" class="main">
+      <div class="content-wrapper">
+        <div id="content" class="content">
+          <article class="post">
+    
+    <header class="post-header">
+      <h1 class="post-title">Notes on XNU IPC</h1>
+
+      <div class="post-meta">
+        <span class="post-time"> 2022-11-01 </span>
+        <div class="post-category">
+            <a href="/categories/article/"> Article </a>
+            </div>
+          <span class="more-meta"> 589 words </span>
+          <span class="more-meta"> 3 mins read </span>
+        
+      </div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+  <h2 class="post-toc-title">Contents</h2>
+  <div class="post-toc-content always-active">
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#notes-on-xnu-ipc">Notes on XNU IPC</a>
+      <ul>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#mach-messages">Mach Messages</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+  </div>
+</div>
+    <div class="post-content">
+      <h1 id="notes-on-xnu-ipc">Notes on XNU IPC</h1>
+<p>This blog is intended to be a dedicated effort to structure information in relation to XNU IPC in a way that I can remember and use as a reference for the future.</p>
+<p>Often as a vulnerability researcher, attack-surfaces involving compromising other adyacent processes relative to a preliminar target are increasingly important with todays enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication possible is vital to understand and tackle adyacent attack surfaces.</p>
+<h2 id="overview">Overview</h2>
+<p>XNU is the computer operating system kernel for use in macOS operating system, and released as free and open-source software as part of the Darwin OS, which in addition to macOS is also the basis for the Apple TV Software, iOS, iPadOS, watchOS, and tvOS OSes. XNU is an abbreviation of <code>X is Not Unix</code>.</p>
+<p>XNU is a hybrid kernel, containing features of both monolithic and microkernel designs. An overview of the comparison of the distinct characteristics between monolithic and microkernel architctures are the following:</p>
+<ul>
+<li>
+<p>A microkernel is a kernel type that implements an operating system by providing methods, including low-level address space management, IPC, and thread management. On the other hand, a monolithic kernel is a type of kernel in which the complete OS runs in the kernel space.</p>
+</li>
+<li>
+<p>Microkernels run user and kernel services in different address spaces. On the other hand, the monolithic kernel runs both kernel and user services in the same address space. In microkernels, only essential processes like IPC, memory management, and scheduling take place in kernel space.</p>
+</li>
+<li>
+<p>The execution of a microkernel is slower because communication between the system&rsquo;s application and hardware is established by message passing. On the other hand, the execution of the monolithic kernel is faster because the system call establishes the communication of the system&rsquo;s application and hardware.</p>
+</li>
+<li>
+<p>Microkernels use the messaging queues to achieve IPC. On the other hand, monolithic kernels use sockets and signals to achieve IPC.
+The microkernel size is small than the monolithic kernel because only the kernel services run in the kernel address space. On the other hand, the monolithic kernel size is larger because both user and kernel services run in the same address space.</p>
+</li>
+<li>
+<p>Microkernels are more secure than the monolithic kernels because the operating system is unchanged if a service fails in a microkernel. On the other hand, if a service fails in a monolithic kernel, the entire system fails.</p>
+</li>
+<li>
+<p>Microkernels are simple to extend as new services are added in user address space, which is separate from kernel space, and thus the kernel doesn&rsquo;t need to be updated. On the other hand, the complete kernel must be updated if a new service is used in a monolithic kernel.</p>
+</li>
+<li>
+<p>Microkernel designing needs less code that leads to fewer errors. In contrast, the monolithic kernel requires more code that leads to more errors.</p>
+</li>
+</ul>
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/d/d0/OS-structure2.svg" alt=""></p>
+<p>Running the core of an operating system as separated processes, allows for great flexibility but this often reduces performance due to time-consuming kernel/user mode context switches and overhead stemming from mapping or copying messages between the address spaces of the kernel and that of the service daemons.</p>
+<p>Given the challenges of a microkernel design, XNU uses a hybrid design. Much of the functionality lives in the kernel space, but also many subsystems are backed by user space daemons.</p>
+<p>Mach messages are relevant in this context as it implements the core technology for IPC communication between kernel and user-space processes in the Mach microkernel architecture.</p>
+<h2 id="mach-messages">Mach Messages</h2>
+
+    </div>
+
+    <div class="post-copyright">
+  <p class="copyright-item">
+    <span class="item-title">Author</span>
+    <span class="item-content">ulexec</span>
+  </p>
+  <p class="copyright-item">
+    <span class="item-title">LastMod</span>
+    <span class="item-content">
+        2022-11-01
+        
+    </span>
+  </p>
+  
+  
+</div>
+<footer class="post-footer">
+      <div class="post-tags">
+          <a href="/tags/macos/">macOS</a>
+          <a href="/tags/ipc/">IPC</a>
+          </div>
+      <nav class="post-nav">
+        
+        <a class="next" href="/post/2022-02-22-shelfchrome/">
+            <span class="next-text nav-default">SHELF encounters of the elements kind</span>
+            <span class="next-text nav-mobile">Next</span>
+            <i class="iconfont icon-right"></i>
+          </a>
+      </nav>
+    </footer>
+  </article>
+        </div>
+        
+
+  
+
+  
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="social-links">
+      <a href="ulexecve@protonmail.com" class="iconfont icon-email" title="email"></a>
+      <a href="https://twitter.com/ulexec" class="iconfont icon-twitter" title="twitter"></a>
+      <a href="https://linkedin.com/in/ignacio-sanmillan-1aa244b8" class="iconfont icon-linkedin" title="linkedin"></a>
+      <a href="https://github.com/ulexec" class="iconfont icon-github" title="github"></a>
+  <a href="http://ulexec.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
+</div>
+
+<div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
+  </span>
+
+  
+
+  <span class="copyright-year">
+    &copy; 
+    2017 - 
+    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>ulexec</span>
+  </span>
+</div>
+
+    </footer>
+
+    <div class="back-to-top" id="back-to-top">
+      <i class="iconfont icon-up"></i>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+
+
+
+<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+
+
+
+
+
+
+
+
+</body>
+</html>

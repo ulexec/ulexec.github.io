@@ -10,34 +10,62 @@
   
   <url>
     <loc>http://ulexec.github.io/categories/article/</loc>
-    <lastmod>2022-02-22T00:00:00+00:00</lastmod>
+    <lastmod>2022-11-01T00:00:00+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   
   <url>
     <loc>http://ulexec.github.io/categories/</loc>
-    <lastmod>2022-02-22T00:00:00+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
-    <loc>http://ulexec.github.io/tags/chrome/</loc>
-    <lastmod>2022-02-22T00:00:00+00:00</lastmod>
+    <lastmod>2022-11-01T00:00:00+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   
   <url>
     <loc>http://ulexec.github.io/</loc>
-    <lastmod>2022-02-22T00:00:00+00:00</lastmod>
+    <lastmod>2022-11-01T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://ulexec.github.io/tags/ipc/</loc>
+    <lastmod>2022-11-01T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://ulexec.github.io/tags/macos/</loc>
+    <lastmod>2022-11-01T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://ulexec.github.io/post/2022-12-01-xnu_ipc/</loc>
+    <lastmod>2022-11-01T00:00:00+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   
   <url>
     <loc>http://ulexec.github.io/post/</loc>
+    <lastmod>2022-11-01T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://ulexec.github.io/tags/</loc>
+    <lastmod>2022-11-01T00:00:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>http://ulexec.github.io/tags/chrome/</loc>
     <lastmod>2022-02-22T00:00:00+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
@@ -52,13 +80,6 @@
   
   <url>
     <loc>http://ulexec.github.io/post/2022-02-22-shelfchrome/</loc>
-    <lastmod>2022-02-22T00:00:00+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
-    <loc>http://ulexec.github.io/tags/</loc>
     <lastmod>2022-02-22T00:00:00+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
