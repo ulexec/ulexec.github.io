@@ -8,23 +8,23 @@
     <language>en</language>
     <lastBuildDate>Thu, 20 May 2021 00:00:00 +0000</lastBuildDate><atom:link href="http://ulexec.github.io/tags/ctf/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>*CTF 2019 - oob-v8</title>
-      <link>http://ulexec.github.io/post/2021-05-20-startctf2019_oobv8/</link>
-      <pubDate>Thu, 20 May 2021 00:00:00 +0000</pubDate>
-      
-      <guid>http://ulexec.github.io/post/2021-05-20-startctf2019_oobv8/</guid>
-      <description>This post will cover the chrome exploit challenge oob-v8 from *CTF. The challenge can be found here.
-01 -Analyzing the Patch if we take a close look at the patch oob.diff from the *CTF v8-oob challenge we will observe the introduction of the ArrayOob function. Authors of this challenge didn&amp;rsquo;t really wanted to make the discovery of the vulnerability a hard task, and there are even comments for the read/write primitives.</description>
-    </item>
-    
-    <item>
       <title>HTB 2021: Modern Typer </title>
       <link>http://ulexec.github.io/post/2021-04-09-htb_modern_typer/</link>
-      <pubDate>Fri, 09 Apr 2021 00:00:00 +0000</pubDate>
+      <pubDate>Thu, 20 May 2021 00:00:00 +0000</pubDate>
       
       <guid>http://ulexec.github.io/post/2021-04-09-htb_modern_typer/</guid>
       <description>Overview SPOILER: This blog contains the solution of Modern Typer Chrome exploitation challenge from HTB. If you are planning to take this challenge, I would highly encourage attempting the challenge first before reading this blog. This challenge can be obtained from the Challenges section of hackthebox.
 Prerequisites This blog is not a Turbofan reference and is not intended to be. There are excellent public resources to acquire a basic understanding of Turbofan.</description>
+    </item>
+    
+    <item>
+      <title>*CTF 2019 - oob-v8</title>
+      <link>http://ulexec.github.io/post/2021-05-20-startctf2019_oobv8/</link>
+      <pubDate>Thu, 08 Apr 2021 00:00:00 +0000</pubDate>
+      
+      <guid>http://ulexec.github.io/post/2021-05-20-startctf2019_oobv8/</guid>
+      <description>This post will cover the chrome exploit challenge oob-v8 from *CTF. The challenge can be found here.
+01 -Analyzing the Patch if we take a close look at the patch oob.diff from the *CTF v8-oob challenge we will observe the introduction of the ArrayOob function. Authors of this challenge didn&amp;rsquo;t really wanted to make the discovery of the vulnerability a hard task, and there are even comments for the read/write primitives.</description>
     </item>
     
     <item>
