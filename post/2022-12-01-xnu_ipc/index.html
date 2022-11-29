@@ -52,7 +52,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
 <meta itemprop="description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to Mach Messages in a way that I can remember and use as a reference for the future.
 Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with today&rsquo;s enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces."><meta itemprop="datePublished" content="2022-11-28T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2022-11-28T00:00:00+00:00" />
-<meta itemprop="wordCount" content="3468">
+<meta itemprop="wordCount" content="3467">
 <meta itemprop="keywords" content="macOS,IPC," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Notes on Mach IPC"/>
 <meta name="twitter:description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to Mach Messages in a way that I can remember and use as a reference for the future.
@@ -136,7 +136,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
         <div class="post-category">
             <a href="/categories/article/"> Article </a>
             </div>
-          <span class="more-meta"> 3468 words </span>
+          <span class="more-meta"> 3467 words </span>
           <span class="more-meta"> 17 mins read </span>
         
       </div>
@@ -363,11 +363,11 @@ In addition, the followin values denote port rights (obtained from <a href="http
 </li>
 <li>
 <p><code>MACH_MSG_TYPE_COPY_SEND</code></p>
-<p>The message will carry a send right, and the caller should supply a send right. The user reference count for the supplied send right is not changed. The caller may also supply a dead name and the receiving task will get MACH_PORT_DEAD.</p>
+<p>The message will carry a send right, and the caller should supply a send right. The user reference count for the supplied send right is not changed. The caller may also supply a dead name and the receiving task will get <code>MACH_PORT_DEAD</code>.</p>
 </li>
 <li>
 <p><code>MACH_MSG_TYPE_MOVE_SEND</code></p>
-<p>The message will carry a send right, and the caller should supply a send right. The user reference count for the supplied send right is decremented, and the right is destroyed if the count becomes zero. Unless a receive right remains, the name becomes available for recycling. The caller may also supply a dead name, which loses a user reference, and the receiving task will get MACH_PORT_DEAD.</p>
+<p>The message will carry a send right, and the caller should supply a send right. The user reference count for the supplied send right is decremented, and the right is destroyed if the count becomes zero. Unless a receive right remains, the name becomes available for recycling. The caller may also supply a dead name, which loses a user reference, and the receiving task will get<code>MACH_PORT_DEAD</code>.</p>
 </li>
 <li>
 <p><code>MACH_MSG_TYPE_MAKE_SEND_ONCE</code></p>
@@ -375,7 +375,7 @@ In addition, the followin values denote port rights (obtained from <a href="http
 </li>
 <li>
 <p><code>MACH_MSG_TYPE_MOVE_SEND_ONCE</code></p>
-<p>The message will carry a send-once right, and the caller should supply a send-once right. The caller loses the supplied send-once right. The caller may also supply a dead name, which loses a user reference, and the receiving task will get MACH_PORT_DEAD.</p>
+<p>The message will carry a send-once right, and the caller should supply a send-once right. The caller loses the supplied send-once right. The caller may also supply a dead name, which loses a user reference, and the receiving task will get <code>MACH_PORT_DEAD</code>.</p>
 </li>
 <li>
 <p><code>MACH_MSG_TYPE_MOVE_RECEIVE</code></p>
