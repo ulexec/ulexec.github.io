@@ -52,7 +52,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
 <meta itemprop="description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to Mach Messages in a way that I can remember and use as a reference for the future.
 Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with today&rsquo;s enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces."><meta itemprop="datePublished" content="2022-11-28T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2022-11-28T00:00:00+00:00" />
-<meta itemprop="wordCount" content="3467">
+<meta itemprop="wordCount" content="3434">
 <meta itemprop="keywords" content="macOS,IPC," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Notes on Mach IPC"/>
 <meta name="twitter:description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to Mach Messages in a way that I can remember and use as a reference for the future.
@@ -136,7 +136,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
         <div class="post-category">
             <a href="/categories/article/"> Article </a>
             </div>
-          <span class="more-meta"> 3467 words </span>
+          <span class="more-meta"> 3434 words </span>
           <span class="more-meta"> 17 mins read </span>
         
       </div>
@@ -305,57 +305,7 @@ The following describes how this process works:</p>
 <li>He transfers the send right to this port over a message to Alice</li>
 </ol>
 <p>Now both Bob and Alice own a receive and send rights to ports they can leverage to communicate with one another. Syncing up the communication over different ports is not very convenient or efficient, therefore a mach message can optionally include a repy port which can be used to send a message response.</p>
-<p>In order to understand how in practice these receive rights look like, first we have to review a specific macro which is used to set bits into <code>mach_msg_bits_t</code> in a mach message. We will cover mach messages in more depth later, but for now lets just focus in this macro.
-This macro is <code>MACH_MSGH_BITS_SET</code> from <a href="https://opensource.apple.com/source/xnu/xnu-4570.41.2/osfmk/mach/message.h.auto.html"><code>mach/message.h.auto.html</code></a>:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span><span class="lnt">12
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="cm">/* setter macros for the bits */</span>
-</span></span><span class="line"><span class="cl"><span class="cp">#define MACH_MSGH_BITS(remote, local)  </span><span class="cm">/* legacy */</span><span class="cp">		\
-</span></span></span><span class="line"><span class="cl"><span class="cp">		((remote) | ((local) &lt;&lt; 8))
-</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
-</span></span><span class="line"><span class="cl"><span class="cp">#define	MACH_MSGH_BITS_SET_PORTS(remote, local, voucher)	\
-</span></span></span><span class="line"><span class="cl"><span class="cp">	(((remote) &amp; MACH_MSGH_BITS_REMOTE_MASK) | 		\
-</span></span></span><span class="line"><span class="cl"><span class="cp">	 (((local) &lt;&lt; 8) &amp; MACH_MSGH_BITS_LOCAL_MASK) | 	\
-</span></span></span><span class="line"><span class="cl"><span class="cp">	 (((voucher) &lt;&lt; 16) &amp; MACH_MSGH_BITS_VOUCHER_MASK))
-</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
-</span></span><span class="line"><span class="cl"><span class="cp">#define MACH_MSGH_BITS_SET(remote, local, voucher, other)	\
-</span></span></span><span class="line"><span class="cl"><span class="cp">	(MACH_MSGH_BITS_SET_PORTS((remote), (local), (voucher)) \
-</span></span></span><span class="line"><span class="cl"><span class="cp">	 | ((other) &amp;~ MACH_MSGH_BITS_PORTS_MASK))
-</span></span></span></code></pre></td></tr></table>
-</div>
-</div><p>Here we can see that for <code>remote</code>, <code>local</code> and <code>voucher</code>, is setting bits on specific binary masks. These bits correspond to the port disposition, which indicates what port right is being granted or was granted, depending if these bits are applied on a sending message or fetch on a receiving message. These binary masks correspond to the following:</p>
-<ul>
-<li>
-<p><code>MACH_MSGH_BITS_REMOTE_MASK</code>:</p>
-<p>Encodes <code>mach_msg_type_name_t</code> values that specify the port rights in the <code>msgh_remote_port</code> field.</p>
-<p>The value must specify a send or send-once right for the destination of the message.</p>
-</li>
-<li>
-<p><code>MACH_MSGH_BITS_LOCAL_MASK</code>:</p>
-<p>Encodes <code>mach_msg_type_name_t</code> values that specify the port rights in the <code>msgh_local_port</code> field.</p>
-<p>If the value doesn&rsquo;t specify a send or send-once right for the message&rsquo;s reply port, it must be zero and <code>msgh_local_port</code> must be <code>MACH_PORT_NULL</code>.</p>
-</li>
-<li>
-<p><code>MACH_MSGH_BITS_COMPLEX</code>:
-The complex bit must be specified if the message body contains additional port rights or out-of-line memory regions.</p>
-</li>
-</ul>
-<p>Basically these mask, estipulate to which port the port right disposition is being applied (remote port, local port, or OOL port rights).
-In addition, the followin values denote port rights (obtained from <a href="https://www.gnu.org/software/hurd/gnumach-doc/Exchanging-Port-Rights.html">this</a> resource) :</p>
+<p>The following values denote port rights (obtained from <a href="https://www.gnu.org/software/hurd/gnumach-doc/Exchanging-Port-Rights.html">this</a> resource) :</p>
 <ul>
 <li>
 <p><code>MACH_MSG_TYPE_MAKE_SEND</code></p>
@@ -887,7 +837,56 @@ This will be divided into two parts, being the server and client side roles.</p>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="setup-message-header">Setup message header</h3>
-<p>Here we are usig the <code>MACH_MSGH_BITS_SET</code> macro as covered before to set appropiate bits to specify that the send right to our mach port should be copied in the remote port.</p>
+<p>One important macro to cover is the macro <code>MACH_MSGH_BITS_SET</code>. It serves to set appropiate bits in <code>mach_msg_bits_t</code> representing a given port right disposition. This macro is defined in <a href="https://opensource.apple.com/source/xnu/xnu-4570.41.2/osfmk/mach/message.h.auto.html"><code>mach/message.h.auto.html</code></a>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="cm">/* setter macros for the bits */</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#define MACH_MSGH_BITS(remote, local)  </span><span class="cm">/* legacy */</span><span class="cp">		\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		((remote) | ((local) &lt;&lt; 8))
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cp">#define	MACH_MSGH_BITS_SET_PORTS(remote, local, voucher)	\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	(((remote) &amp; MACH_MSGH_BITS_REMOTE_MASK) | 		\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	 (((local) &lt;&lt; 8) &amp; MACH_MSGH_BITS_LOCAL_MASK) | 	\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	 (((voucher) &lt;&lt; 16) &amp; MACH_MSGH_BITS_VOUCHER_MASK))
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cp">#define MACH_MSGH_BITS_SET(remote, local, voucher, other)	\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	(MACH_MSGH_BITS_SET_PORTS((remote), (local), (voucher)) \
+</span></span></span><span class="line"><span class="cl"><span class="cp">	 | ((other) &amp;~ MACH_MSGH_BITS_PORTS_MASK))
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>Here we can see that for <code>remote</code>, <code>local</code> and <code>voucher</code>, is setting bits on specific binary masks. These bits correspond to the port disposition, which indicates what port right is being granted or was granted, depending if these bits are applied on a sending message or fetch on a receiving message. These binary masks correspond to the following:</p>
+<ul>
+<li>
+<p><code>MACH_MSGH_BITS_REMOTE_MASK</code>:</p>
+<p>Encodes <code>mach_msg_type_name_t</code> values that specify the port rights in the <code>msgh_remote_port</code> field.</p>
+<p>The value must specify a send or send-once right for the destination of the message.</p>
+</li>
+<li>
+<p><code>MACH_MSGH_BITS_LOCAL_MASK</code>:</p>
+<p>Encodes <code>mach_msg_type_name_t</code> values that specify the port rights in the <code>msgh_local_port</code> field.</p>
+<p>If the value doesn&rsquo;t specify a send or send-once right for the message&rsquo;s reply port, it must be zero and <code>msgh_local_port</code> must be <code>MACH_PORT_NULL</code>.</p>
+</li>
+<li>
+<p><code>MACH_MSGH_BITS_COMPLEX</code>:
+The complex bit must be specified if the message body contains additional port rights or out-of-line memory regions.</p>
+</li>
+</ul>
+<p>Basically these mask, estipulate to which port the port right disposition is being applied (remote port, local port, or OOL port rights).</p>
+<p>Here we are usig the <code>MACH_MSGH_BITS_SET</code> to specify that the send right to our mach port should be copied in the remote port with the value <code>MACH_MSG_TYPE_COPY_SEND</code>.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
