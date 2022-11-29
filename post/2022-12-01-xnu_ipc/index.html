@@ -52,7 +52,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
 <meta itemprop="description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to Mach Messages in a way that I can remember and use as a reference for the future.
 Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with today&rsquo;s enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces."><meta itemprop="datePublished" content="2022-11-28T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2022-11-28T00:00:00+00:00" />
-<meta itemprop="wordCount" content="3434">
+<meta itemprop="wordCount" content="3525">
 <meta itemprop="keywords" content="macOS,IPC," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Notes on Mach IPC"/>
 <meta name="twitter:description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to Mach Messages in a way that I can remember and use as a reference for the future.
@@ -136,7 +136,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
         <div class="post-category">
             <a href="/categories/article/"> Article </a>
             </div>
-          <span class="more-meta"> 3434 words </span>
+          <span class="more-meta"> 3525 words </span>
           <span class="more-meta"> 17 mins read </span>
         
       </div>
@@ -348,6 +348,7 @@ This name is an alias for <code>MACH_MSG_TYPE_MOVE_RECEIVE</code>. The message c
 </li>
 </ul>
 <p>If a message carries a send or send-once right, and the port dies while the message is in transit, then the receiving task will get <code>MACH_PORT_DEAD</code> instead of a right.</p>
+<p>Is also important to mention that any allocated mach port, will hold a RECEIVE port right implicitly. These ports in which a RECEIVE right is hold on creation are also referred as ephemeral ports.</p>
 <h2 id="establishing-a-connection">Establishing a connection</h2>
 <p>In Darwin, there is a centralised broker service, also known as the bootstrap server, which serves as an orchestrator to establish connections between tasks/services.
 The role of this bootstrap server in XNU is fulfilled by <code>launchd</code> (although before launchd, the init process and the bootstrap server where separated).</p>
@@ -868,7 +869,7 @@ This will be divided into two parts, being the server and client side roles.</p>
 </span></span></span><span class="line"><span class="cl"><span class="cp">	 | ((other) &amp;~ MACH_MSGH_BITS_PORTS_MASK))
 </span></span></span></code></pre></td></tr></table>
 </div>
-</div><p>Here we can see that for <code>remote</code>, <code>local</code> and <code>voucher</code>, is setting bits on specific binary masks. These bits correspond to the port disposition, which indicates what port right is being granted or was granted, depending if these bits are applied on a sending message or fetch on a receiving message. These binary masks correspond to the following:</p>
+</div><p>Here we can see that for <code>remote</code>, <code>local</code> and <code>voucher</code>, is setting bits on specific binary masks. These binary masks correspond to the following:</p>
 <ul>
 <li>
 <p><code>MACH_MSGH_BITS_REMOTE_MASK</code>:</p>
@@ -886,7 +887,8 @@ The complex bit must be specified if the message body contains additional port r
 </li>
 </ul>
 <p>Basically these mask, estipulate to which port the port right disposition is being applied (remote port, local port, or OOL port rights).</p>
-<p>Here we are usig the <code>MACH_MSGH_BITS_SET</code> to specify that the send right to our mach port should be copied in the remote port with the value <code>MACH_MSG_TYPE_COPY_SEND</code>.</p>
+<p>These bits applied to these binary masks correspond to a specified port disposition, which indicates the kernel what to do with the port specified in the mach message header.</p>
+<p>Here we are usig the <code>MACH_MSGH_BITS_SET</code> to specify that the send right should be copied to the remote port with the value <code>MACH_MSG_TYPE_COPY_SEND</code>. This may seem a bit weird at first, however lets remember that port disposition serve to direct the kernel how to process port rights for each port. In this case, we are directing the kernel to copy the send right of the registered service shared by the bootstrap server to the remote port in order for the message to be delivered to the destination endpoint sucessfully.</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
