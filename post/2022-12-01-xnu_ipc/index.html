@@ -52,7 +52,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
 <meta itemprop="description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to Mach Messages in a way that I can remember and use as a reference for the future.
 Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with today&rsquo;s enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces."><meta itemprop="datePublished" content="2022-11-28T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2022-11-28T00:00:00+00:00" />
-<meta itemprop="wordCount" content="7107">
+<meta itemprop="wordCount" content="7100">
 <meta itemprop="keywords" content="macOS,IPC," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Notes on Mach IPC"/>
 <meta name="twitter:description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to Mach Messages in a way that I can remember and use as a reference for the future.
@@ -136,7 +136,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
         <div class="post-category">
             <a href="/categories/article/"> Article </a>
             </div>
-          <span class="more-meta"> 7107 words </span>
+          <span class="more-meta"> 7100 words </span>
           <span class="more-meta"> 34 mins read </span>
         
       </div>
@@ -2448,14 +2448,16 @@ and should be zero.</p>
 <p><code>DISPATCH_SOURCE_TYPE_VNODE</code></p>
 <p>Sources of this type monitor the virtual filesystem nodes for state changes.  The handle is
 a file descriptor (int) referencing the node to monitor, and the mask may be one or more of
-the following:
-• <code>DISPATCH_VNODE_DELETE</code>  The referenced node was removed from the filesystem namespace via unlink(2).
-• <code>DISPATCH_VNODE_WRITE</code>   A write to the referenced file occurred
-• <code>DISPATCH_VNODE_EXTEND</code>  The referenced file was extended
-• <code>DISPATCH_VNODE_ATTRIB</code>  The metadata attributes of the referenced node have changed
-• <code>DISPATCH_VNODE_LINK</code>    The link count on the referenced node has changed
-• <code>DISPATCH_VNODE_RENAME</code>  The referenced node was renamed
-• <code>DISPATCH_VNODE_REVOKE</code>  Access to the referenced node was revoked via revoke(2) or the underlying fileystem was unmounted.</p>
+the following:</p>
+<ul>
+<li><code>DISPATCH_VNODE_DELETE</code>  The referenced node was removed from the filesystem namespace via unlink(2).</li>
+<li><code>DISPATCH_VNODE_WRITE</code>   A write to the referenced file occurred</li>
+<li><code>DISPATCH_VNODE_EXTEND</code>  The referenced file was extended</li>
+<li><code>DISPATCH_VNODE_ATTRIB</code>  The metadata attributes of the referenced node have changed</li>
+<li><code>DISPATCH_VNODE_LINK</code>    The link count on the referenced node has changed</li>
+<li><code>DISPATCH_VNODE_RENAME</code>  The referenced node was renamed</li>
+<li><code>DISPATCH_VNODE_REVOKE</code>  Access to the referenced node was revoked via revoke(2) or the underlying fileystem was unmounted.</li>
+</ul>
 </li>
 <li>
 <p><code>DISPATCH_SOURCE_TYPE_WRITE</code></p>
