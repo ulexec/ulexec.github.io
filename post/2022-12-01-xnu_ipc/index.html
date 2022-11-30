@@ -52,7 +52,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
 <meta itemprop="description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to Mach Messages in a way that I can remember and use as a reference for the future.
 Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with today&rsquo;s enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces."><meta itemprop="datePublished" content="2022-11-28T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2022-11-28T00:00:00+00:00" />
-<meta itemprop="wordCount" content="7101">
+<meta itemprop="wordCount" content="7106">
 <meta itemprop="keywords" content="macOS,IPC," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Notes on Mach IPC"/>
 <meta name="twitter:description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to Mach Messages in a way that I can remember and use as a reference for the future.
@@ -136,7 +136,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
         <div class="post-category">
             <a href="/categories/article/"> Article </a>
             </div>
-          <span class="more-meta"> 7101 words </span>
+          <span class="more-meta"> 7106 words </span>
           <span class="more-meta"> 34 mins read </span>
         
       </div>
@@ -2388,7 +2388,7 @@ the mach message header, an additional <code>mach_msg_size_t</code> field denoti
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="creating-a-dispatch-source">Creating a dispatch source</h2>
-<p>In order to create a GCD queue, the function <code>dispatch_source_create</code> must be used to create a dispatch source. Many different types of dispatch sources exist. However for our particular use-case, we are interested in the <code>DISPATCH_SOURCE_TYPE_MACH_RECV</code> dispatch queue type, however there are many other types, the following is a list of them:</p>
+<p>In order to create a GCD dispatch queue responsive to an event, the function <code>dispatch_source_create</code> must be used to create a dispatch source. Many different types of dispatch sources exist. However for our particular use-case, we are interested in the <code>DISPATCH_SOURCE_TYPE_MACH_RECV</code> dispatch queue type, however there are many other types, the following is a list of them:</p>
 <ul>
 <li>
 <p><code>DISPATCH_SOURCE_TYPE_DATA_ADD</code>, <code>DISPATCH_SOURCE_TYPE_DATA_OR</code></p>
