@@ -52,7 +52,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
 <meta itemprop="description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to Mach Messages in a way that I can remember and use as a reference for the future.
 Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with today&rsquo;s enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces."><meta itemprop="datePublished" content="2022-11-28T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2022-11-28T00:00:00+00:00" />
-<meta itemprop="wordCount" content="7100">
+<meta itemprop="wordCount" content="7101">
 <meta itemprop="keywords" content="macOS,IPC," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Notes on Mach IPC"/>
 <meta name="twitter:description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to Mach Messages in a way that I can remember and use as a reference for the future.
@@ -136,7 +136,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
         <div class="post-category">
             <a href="/categories/article/"> Article </a>
             </div>
-          <span class="more-meta"> 7100 words </span>
+          <span class="more-meta"> 7101 words </span>
           <span class="more-meta"> 34 mins read </span>
         
       </div>
@@ -207,7 +207,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
         </li>
       </ul>
     </li>
-    <li><a href="#complex-message-with-dispatchqueues-example">Complex Message with DispatchQueues Example</a>
+    <li><a href="#complex-message-server-with-dispatchqueue-example">Complex Message Server with DispatchQueue Example</a>
       <ul>
         <li>
           <ul>
@@ -2157,7 +2157,7 @@ the mach message header, an additional <code>mach_msg_size_t</code> field denoti
 </span></span><span class="line"><span class="cl"><span class="n">message</span><span class="p">.</span><span class="n">descriptor</span><span class="p">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">MACH_MSG_PORT_DESCRIPTOR</span><span class="p">;</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h1 id="complex-message-with-dispatchqueues-example">Complex Message with DispatchQueues Example</h1>
+</div><h1 id="complex-message-server-with-dispatchqueue-example">Complex Message Server with DispatchQueue Example</h1>
 <p>Although not entirely relevant for the subject in question of this post, I also wanted to document how we can handle mach messages with a dedicated GCD dispatch queue. Is very simple to implement, and provides handling of concurrent/serial, aync/sync connections much easier. This design pattern is also followed by many large projects which has to handle a high volume of mach messages for IPC communication. As an example, WebKit implements a similar but much more elaborated approach to send/receive mach messages to WebKit XPC services. In any case, to showcase the concept, the server of previous examples its been rewritten to handle incoming mach messages in an dedicated dispatch queue. The source code of this server is the follwing:</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -2276,7 +2276,7 @@ the mach message header, an additional <code>mach_msg_size_t</code> field denoti
 </span><span class="lnt">113
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cc" data-lang="cc"><span class="line"><span class="cl"><span class="c1">// server.c
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="c1">// server.c
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="cp">#include</span> <span class="cpf">&lt;bootstrap.h&gt;</span><span class="cp">
 </span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;mach/mach.h&gt;</span><span class="cp">
 </span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;mach/message.h&gt;</span><span class="cp">
