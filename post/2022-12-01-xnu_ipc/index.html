@@ -209,13 +209,9 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
     </li>
     <li><a href="#complex-message-server-with-dispatchqueue-example">Complex Message Server with DispatchQueue Example</a>
       <ul>
-        <li>
-          <ul>
-            <li><a href="#creating-a-dispatch-source">Creating a dispatch source</a></li>
-            <li><a href="#registering-an-event-handler-to-the-dispatch-source">Registering an event handler to the dispatch source</a></li>
-            <li><a href="#deploying-the-dispatch-queue">Deploying the dispatch queue</a></li>
-          </ul>
-        </li>
+        <li><a href="#creating-a-dispatch-source">Creating a dispatch source</a></li>
+        <li><a href="#registering-an-event-handler-to-the-dispatch-source">Registering an event handler to the dispatch source</a></li>
+        <li><a href="#deploying-the-dispatch-queue">Deploying the dispatch queue</a></li>
       </ul>
     </li>
     <li><a href="#ool-complex-message-example">OOL Complex Message Example</a></li>
@@ -2391,7 +2387,7 @@ the mach message header, an additional <code>mach_msg_size_t</code> field denoti
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h3 id="creating-a-dispatch-source">Creating a dispatch source</h3>
+</div><h2 id="creating-a-dispatch-source">Creating a dispatch source</h2>
 <p>In order to create a GCD queue, the function <code>dispatch_source_create</code> must be used to create a dispatch source. Many different types of dispatch sources exist. However for our particular use-case, we are interested in the <code>DISPATCH_SOURCE_TYPE_MACH_RECV</code> dispatch queue type, however there are many other types, the following is a list of them:</p>
 <ul>
 <li>
@@ -2485,7 +2481,7 @@ is the file descriptor (int) to monitor and the mask is unused and should be zer
 </span></span><span class="line"><span class="cl">  <span class="p">);</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h3 id="registering-an-event-handler-to-the-dispatch-source">Registering an event handler to the dispatch source</h3>
+</div><h2 id="registering-an-event-handler-to-the-dispatch-source">Registering an event handler to the dispatch source</h2>
 <p>Once we have created our dispatch source, we can then register a handler to the dispatch source as follows:</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -2495,7 +2491,7 @@ is the file descriptor (int) to monitor and the mask is unused and should be zer
 <pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">  <span class="n">dispatch_source_set_event_handler</span><span class="p">(</span><span class="n">port_source</span><span class="p">,</span> <span class="o">^</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/* code to handle incoming mach messages */</span> <span class="p">});</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h3 id="deploying-the-dispatch-queue">Deploying the dispatch queue</h3>
+</div><h2 id="deploying-the-dispatch-queue">Deploying the dispatch queue</h2>
 <p>Lasly, all we have to do left is to resume the dispatch source so the event handler to our dispatch queue gets deployed. We can do this as follows:</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
