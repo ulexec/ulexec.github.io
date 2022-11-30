@@ -52,7 +52,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
 <meta itemprop="description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to Mach Messages in a way that I can remember and use as a reference for the future.
 Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with today&rsquo;s enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces."><meta itemprop="datePublished" content="2022-11-28T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2022-11-28T00:00:00+00:00" />
-<meta itemprop="wordCount" content="6000">
+<meta itemprop="wordCount" content="7107">
 <meta itemprop="keywords" content="macOS,IPC," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Notes on Mach IPC"/>
 <meta name="twitter:description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to Mach Messages in a way that I can remember and use as a reference for the future.
@@ -136,8 +136,8 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
         <div class="post-category">
             <a href="/categories/article/"> Article </a>
             </div>
-          <span class="more-meta"> 6000 words </span>
-          <span class="more-meta"> 29 mins read </span>
+          <span class="more-meta"> 7107 words </span>
+          <span class="more-meta"> 34 mins read </span>
         
       </div>
     </header>
@@ -203,6 +203,17 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
           <ul>
             <li><a href="#set-the-complex-bit-in-the-message-header">Set the complex bit in the message header</a></li>
             <li><a href="#crafting-a-complex-message">Crafting A Complex Message</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li><a href="#complex-message-with-dispatchqueues-example">Complex Message with DispatchQueues Example</a>
+      <ul>
+        <li>
+          <ul>
+            <li><a href="#creating-a-dispatch-source">Creating a dispatch source</a></li>
+            <li><a href="#registering-an-event-handler-to-the-dispatch-source">Registering an event handler to the dispatch source</a></li>
+            <li><a href="#deploying-the-dispatch-queue">Deploying the dispatch queue</a></li>
           </ul>
         </li>
       </ul>
@@ -2144,6 +2155,352 @@ the mach message header, an additional <code>mach_msg_size_t</code> field denoti
 </span></span><span class="line"><span class="cl"><span class="n">message</span><span class="p">.</span><span class="n">descriptor</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">reply_port</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="n">message</span><span class="p">.</span><span class="n">descriptor</span><span class="p">.</span><span class="n">disposition</span> <span class="o">=</span> <span class="n">MACH_MSG_TYPE_MAKE_SEND</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="n">message</span><span class="p">.</span><span class="n">descriptor</span><span class="p">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">MACH_MSG_PORT_DESCRIPTOR</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h1 id="complex-message-with-dispatchqueues-example">Complex Message with DispatchQueues Example</h1>
+<p>Although not entirely relevant for the subject in question of this post, I also wanted to document how we can handle mach messages with a dedicated GCD dispatch queue. Is very simple to implement, and provides handling of concurrent/serial, aync/sync connections much easier. This design pattern is also followed by many large projects which has to handle a high volume of mach messages for IPC communication. As an example, WebKit implements a similar but much more elaborated approach to send/receive mach messages to WebKit XPC services. In any case, to showcase the concept, the server of previous examples its been rewritten to handle incoming mach messages in an dedicated dispatch queue. The source code of this server is the follwing:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cc" data-lang="cc"><span class="line"><span class="cl"><span class="c1">// server.c
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="cp">#include</span> <span class="cpf">&lt;bootstrap.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;mach/mach.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;mach/message.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;dispatch/dispatch.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;assert.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">mach_msg_header_t</span> <span class="n">header</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">char</span> <span class="n">body</span><span class="p">[</span><span class="mi">32</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">Message</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">mach_msg_header_t</span> <span class="n">header</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">mach_msg_size_t</span> <span class="n">msgh_descriptor_count</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">mach_msg_port_descriptor_t</span> <span class="n">descriptor</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">PortMessage</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">PortMessage</span> <span class="n">message</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">mach_msg_trailer_t</span> <span class="n">trailer</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">ReceivePortMessage</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#define MSG_ID_PORT 1337
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">mach_port_t</span> <span class="n">task</span> <span class="o">=</span> <span class="n">mach_task_self</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">mach_port_name_t</span> <span class="n">recv_port</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span><span class="p">(</span><span class="n">mach_port_allocate</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">MACH_PORT_RIGHT_RECEIVE</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">recv_port</span><span class="p">)</span> <span class="o">!=</span> <span class="n">KERN_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">if</span><span class="p">(</span><span class="n">mach_port_insert_right</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">recv_port</span><span class="p">,</span> <span class="n">recv_port</span><span class="p">,</span> <span class="n">MACH_MSG_TYPE_MAKE_SEND</span><span class="p">)</span> 
+</span></span><span class="line"><span class="cl">    <span class="o">!=</span> <span class="n">KERN_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">mach_port_t</span> <span class="n">bootstrap_port</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">task_get_special_port</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">TASK_BOOTSTRAP_PORT</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">bootstrap_port</span><span class="p">)</span> <span class="o">!=</span> <span class="n">KERN_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">if</span><span class="p">(</span><span class="n">bootstrap_register</span><span class="p">(</span><span class="n">bootstrap_port</span><span class="p">,</span> <span class="s">&#34;com.service.alice&#34;</span><span class="p">,</span> <span class="n">recv_port</span><span class="p">)</span> <span class="o">!=</span> <span class="n">KERN_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">dispatch_source_t</span> <span class="n">port_source</span> <span class="o">=</span> <span class="n">dispatch_source_create</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">DISPATCH_SOURCE_TYPE_MACH_RECV</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">recv_port</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">dispatch_queue_create</span><span class="p">(</span><span class="s">&#34;com.MessageQueue&#34;</span><span class="p">,</span> <span class="n">DISPATCH_QUEUE_CONCURRENT</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="p">);</span>
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl">  <span class="n">dispatch_source_set_event_handler</span><span class="p">(</span><span class="n">port_source</span><span class="p">,</span> <span class="o">^</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ReceivePortMessage</span> <span class="n">received_message</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">mach_msg_return_t</span> <span class="n">ret</span> <span class="o">=</span> <span class="n">mach_msg</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">      <span class="p">(</span><span class="n">mach_msg_header_t</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">received_message</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="n">MACH_RCV_MSG</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="k">sizeof</span> <span class="n">received_message</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="n">recv_port</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">      <span class="mi">0</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">      <span class="n">MACH_PORT_NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">ret</span> <span class="o">!=</span> <span class="n">MACH_MSG_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">puts</span><span class="p">(</span><span class="s">&#34;[-] Failed to receive message&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">received_message</span><span class="p">.</span><span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_id</span> <span class="o">!=</span> <span class="n">MSG_ID_PORT</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">printf</span><span class="p">(</span><span class="s">&#34;[-] Received invalid message id: %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">received_message</span><span class="p">.</span><span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_id</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;[*] Message received!</span><span class="se">\n\t</span><span class="s">Port %d received in message</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">      <span class="n">received_message</span><span class="p">.</span><span class="n">message</span><span class="p">.</span><span class="n">descriptor</span><span class="p">.</span><span class="n">name</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">Message</span> <span class="n">response</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">response</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_bits</span> <span class="o">=</span> <span class="n">MACH_MSGH_BITS_SET</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">      <span class="n">received_message</span><span class="p">.</span><span class="n">message</span><span class="p">.</span><span class="n">descriptor</span><span class="p">.</span><span class="n">disposition</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">response</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_remote_port</span> <span class="o">=</span> <span class="n">received_message</span><span class="p">.</span><span class="n">message</span><span class="p">.</span><span class="n">descriptor</span><span class="p">.</span><span class="n">name</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">response</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_size</span> <span class="o">=</span> <span class="k">sizeof</span> <span class="n">response</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">strcpy</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#34;A sample response&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">ret</span> <span class="o">=</span> <span class="n">mach_msg</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">      <span class="p">(</span><span class="n">mach_msg_header_t</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">response</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="n">MACH_SEND_MSG</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="k">sizeof</span> <span class="n">response</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="n">MACH_PORT_NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">ret</span> <span class="o">!=</span> <span class="n">MACH_MSG_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">puts</span><span class="p">(</span><span class="s">&#34;[+] Error sending message reply&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">});</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">dispatch_resume</span><span class="p">(</span><span class="n">port_source</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="n">sleep</span><span class="p">(</span><span class="mi">120</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="creating-a-dispatch-source">Creating a dispatch source</h3>
+<p>In order to create a GCD queue, the function <code>dispatch_source_create</code> must be used to create a dispatch source. Many different types of dispatch sources exist. However for our particular use-case, we are interested in the <code>DISPATCH_SOURCE_TYPE_MACH_RECV</code> dispatch queue type, however there are many other types, the following is a list of them:</p>
+<ul>
+<li>
+<p><code>DISPATCH_SOURCE_TYPE_DATA_ADD</code>, <code>DISPATCH_SOURCE_TYPE_DATA_OR</code></p>
+<p>Sources of this type allow applications to manually trigger the source&rsquo;s event handler via a
+call to dispatch_source_merge_data().  The data will be merged with the source&rsquo;s pending
+data via an atomic add or logic OR (based on the source&rsquo;s type), and the event handler block
+will be submitted to the source&rsquo;s target queue.</p>
+</li>
+<li>
+<p><code>DISPATCH_SOURCE_TYPE_MACH_SEND</code></p>
+<p>Sources of this type monitor a mach port with a send right for state changes.</p>
+</li>
+<li>
+<p><code>DISPATCH_SOURCE_TYPE_MACH_RECV</code></p>
+<p>Sources of this type monitor a mach port with a receive right for state changes.</p>
+</li>
+<li>
+<p><code>DISPATCH_SOURCE_TYPE_PROC</code></p>
+<p>Sources of this type monitor processes for state changes.  The handle is the process
+identifier (pid_t) of the process to monitor and the mask may be one or more of the
+following:</p>
+<ul>
+<li><code>DISPATCH_PROC_EXIT</code>    The process has exited and is available to wait(2).</li>
+<li><code>DISPATCH_PROC_FORK</code>    The process has created one or more child processes.</li>
+<li><code>DISPATCH_PROC_EXEC</code>    The process has become another executable image via a call to execve(2) or posix_spawn(2).</li>
+<li><code>DISPATCH_PROC_REAP</code>    The process status has been collected by its parent process via wait(2).</li>
+<li><code>DISPATCH_PROC_SIGNAL</code>  A signal was delivered to the process.</li>
+</ul>
+<p>The data returned by dispatch_source_get_data() indicates which of the events in the mask
+were observed.</p>
+</li>
+<li>
+<p><code>DISPATCH_SOURCE_TYPE_READ</code></p>
+<p>Sources of this type monitor file descriptors for pending data.  The handle is the file
+descriptor (int) to monitor and the mask is unused and should be zero.</p>
+<p>The data returned by dispatch_source_get_data() is an estimated number of bytes available to
+be read from the descriptor.</p>
+</li>
+<li>
+<p><code>DISPATCH_SOURCE_TYPE_SIGNAL</code></p>
+<p>Sources of this type monitor signals delivered to the current process. The handle is the
+signal number to monitor (int) and the mask is unused and should be zero.</p>
+<p>The data returned by dispatch_source_get_data() is the number of signals received since the
+last invocation of the event handler block.</p>
+</li>
+<li>
+<p><code>DISPATCH_SOURCE_TYPE_TIMER</code></p>
+<p>Sources of this type periodically submit the event handler block to the target queue on an
+interval specified by dispatch_source_set_timer().  The handle and mask arguments are unused
+and should be zero.</p>
+</li>
+<li>
+<p><code>DISPATCH_SOURCE_TYPE_VNODE</code></p>
+<p>Sources of this type monitor the virtual filesystem nodes for state changes.  The handle is
+a file descriptor (int) referencing the node to monitor, and the mask may be one or more of
+the following:
+• <code>DISPATCH_VNODE_DELETE</code>  The referenced node was removed from the filesystem namespace via unlink(2).
+• <code>DISPATCH_VNODE_WRITE</code>   A write to the referenced file occurred
+• <code>DISPATCH_VNODE_EXTEND</code>  The referenced file was extended
+• <code>DISPATCH_VNODE_ATTRIB</code>  The metadata attributes of the referenced node have changed
+• <code>DISPATCH_VNODE_LINK</code>    The link count on the referenced node has changed
+• <code>DISPATCH_VNODE_RENAME</code>  The referenced node was renamed
+• <code>DISPATCH_VNODE_REVOKE</code>  Access to the referenced node was revoked via revoke(2) or the underlying fileystem was unmounted.</p>
+</li>
+<li>
+<p><code>DISPATCH_SOURCE_TYPE_WRITE</code></p>
+<p>Sources of this type monitor file descriptors for available write buffer space.  The handle
+is the file descriptor (int) to monitor and the mask is unused and should be zero.</p>
+</li>
+</ul>
+<p>As shown above by the different types of dispatch sources, dispatch sources are versatile and are convenient to distribute code on specific events on dedicated dispatch queues.</p>
+<p>On our server, all we have to do to create a dispatch source to monitor state changes on a mach port is the following:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">  <span class="n">dispatch_source_t</span> <span class="n">port_source</span> <span class="o">=</span> <span class="n">dispatch_source_create</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">DISPATCH_SOURCE_TYPE_MACH_RECV</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">recv_port</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">dispatch_queue_create</span><span class="p">(</span><span class="s">&#34;com.MessageQueue&#34;</span><span class="p">,</span> <span class="n">DISPATCH_QUEUE_CONCURRENT</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="registering-an-event-handler-to-the-dispatch-source">Registering an event handler to the dispatch source</h3>
+<p>Once we have created our dispatch source, we can then register a handler to the dispatch source as follows:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">  <span class="n">dispatch_source_set_event_handler</span><span class="p">(</span><span class="n">port_source</span><span class="p">,</span> <span class="o">^</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/* code to handle incoming mach messages */</span> <span class="p">});</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="deploying-the-dispatch-queue">Deploying the dispatch queue</h3>
+<p>Lasly, all we have to do left is to resume the dispatch source so the event handler to our dispatch queue gets deployed. We can do this as follows:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">dispatch_resume</span><span class="p">(</span><span class="n">port_source</span><span class="p">);</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h1 id="ool-complex-message-example">OOL Complex Message Example</h1>
