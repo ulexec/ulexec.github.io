@@ -52,7 +52,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
 <meta itemprop="description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to Mach Messages in a way that I can remember and use as a reference for the future.
 Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with today&rsquo;s enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces."><meta itemprop="datePublished" content="2022-11-28T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2022-11-28T00:00:00+00:00" />
-<meta itemprop="wordCount" content="7177">
+<meta itemprop="wordCount" content="8477">
 <meta itemprop="keywords" content="macOS,IPC," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Notes on Mach IPC"/>
 <meta name="twitter:description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to Mach Messages in a way that I can remember and use as a reference for the future.
@@ -136,8 +136,8 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
         <div class="post-category">
             <a href="/categories/article/"> Article </a>
             </div>
-          <span class="more-meta"> 7177 words </span>
-          <span class="more-meta"> 34 mins read </span>
+          <span class="more-meta"> 8477 words </span>
+          <span class="more-meta"> 40 mins read </span>
         
       </div>
     </header>
@@ -214,7 +214,18 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
         <li><a href="#deploying-the-dispatch-queue">Deploying the dispatch queue</a></li>
       </ul>
     </li>
-    <li><a href="#ool-complex-message-example">OOL Complex Message Example</a></li>
+    <li><a href="#ool-complex-message-example">OOL Complex Message Example</a>
+      <ul>
+        <li><a href="#server-2">Server</a>
+          <ul>
+            <li><a href="#allocating-ool-buffer">Allocating OOL Buffer</a></li>
+            <li><a href="#setting-appropiate-ool-message-msgh_bits">Setting appropiate OOL Message MSGH_BITS</a></li>
+            <li><a href="#crafting-an-ool-message">Crafting an OOL Message</a></li>
+          </ul>
+        </li>
+        <li><a href="#client-2">Client</a></li>
+      </ul>
+    </li>
     <li><a href="#references">References</a></li>
   </ul>
 </nav>
@@ -521,9 +532,9 @@ This will be divided into two parts, being the server and client side roles.</p>
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span>
 </span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="n">mach_msg_header_t</span> <span class="n">header</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">    <span class="kt">char</span> <span class="n">body</span><span class="p">[</span><span class="mi">32</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">char</span> <span class="n">body</span><span class="p">[</span><span class="mi">4096</span><span class="p">];</span>
 </span></span><span class="line"><span class="cl">    <span class="n">mach_msg_trailer_t</span> <span class="n">trailer</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">Message</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">MachMessage</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="n">mach_port_t</span> <span class="n">task</span> <span class="o">=</span> <span class="n">mach_task_self</span><span class="p">();</span>
@@ -546,7 +557,7 @@ This will be divided into two parts, being the server and client side roles.</p>
 </span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">    <span class="p">}</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="n">Message</span> <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+</span></span><span class="line"><span class="cl">    <span class="n">MachMessage</span> <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">    <span class="k">while</span> <span class="p">(</span><span class="nb">true</span><span class="p">)</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">        
@@ -585,9 +596,9 @@ This will be divided into two parts, being the server and client side roles.</p>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="n">mach_msg_header_t</span> <span class="n">header</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">  <span class="kt">char</span> <span class="n">body</span><span class="p">[</span><span class="mi">32</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">char</span> <span class="n">body</span><span class="p">[</span><span class="mi">4096</span><span class="p">];</span>
 </span></span><span class="line"><span class="cl">  <span class="n">mach_msg_trailer_t</span> <span class="n">trailer</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">Message</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">MachMessage</span><span class="p">;</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>Allocating a new mach port</p>
@@ -789,8 +800,8 @@ This will be divided into two parts, being the server and client side roles.</p>
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span>
 </span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="n">mach_msg_header_t</span> <span class="n">header</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">    <span class="kt">char</span> <span class="n">body</span><span class="p">[</span><span class="mi">32</span><span class="p">];</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">Message</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">char</span> <span class="n">body</span><span class="p">[</span><span class="mi">4096</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">MachMessage</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="n">mach_port_name_t</span> <span class="n">task</span> <span class="o">=</span> <span class="n">mach_task_self</span><span class="p">();</span>
@@ -805,7 +816,7 @@ This will be divided into two parts, being the server and client side roles.</p>
 </span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">    <span class="p">}</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="n">Message</span> <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+</span></span><span class="line"><span class="cl">    <span class="n">MachMessage</span> <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
 </span></span><span class="line"><span class="cl">    <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_remote_port</span> <span class="o">=</span> <span class="n">port</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">    <span class="c1">// Copy send right to the remote port
@@ -943,7 +954,7 @@ The complex bit must be specified if the message body contains additional port r
 </span><span class="lnt">12
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">  <span class="n">Message</span> <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">  <span class="n">MachMessage</span> <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
 </span></span><span class="line"><span class="cl">  <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_remote_port</span> <span class="o">=</span> <span class="n">port</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">  <span class="c1">// Copy send right to the remote port
@@ -1113,13 +1124,13 @@ The complex bit must be specified if the message body contains additional port r
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span>
 </span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="n">mach_msg_header_t</span> <span class="n">header</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">  <span class="kt">char</span> <span class="n">body</span><span class="p">[</span><span class="mi">32</span><span class="p">];</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">Message</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">char</span> <span class="n">body</span><span class="p">[</span><span class="mi">4096</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">MachMessage</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">  <span class="n">Message</span> <span class="n">message</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">MachMessage</span> <span class="n">message</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="n">mach_msg_trailer_t</span> <span class="n">trailer</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">FullMessage</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">ReceivedMachMessage</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
@@ -1153,7 +1164,7 @@ The complex bit must be specified if the message body contains additional port r
 </span></span><span class="line"><span class="cl">  <span class="k">while</span><span class="p">(</span><span class="nb">true</span><span class="p">)</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">    <span class="c1">// receiving message
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">FullMessage</span> <span class="n">received_message</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">ReceivedMachMessage</span> <span class="n">received_message</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
 </span></span><span class="line"><span class="cl">    <span class="n">mach_msg_return_t</span> <span class="n">ret</span> <span class="o">=</span> <span class="n">mach_msg</span><span class="p">(</span>
 </span></span><span class="line"><span class="cl">      <span class="p">(</span><span class="n">mach_msg_header_t</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">received_message</span><span class="p">,</span>
 </span></span><span class="line"><span class="cl">      <span class="n">MACH_RCV_MSG</span><span class="p">,</span> 
@@ -1176,7 +1187,7 @@ The complex bit must be specified if the message body contains additional port r
 </span></span><span class="line"><span class="cl">    <span class="p">}</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">    <span class="c1">// crafting reply message
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">Message</span> <span class="n">response</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">MachMessage</span> <span class="n">response</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
 </span></span><span class="line"><span class="cl">    <span class="c1">// We can use msgh_bits from the received message as it is
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">response</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_bits</span> <span class="o">=</span> <span class="n">received_message</span><span class="p">.</span><span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_bits</span>
 </span></span><span class="line"><span class="cl">      <span class="o">&amp;</span> <span class="n">MACH_MSGH_BITS_REMOTE_MASK</span><span class="p">;</span>
@@ -1238,7 +1249,7 @@ This can be seen in the following snippet:</p>
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="c1">// crafting reply message
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">Message</span> <span class="n">response</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">MachMessage</span> <span class="n">response</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
 </span></span><span class="line"><span class="cl"><span class="c1">// We can use msgh_bits from the received message as it is
 </span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">response</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_bits</span> <span class="o">=</span> <span class="n">received_message</span><span class="p">.</span><span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_bits</span>
 </span></span><span class="line"><span class="cl">    <span class="o">&amp;</span> <span class="n">MACH_MSGH_BITS_REMOTE_MASK</span><span class="p">;</span>
@@ -1389,13 +1400,13 @@ This can be seen in the following snippet:</p>
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span>
 </span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="n">mach_msg_header_t</span> <span class="n">header</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">  <span class="kt">char</span> <span class="n">body</span><span class="p">[</span><span class="mi">32</span><span class="p">];</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">Message</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">char</span> <span class="n">body</span><span class="p">[</span><span class="mi">4096</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">MachMessage</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">  <span class="n">Message</span> <span class="n">message</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">MachMessage</span> <span class="n">message</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="n">mach_msg_trailer_t</span> <span class="n">trailer</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">FullMessage</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">ReceivedMachMessage</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="n">mach_port_t</span> <span class="n">task</span> <span class="o">=</span> <span class="n">mach_task_self</span><span class="p">();</span>
@@ -1424,7 +1435,7 @@ This can be seen in the following snippet:</p>
 </span></span><span class="line"><span class="cl">  <span class="p">}</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">  <span class="c1">// crafting initial message
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">Message</span> <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">MachMessage</span> <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
 </span></span><span class="line"><span class="cl">  <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_remote_port</span> <span class="o">=</span> <span class="n">port</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_local_port</span> <span class="o">=</span> <span class="n">reply_port</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_bits</span> <span class="o">=</span> <span class="n">MACH_MSGH_BITS_SET</span><span class="p">(</span>
@@ -1458,7 +1469,7 @@ This can be seen in the following snippet:</p>
 </span></span><span class="line"><span class="cl">  <span class="n">printf</span><span class="p">(</span><span class="s">&#34;[*] Waiting for replies to port %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_local_port</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">  <span class="c1">// waiting for replies
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">FullMessage</span> <span class="n">response</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">ReceivedMachMessage</span> <span class="n">response</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
 </span></span><span class="line"><span class="cl">  <span class="n">ret</span> <span class="o">=</span> <span class="n">mach_msg</span><span class="p">(</span>
 </span></span><span class="line"><span class="cl">    <span class="p">(</span><span class="n">mach_msg_header_t</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">response</span><span class="p">,</span>
 </span></span><span class="line"><span class="cl">    <span class="n">MACH_RCV_MSG</span><span class="p">,</span> 
@@ -1546,7 +1557,7 @@ In order to do so we need to set the apporpiate disposition not only for the rem
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">  <span class="c1">// crafting initial message
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">Message</span> <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">MachMessage</span> <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
 </span></span><span class="line"><span class="cl">  <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_remote_port</span> <span class="o">=</span> <span class="n">port</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_local_port</span> <span class="o">=</span> <span class="n">reply_port</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_bits</span> <span class="o">=</span> <span class="n">MACH_MSGH_BITS_SET</span><span class="p">(</span>
@@ -1591,7 +1602,7 @@ In order to do so we need to set the apporpiate disposition not only for the rem
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="c1">// waiting for replies
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">FullMessage</span> <span class="n">response</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="n">ReceivedMachMessage</span> <span class="n">response</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
 </span></span><span class="line"><span class="cl">  <span class="n">ret</span> <span class="o">=</span> <span class="n">mach_msg</span><span class="p">(</span>
 </span></span><span class="line"><span class="cl">    <span class="p">(</span><span class="n">mach_msg_header_t</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">response</span><span class="p">,</span>
 </span></span><span class="line"><span class="cl">    <span class="n">MACH_RCV_MSG</span><span class="p">,</span> 
@@ -1725,19 +1736,19 @@ In order to do so we need to set the apporpiate disposition not only for the rem
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span>
 </span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="n">mach_msg_header_t</span> <span class="n">header</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">  <span class="kt">char</span> <span class="n">body</span><span class="p">[</span><span class="mi">32</span><span class="p">];</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">Message</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">char</span> <span class="n">body</span><span class="p">[</span><span class="mi">4096</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">MachMessage</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="n">mach_msg_header_t</span> <span class="n">header</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="n">mach_msg_size_t</span> <span class="n">msgh_descriptor_count</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="n">mach_msg_port_descriptor_t</span> <span class="n">descriptor</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">PortMessage</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">PortMachMessage</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="n">PortMessage</span> <span class="n">message</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="n">mach_msg_trailer_t</span> <span class="n">trailer</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">ReceivePortMessage</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">ReceivedPortMachMessage</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="cp">#define MSG_ID_PORT 1337
@@ -1765,7 +1776,7 @@ In order to do so we need to set the apporpiate disposition not only for the rem
 </span></span><span class="line"><span class="cl">  <span class="p">}</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">  <span class="k">while</span><span class="p">(</span><span class="nb">true</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">    <span class="n">ReceivePortMessage</span> <span class="n">received_message</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ReceivedPortMachMessage</span> <span class="n">received_message</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">    <span class="n">mach_msg_return_t</span> <span class="n">ret</span> <span class="o">=</span> <span class="n">mach_msg</span><span class="p">(</span>
 </span></span><span class="line"><span class="cl">      <span class="p">(</span><span class="n">mach_msg_header_t</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">received_message</span><span class="p">,</span>
@@ -1789,7 +1800,7 @@ In order to do so we need to set the apporpiate disposition not only for the rem
 </span></span><span class="line"><span class="cl">    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;[*] Message received!</span><span class="se">\n\t</span><span class="s">Port %d received in message</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> 
 </span></span><span class="line"><span class="cl">      <span class="n">received_message</span><span class="p">.</span><span class="n">message</span><span class="p">.</span><span class="n">descriptor</span><span class="p">.</span><span class="n">name</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="n">Message</span> <span class="n">response</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+</span></span><span class="line"><span class="cl">    <span class="n">MachMessage</span> <span class="n">response</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">    <span class="n">response</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_bits</span> <span class="o">=</span> <span class="n">MACH_MSGH_BITS_SET</span><span class="p">(</span>
 </span></span><span class="line"><span class="cl">      <span class="n">received_message</span><span class="p">.</span><span class="n">message</span><span class="p">.</span><span class="n">descriptor</span><span class="p">.</span><span class="n">disposition</span><span class="p">,</span>
@@ -1844,19 +1855,32 @@ the mach message header, an additional <code>mach_msg_size_t</code> field denoti
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="n">mach_msg_header_t</span> <span class="n">header</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">  <span class="kt">char</span> <span class="n">body</span><span class="p">[</span><span class="mi">32</span><span class="p">];</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">Message</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">char</span> <span class="n">body</span><span class="p">[</span><span class="mi">4096</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">MachMessage</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="n">mach_msg_header_t</span> <span class="n">header</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="n">mach_msg_size_t</span> <span class="n">msgh_descriptor_count</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="n">mach_msg_port_descriptor_t</span> <span class="n">descriptor</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">PortMessage</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">PortMachMessage</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="n">PortMessage</span> <span class="n">message</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="n">mach_msg_trailer_t</span> <span class="n">trailer</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">ReceivePortMessage</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">ReceivedPortMachMessage</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Note that in our type definition for <code>PortMachMessage</code> type, we put a <code>mach_msg_size_t</code> field called <code>msgh_descriptor_count</code> right after the <code>mach_msg_header_t</code> member. One could instead use the <code>mach_msg_body_t</code> type to define the &lsquo;body&rsquo; of the message, although it seems a bit misleading because this field only contains one member called <code>msgh_descriptor_count</code> as shown below, but both of these declarations are valid.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">mach_msg_size_t</span>  <span class="n">msgh_descriptor_count</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">mach_msg_body_t</span><span class="p">;</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="retrieving-remote-port-disposition-for-message-reply">Retrieving remote port disposition for message reply</h3>
@@ -1875,7 +1899,7 @@ the mach message header, an additional <code>mach_msg_size_t</code> field denoti
 </span><span class="lnt">9
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">Message</span> <span class="n">response</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">MachMessage</span> <span class="n">response</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="n">response</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_bits</span> <span class="o">=</span> <span class="n">MACH_MSGH_BITS_SET</span><span class="p">(</span>
 </span></span><span class="line"><span class="cl">    <span class="n">received_message</span><span class="p">.</span><span class="n">message</span><span class="p">.</span><span class="n">descriptor</span><span class="p">.</span><span class="n">disposition</span><span class="p">,</span>
@@ -2013,19 +2037,19 @@ the mach message header, an additional <code>mach_msg_size_t</code> field denoti
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span>
 </span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="n">mach_msg_header_t</span> <span class="n">header</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">  <span class="kt">char</span> <span class="n">body</span><span class="p">[</span><span class="mi">32</span><span class="p">];</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">Message</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">  <span class="n">Message</span> <span class="n">message</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">  <span class="n">mach_msg_trailer_t</span> <span class="n">trailer</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">ReceiveMessage</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">char</span> <span class="n">body</span><span class="p">[</span><span class="mi">4096</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">MachMessage</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="n">mach_msg_header_t</span> <span class="n">header</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="n">mach_msg_size_t</span> <span class="n">msgh_descriptor_count</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="n">mach_msg_port_descriptor_t</span> <span class="n">descriptor</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">PortMessage</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">PortMachMessage</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">MachMessage</span> <span class="n">message</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">mach_msg_trailer_t</span> <span class="n">trailer</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">ReceivedMachMessage</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="cp">#define MSG_ID_PORT 1337
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span>
@@ -2052,7 +2076,7 @@ the mach message header, an additional <code>mach_msg_size_t</code> field denoti
 </span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="p">}</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">  <span class="n">PortMessage</span> <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+</span></span><span class="line"><span class="cl">  <span class="n">PortMachMessage</span> <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
 </span></span><span class="line"><span class="cl">  <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_bits</span> <span class="o">=</span> <span class="n">MACH_MSGH_BITS_SET</span><span class="p">(</span>
 </span></span><span class="line"><span class="cl">    <span class="n">MACH_MSG_TYPE_COPY_SEND</span><span class="p">,</span>
 </span></span><span class="line"><span class="cl">    <span class="mi">0</span><span class="p">,</span> 
@@ -2084,7 +2108,7 @@ the mach message header, an additional <code>mach_msg_size_t</code> field denoti
 </span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="p">}</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">  <span class="n">ReceiveMessage</span> <span class="n">response</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+</span></span><span class="line"><span class="cl">  <span class="n">ReceivedMachMessage</span> <span class="n">response</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">  <span class="n">ret</span> <span class="o">=</span> <span class="n">mach_msg</span><span class="p">(</span>
 </span></span><span class="line"><span class="cl">    <span class="p">(</span><span class="n">mach_msg_header_t</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">response</span><span class="p">,</span>
@@ -2120,7 +2144,7 @@ the mach message header, an additional <code>mach_msg_size_t</code> field denoti
 </span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">PortMessage</span> <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">PortMachMessage</span> <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
 </span></span><span class="line"><span class="cl"><span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_bits</span> <span class="o">=</span> <span class="n">MACH_MSGH_BITS_SET</span><span class="p">(</span>
 </span></span><span class="line"><span class="cl">    <span class="n">MACH_MSG_TYPE_COPY_SEND</span><span class="p">,</span>
 </span></span><span class="line"><span class="cl">    <span class="mi">0</span><span class="p">,</span> 
@@ -2284,19 +2308,19 @@ the mach message header, an additional <code>mach_msg_size_t</code> field denoti
 </span></span></span><span class="line"><span class="cl"><span class="cp"></span>
 </span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="n">mach_msg_header_t</span> <span class="n">header</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">  <span class="kt">char</span> <span class="n">body</span><span class="p">[</span><span class="mi">32</span><span class="p">];</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">Message</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">char</span> <span class="n">body</span><span class="p">[</span><span class="mi">4096</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">MachMessage</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="n">mach_msg_header_t</span> <span class="n">header</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="n">mach_msg_size_t</span> <span class="n">msgh_descriptor_count</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="n">mach_msg_port_descriptor_t</span> <span class="n">descriptor</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">PortMessage</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">PortMachMessage</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">  <span class="n">PortMessage</span> <span class="n">message</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="n">mach_msg_trailer_t</span> <span class="n">trailer</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">ReceivePortMessage</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">ReceivedPortMachMessage</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="cp">#define MSG_ID_PORT 1337
@@ -2331,7 +2355,7 @@ the mach message header, an additional <code>mach_msg_size_t</code> field denoti
 </span></span><span class="line"><span class="cl">  <span class="p">);</span>
 </span></span><span class="line"><span class="cl">  
 </span></span><span class="line"><span class="cl">  <span class="n">dispatch_source_set_event_handler</span><span class="p">(</span><span class="n">port_source</span><span class="p">,</span> <span class="o">^</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">    <span class="n">ReceivePortMessage</span> <span class="n">received_message</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ReceivedPortMachMessage</span> <span class="n">received_message</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">    <span class="n">mach_msg_return_t</span> <span class="n">ret</span> <span class="o">=</span> <span class="n">mach_msg</span><span class="p">(</span>
 </span></span><span class="line"><span class="cl">      <span class="p">(</span><span class="n">mach_msg_header_t</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">received_message</span><span class="p">,</span>
@@ -2355,7 +2379,7 @@ the mach message header, an additional <code>mach_msg_size_t</code> field denoti
 </span></span><span class="line"><span class="cl">    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;[*] Message received!</span><span class="se">\n\t</span><span class="s">Port %d received in message</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> 
 </span></span><span class="line"><span class="cl">      <span class="n">received_message</span><span class="p">.</span><span class="n">message</span><span class="p">.</span><span class="n">descriptor</span><span class="p">.</span><span class="n">name</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="n">Message</span> <span class="n">response</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+</span></span><span class="line"><span class="cl">    <span class="n">MachMessage</span> <span class="n">response</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">    <span class="n">response</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_bits</span> <span class="o">=</span> <span class="n">MACH_MSGH_BITS_SET</span><span class="p">(</span>
 </span></span><span class="line"><span class="cl">      <span class="n">received_message</span><span class="p">.</span><span class="n">message</span><span class="p">.</span><span class="n">descriptor</span><span class="p">.</span><span class="n">disposition</span><span class="p">,</span>
@@ -2531,7 +2555,627 @@ is the file descriptor (int) to monitor and the mask is unused and should be zer
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h1 id="ool-complex-message-example">OOL Complex Message Example</h1>
-<h1 id="references">References</h1>
+<p>The following example extends previous example to support OOL messages. Is very similar to Complex messages with port descriptors as we will see. For sake of simplicity the relevant part has been implemented in the server, although the code for the client will also be provided for testing. Following is the source of the server:</p>
+<h2 id="server-2">Server</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span><span class="lnt">125
+</span><span class="lnt">126
+</span><span class="lnt">127
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="c1">// server.mm
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="cp">#include</span> <span class="cpf">&lt;bootstrap.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;mach/mach.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;mach/message.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;dispatch/dispatch.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">mach_msg_header_t</span> <span class="n">header</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">char</span> <span class="n">body</span><span class="p">[</span><span class="mi">4096</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">MachMessage</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">MachMessage</span> <span class="n">message</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">mach_msg_trailer_t</span> <span class="n">trailer</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">ReceivedMachMessage</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">mach_msg_header_t</span> <span class="n">header</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">mach_msg_size_t</span> <span class="n">msgh_descriptor_count</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">mach_msg_ool_descriptor_t</span> <span class="n">descriptor</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">OOLMachMessage</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">mach_port_t</span> <span class="n">task</span> <span class="o">=</span> <span class="n">mach_task_self</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">mach_port_name_t</span> <span class="n">recv_port</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">mach_port_allocate</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">MACH_PORT_RIGHT_RECEIVE</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">recv_port</span><span class="p">)</span> <span class="o">!=</span>
+</span></span><span class="line"><span class="cl">      <span class="n">KERN_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">mach_port_insert_right</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">          <span class="n">task</span><span class="p">,</span> <span class="n">recv_port</span><span class="p">,</span> <span class="n">recv_port</span><span class="p">,</span> <span class="n">MACH_MSG_TYPE_MAKE_SEND</span><span class="p">)</span> <span class="o">!=</span> <span class="n">KERN_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">dispatch_source_t</span> <span class="n">port_source</span> <span class="o">=</span> <span class="n">dispatch_source_create</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">DISPATCH_SOURCE_TYPE_MACH_RECV</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">recv_port</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">dispatch_queue_create</span><span class="p">(</span><span class="s">&#34;com.service.MessageQueue&#34;</span><span class="p">,</span> <span class="n">DISPATCH_QUEUE_CONCURRENT</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="p">);</span>
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl">  <span class="n">mach_port_t</span> <span class="n">bootstrap_port</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">task_get_special_port</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">TASK_BOOTSTRAP_PORT</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">bootstrap_port</span><span class="p">)</span> <span class="o">!=</span>
+</span></span><span class="line"><span class="cl">      <span class="n">KERN_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">bootstrap_register</span><span class="p">(</span><span class="n">bootstrap_port</span><span class="p">,</span> <span class="s">&#34;com.service.alice&#34;</span><span class="p">,</span> <span class="n">recv_port</span><span class="p">)</span> <span class="o">!=</span>
+</span></span><span class="line"><span class="cl">      <span class="n">KERN_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kt">void</span> <span class="o">*</span><span class="n">ool_buffer</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">vm_size_t</span> <span class="n">ool_buffer_size</span> <span class="o">=</span> <span class="n">vm_page_size</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">vm_allocate</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">          <span class="n">mach_task_self</span><span class="p">(),</span>
+</span></span><span class="line"><span class="cl">          <span class="p">(</span><span class="n">vm_address_t</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">ool_buffer</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="n">ool_buffer_size</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="n">VM_PROT_READ</span> <span class="o">|</span> <span class="n">VM_PROT_WRITE</span><span class="p">)</span> <span class="o">!=</span> <span class="n">KERN_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">puts</span><span class="p">(</span><span class="s">&#34;[-] Failed to allocate memory&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">strcpy</span><span class="p">((</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="n">ool_buffer</span><span class="p">,</span> <span class="s">&#34;This is some OOL Data!&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">dispatch_source_set_event_handler</span><span class="p">(</span><span class="n">port_source</span><span class="p">,</span> <span class="o">^</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="n">ReceivedMachMessage</span> <span class="n">received_message</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">mach_msg_return_t</span> <span class="n">ret</span> <span class="o">=</span> <span class="n">mach_msg</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">      <span class="p">(</span><span class="n">mach_msg_header_t</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">received_message</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="n">MACH_RCV_MSG</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="k">sizeof</span> <span class="n">received_message</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="n">recv_port</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="n">MACH_MSG_TIMEOUT_NONE</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="n">MACH_PORT_NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">ret</span> <span class="o">!=</span> <span class="n">MACH_MSG_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">puts</span><span class="p">(</span><span class="s">&#34;[-] Could not receive mach message&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">puts</span><span class="p">(</span><span class="s">&#34;[+] Got incoming message!&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\t</span><span class="s">body: %s</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">received_message</span><span class="p">.</span><span class="n">message</span><span class="p">.</span><span class="n">body</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="n">OOLMachMessage</span> <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+</span></span><span class="line"><span class="cl">    <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_bits</span> <span class="o">=</span> <span class="n">MACH_MSGH_BITS_SET</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">      <span class="n">MACH_MSG_TYPE_COPY_SEND</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="n">MACH_MSGH_BITS_COMPLEX</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_remote_port</span> <span class="o">=</span> <span class="n">received_message</span><span class="p">.</span><span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_remote_port</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_size</span> <span class="o">=</span> <span class="k">sizeof</span> <span class="n">message</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="n">message</span><span class="p">.</span><span class="n">msgh_descriptor_count</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">message</span><span class="p">.</span><span class="n">descriptor</span><span class="p">.</span><span class="n">address</span> <span class="o">=</span> <span class="n">ool_buffer</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">message</span><span class="p">.</span><span class="n">descriptor</span><span class="p">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">ool_buffer_size</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">message</span><span class="p">.</span><span class="n">descriptor</span><span class="p">.</span><span class="n">copy</span> <span class="o">=</span> <span class="n">MACH_MSG_VIRTUAL_COPY</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">message</span><span class="p">.</span><span class="n">descriptor</span><span class="p">.</span><span class="n">deallocate</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">message</span><span class="p">.</span><span class="n">descriptor</span><span class="p">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">MACH_MSG_OOL_DESCRIPTOR</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">ret</span> <span class="o">=</span> <span class="n">mach_msg</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">        <span class="p">(</span><span class="n">mach_msg_header_t</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">message</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">MACH_SEND_MSG</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="k">sizeof</span> <span class="n">message</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">MACH_PORT_NULL</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">MACH_MSG_TIMEOUT_NONE</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">MACH_PORT_NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">ret</span> <span class="o">!=</span> <span class="n">MACH_MSG_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="n">puts</span><span class="p">(</span><span class="s">&#34;[-] Could not send mach message reply&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">});</span>
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl">  <span class="n">dispatch_resume</span><span class="p">(</span><span class="n">port_source</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">sleep</span><span class="p">(</span><span class="mi">120</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="allocating-ool-buffer">Allocating OOL Buffer</h3>
+<p>One important thing to highlight is that in order to send an OOL message, we need to first allocate the OOL buffer we will be sending to our client. We could use any standard APIs to do this (such as malloc),  However, in our example we will be using <code>vm_allocate</code> to directly allocate virtual memory.</p>
+<p>Here we allocate a new memory region of a page size, with read/write permissions:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">  <span class="kt">void</span> <span class="o">*</span><span class="n">ool_buffer</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">vm_size_t</span> <span class="n">ool_buffer_size</span> <span class="o">=</span> <span class="n">vm_page_size</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">vm_allocate</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">          <span class="n">mach_task_self</span><span class="p">(),</span>
+</span></span><span class="line"><span class="cl">          <span class="p">(</span><span class="n">vm_address_t</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">ool_buffer</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="n">ool_buffer_size</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="n">VM_PROT_READ</span> <span class="o">|</span> <span class="n">VM_PROT_WRITE</span><span class="p">)</span> <span class="o">!=</span> <span class="n">KERN_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl">    <span class="n">puts</span><span class="p">(</span><span class="s">&#34;[-] Failed to allocate memory&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">strcpy</span><span class="p">((</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="n">ool_buffer</span><span class="p">,</span> <span class="s">&#34;This is some OOL Data!&#34;</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="setting-appropiate-ool-message-msgh_bits">Setting appropiate OOL Message MSGH_BITS</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">OOLMachMessage</span> <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+</span></span><span class="line"><span class="cl">    <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_bits</span> <span class="o">=</span> <span class="n">MACH_MSGH_BITS_SET</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">      <span class="n">MACH_MSG_TYPE_COPY_SEND</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="n">MACH_MSGH_BITS_COMPLEX</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="crafting-an-ool-message">Crafting an OOL Message</h3>
+<p>The type definition for our OOL Mach message is the following:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">mach_msg_header_t</span> <span class="n">header</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">mach_msg_size_t</span> <span class="n">msgh_descriptor_count</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">mach_msg_ool_descriptor_t</span> <span class="n">descriptor</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">OOLMachMessage</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>We can notice that a new descriptor type is introduced, which is of type <code>mach_msg_ool_descriptor_t</code>.
+The following is the OOL descriptor structure:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">void</span><span class="o">*</span>                         <span class="n">address</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">mach_msg_size_t</span>               <span class="n">size</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">boolean_t</span>                     <span class="nl">deallocate</span><span class="p">:</span> <span class="mi">8</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">mach_msg_copy_options_t</span>       <span class="nl">copy</span><span class="p">:</span> <span class="mi">8</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">unsigned</span> <span class="kt">int</span>                  <span class="nl">pad1</span><span class="p">:</span> <span class="mi">8</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">mach_msg_descriptor_type_t</span>    <span class="nl">type</span><span class="p">:</span> <span class="mi">8</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">mach_msg_ool_descriptor_t</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>The fields of this descriptor are:</p>
+<ul>
+<li><code>address</code>: the out-of-line data</li>
+<li><code>size</code>: size of the ool data</li>
+<li><code>deallocate</code>: true if the memory page at the address wants to be removed from the sender’s address space once the message’s been sent</li>
+<li><code>copy</code>: defines the way of copying the memory</li>
+<li><code>type</code>: defines the type of the message descriptor, for the OOL descriptor, it’s <code>MACH_MSG_OOL_DESCRIPTOR</code></li>
+</ul>
+<p>In addition, there are two copy types, these are:</p>
+<ul>
+<li>
+<p><code>MACH_MSG_VIRTUAL_COPY</code>
+When sending a message, the kernel can choose how to
+exactly transmit data. For example, it can decide to actually copy physical
+memory, or make a virtual copy.</p>
+<p>When receiving this means that the kernel made a virtual copy.</p>
+</li>
+<li>
+<p><code>MACH_MSG_PHYSICAL_COPY</code>
+When sending a message, this option instructs the kernel
+to perform an actual copy of the physical memory.</p>
+</li>
+</ul>
+<p>On the receiving end, this means there&rsquo;s a new physical copy of the memory.
+For the scope of this article, you’re only going to need the <code>MACH_MSG_VIRTUAL_COPY</code> copy type.</p>
+<p>Note that sending out-of-line data requires merely the data address and size, where both can be dynamic. This is unlike inline data, where indirection isn’t possible, and all data must be copied into the message buffer.</p>
+<p>The following is how we populate the OOL message structures in our server:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">    <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_remote_port</span> <span class="o">=</span> <span class="n">received_message</span><span class="p">.</span><span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_remote_port</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_size</span> <span class="o">=</span> <span class="k">sizeof</span> <span class="n">message</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="n">message</span><span class="p">.</span><span class="n">msgh_descriptor_count</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">message</span><span class="p">.</span><span class="n">descriptor</span><span class="p">.</span><span class="n">address</span> <span class="o">=</span> <span class="n">ool_buffer</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">message</span><span class="p">.</span><span class="n">descriptor</span><span class="p">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">ool_buffer_size</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">message</span><span class="p">.</span><span class="n">descriptor</span><span class="p">.</span><span class="n">copy</span> <span class="o">=</span> <span class="n">MACH_MSG_VIRTUAL_COPY</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">message</span><span class="p">.</span><span class="n">descriptor</span><span class="p">.</span><span class="n">deallocate</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">message</span><span class="p">.</span><span class="n">descriptor</span><span class="p">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">MACH_MSG_OOL_DESCRIPTOR</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>After this, all there is left is to send the message to the client.</p>
+<h2 id="client-2">Client</h2>
+<p>The client does not introduce any new changes to handle OOL messages in addition to what has been already introduced in the server. For sake of convenience the client source code is left here for testing:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="c1">// client.mm
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="cp">#include</span> <span class="cpf">&lt;bootstrap.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;mach/mach_init.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;mach/mach_port.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;mach/message.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;mach/port.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;mach/task.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;mach/mach_vm.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;mach/vm_map.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;mach/vm_region.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">mach_msg_header_t</span> <span class="n">header</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">char</span> <span class="n">body</span><span class="p">[</span><span class="mi">4096</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">MachMessage</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">mach_msg_header_t</span> <span class="n">header</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">mach_msg_size_t</span> <span class="n">msgh_descriptor_count</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">mach_msg_ool_descriptor_t</span> <span class="n">descriptor</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">OOLMachMessage</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="n">OOLMessage</span> <span class="n">message</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">mach_msg_trailer_t</span> <span class="n">trailer</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">ReceivedOOLMachMessage</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">mach_port_name_t</span> <span class="n">task</span> <span class="o">=</span> <span class="n">mach_task_self</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">mach_port_t</span> <span class="n">bootstrap_port</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">task_get_special_port</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">TASK_BOOTSTRAP_PORT</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">bootstrap_port</span><span class="p">)</span> <span class="o">!=</span>
+</span></span><span class="line"><span class="cl">      <span class="n">KERN_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">mach_port_t</span> <span class="n">port</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">bootstrap_look_up</span><span class="p">(</span><span class="n">bootstrap_port</span><span class="p">,</span> <span class="s">&#34;com.service.alice&#34;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">port</span><span class="p">)</span> <span class="o">!=</span>
+</span></span><span class="line"><span class="cl">      <span class="n">KERN_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">mach_port_t</span> <span class="n">reply_port</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">mach_port_allocate</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">MACH_PORT_RIGHT_RECEIVE</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">reply_port</span><span class="p">)</span> <span class="o">!=</span>
+</span></span><span class="line"><span class="cl">      <span class="n">KERN_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">mach_port_insert_right</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">          <span class="n">task</span><span class="p">,</span> <span class="n">reply_port</span><span class="p">,</span> <span class="n">reply_port</span><span class="p">,</span> <span class="n">MACH_MSG_TYPE_MAKE_SEND</span><span class="p">)</span> <span class="o">!=</span>
+</span></span><span class="line"><span class="cl">      <span class="n">KERN_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">MachMessage</span> <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+</span></span><span class="line"><span class="cl">  <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_remote_port</span> <span class="o">=</span> <span class="n">port</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_local_port</span> <span class="o">=</span> <span class="n">reply_port</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_bits</span> <span class="o">=</span> <span class="n">MACH_MSGH_BITS_SET</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">MACH_MSG_TYPE_COPY_SEND</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">MACH_MSG_TYPE_MAKE_SEND</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_size</span> <span class="o">=</span> <span class="k">sizeof</span> <span class="n">message</span> <span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">strcpy</span><span class="p">(</span><span class="n">message</span><span class="p">.</span><span class="n">body</span><span class="p">,</span> <span class="s">&#34;A sample message&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">mach_msg_return_t</span> <span class="n">ret</span> <span class="o">=</span> <span class="n">mach_msg</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="p">(</span><span class="n">mach_msg_header_t</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">message</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">MACH_SEND_MSG</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="k">sizeof</span> <span class="n">message</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">MACH_PORT_NULL</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">MACH_MSG_TIMEOUT_NONE</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">MACH_PORT_NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">ReceivedOOLMachMessage</span> <span class="n">response</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+</span></span><span class="line"><span class="cl">  <span class="n">ret</span> <span class="o">=</span> <span class="n">mach_msg</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="p">(</span><span class="n">mach_msg_header_t</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">response</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">MACH_RCV_MSG</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="k">sizeof</span> <span class="n">response</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">reply_port</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">MACH_MSG_TIMEOUT_NONE</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">MACH_PORT_NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">ret</span> <span class="o">!=</span> <span class="n">MACH_MSG_SUCCESS</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">EXIT_FAILURE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">printf</span><span class="p">(</span><span class="s">&#34;[+] Received OOL messge!</span><span class="se">\n\t</span><span class="s">buffer: %s</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="n">response</span><span class="p">.</span><span class="n">message</span><span class="p">.</span><span class="n">descriptor</span><span class="p">.</span><span class="n">address</span>
+</span></span><span class="line"><span class="cl">  <span class="p">);</span>
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="n">EXIT_SUCCESS</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h1 id="references">References</h1>
 <ol>
 <li><a href="https://dmcyk.xyz">Damian Malarczyk</a></li>
 <li><a href="http://newosxbook.com/">macOS and *OS Internals</a></li>
