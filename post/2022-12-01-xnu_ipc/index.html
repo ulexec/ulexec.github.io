@@ -2327,7 +2327,7 @@ the mach message header, an additional <code>mach_msg_size_t</code> field denoti
 </span></span><span class="line"><span class="cl">    <span class="n">DISPATCH_SOURCE_TYPE_MACH_RECV</span><span class="p">,</span>
 </span></span><span class="line"><span class="cl">    <span class="n">recv_port</span><span class="p">,</span>
 </span></span><span class="line"><span class="cl">    <span class="mi">0</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">    <span class="n">dispatch_queue_create</span><span class="p">(</span><span class="s">&#34;com.MessageQueue&#34;</span><span class="p">,</span> <span class="n">DISPATCH_QUEUE_CONCURRENT</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">dispatch_queue_create</span><span class="p">(</span><span class="s">&#34;com.service.MessageQueue&#34;</span><span class="p">,</span> <span class="n">DISPATCH_QUEUE_CONCURRENT</span><span class="p">)</span>
 </span></span><span class="line"><span class="cl">  <span class="p">);</span>
 </span></span><span class="line"><span class="cl">  
 </span></span><span class="line"><span class="cl">  <span class="n">dispatch_source_set_event_handler</span><span class="p">(</span><span class="n">port_source</span><span class="p">,</span> <span class="o">^</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
