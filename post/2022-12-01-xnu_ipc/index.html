@@ -52,7 +52,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
 <meta itemprop="description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to Mach Messages in a way that I can remember and use as a reference for the future.
 Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with today&rsquo;s enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces."><meta itemprop="datePublished" content="2022-11-28T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2022-11-28T00:00:00+00:00" />
-<meta itemprop="wordCount" content="7176">
+<meta itemprop="wordCount" content="7177">
 <meta itemprop="keywords" content="macOS,IPC," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Notes on Mach IPC"/>
 <meta name="twitter:description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to Mach Messages in a way that I can remember and use as a reference for the future.
@@ -136,7 +136,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
         <div class="post-category">
             <a href="/categories/article/"> Article </a>
             </div>
-          <span class="more-meta"> 7176 words </span>
+          <span class="more-meta"> 7177 words </span>
           <span class="more-meta"> 34 mins read </span>
         
       </div>
@@ -2501,7 +2501,7 @@ is the file descriptor (int) to monitor and the mask is unused and should be zer
 <pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">dispatch_resume</span><span class="p">(</span><span class="n">port_source</span><span class="p">);</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><p>We can see that now when new incomming messages arrive, they will be processed in a dedicated queue:</p>
+</div><p>We can see that now when new incomming messages arrive, they will be processed in a dedicated concurrent queue:</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -2517,12 +2517,12 @@ is the file descriptor (int) to monitor and the mask is unused and should be zer
 </span><span class="lnt">11
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="o">*</span> <span class="kr">thread</span> <span class="err">#</span><span class="mi">2</span><span class="p">,</span> <span class="n">queue</span> <span class="o">=</span> <span class="err">&#39;</span><span class="n">com</span><span class="p">.</span><span class="n">service</span><span class="p">.</span><span class="n">MessageQueue</span><span class="err">&#39;</span><span class="p">,</span> <span class="n">stop</span> <span class="n">reason</span> <span class="o">=</span> <span class="n">breakpoint</span> <span class="mf">1.1</span>
-</span></span><span class="line"><span class="cl">    <span class="n">frame</span> <span class="err">#</span><span class="mi">0</span><span class="o">:</span> <span class="mh">0x0000000100003cdc</span> <span class="n">complex_port_client</span><span class="err">`</span><span class="n">__main_block_invoke</span><span class="p">(.</span><span class="n">block_descriptor</span><span class="o">=</span><span class="mh">0x00000001002043a0</span><span class="p">)</span> <span class="n">at</span> <span class="n">server</span><span class="p">.</span><span class="nl">mm</span><span class="p">:</span><span class="mi">63</span><span class="o">:</span><span class="mi">30</span>
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="o">*</span> <span class="kr">thread</span> <span class="err">#</span><span class="mi">2</span><span class="p">,</span> <span class="n">queue</span> <span class="o">=</span> <span class="err">&#39;</span><span class="n">com</span><span class="p">.</span><span class="n">service</span><span class="p">.</span><span class="n">MessageQueue</span><span class="err">&#39;</span><span class="p">,</span> <span class="n">stop</span> <span class="n">reason</span> <span class="o">=</span> <span class="n">breakpoint</span> <span class="mf">1.1</span>
+</span></span><span class="line"><span class="cl">    <span class="n">frame</span> <span class="err">#</span><span class="mi">0</span><span class="o">:</span> <span class="mh">0x0000000100003cdc</span> <span class="n">complex_port_client</span><span class="err">`</span><span class="nf">__main_block_invoke</span><span class="p">(.</span><span class="n">block_descriptor</span><span class="o">=</span><span class="mh">0x00000001002043a0</span><span class="p">)</span> <span class="n">at</span> <span class="n">server</span><span class="p">.</span><span class="nl">mm</span><span class="p">:</span><span class="mi">63</span><span class="o">:</span><span class="mi">30</span>
 </span></span><span class="line"><span class="cl">   <span class="mi">93</span>  
-</span></span><span class="line"><span class="cl">   <span class="mi">94</span>     <span class="n">dispatch_source_set_event_handler</span><span class="p">(</span><span class="n">port_source</span><span class="p">,</span> <span class="o">^</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">   <span class="mi">95</span>       <span class="n">ret</span> <span class="o">=</span> <span class="n">mach_msg</span><span class="p">(</span>
-</span></span><span class="line"><span class="cl"><span class="o">-&gt;</span> <span class="mi">96</span>           <span class="p">(</span><span class="n">mach_msg_header_t</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">received_message</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">   <span class="mi">94</span>     <span class="nf">dispatch_source_set_event_handler</span><span class="p">(</span><span class="n">port_source</span><span class="p">,</span> <span class="o">^</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">   <span class="mi">95</span>       <span class="n">ret</span> <span class="o">=</span> <span class="nf">mach_msg</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl"><span class="o">-&gt;</span> <span class="mi">96</span>           <span class="p">(</span><span class="kt">mach_msg_header_t</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">received_message</span><span class="p">,</span>
 </span></span><span class="line"><span class="cl">   <span class="mi">97</span>           <span class="n">MACH_RCV_MSG</span><span class="p">,</span>
 </span></span><span class="line"><span class="cl">   <span class="mi">98</span>           <span class="mi">0</span><span class="p">,</span>
 </span></span><span class="line"><span class="cl">   <span class="mi">99</span>           <span class="k">sizeof</span> <span class="n">received_message</span><span class="p">,</span>
