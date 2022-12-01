@@ -52,7 +52,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
 <meta itemprop="description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to Mach Messages in a way that I can remember and use as a reference for the future.
 Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with today&rsquo;s enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces."><meta itemprop="datePublished" content="2022-11-28T00:00:00+00:00" />
 <meta itemprop="dateModified" content="2022-11-28T00:00:00+00:00" />
-<meta itemprop="wordCount" content="8479">
+<meta itemprop="wordCount" content="8510">
 <meta itemprop="keywords" content="macOS,IPC," /><meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Notes on Mach IPC"/>
 <meta name="twitter:description" content="Introduction This blog is intended to be a dedicated effort to structure information in relation to Mach Messages in a way that I can remember and use as a reference for the future.
@@ -136,7 +136,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
         <div class="post-category">
             <a href="/categories/article/"> Article </a>
             </div>
-          <span class="more-meta"> 8479 words </span>
+          <span class="more-meta"> 8510 words </span>
           <span class="more-meta"> 40 mins read </span>
         
       </div>
@@ -2855,6 +2855,7 @@ is the file descriptor (int) to monitor and the mask is unused and should be zer
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="setting-appropiate-ool-message-msgh_bits">Setting appropiate OOL Message MSGH_BITS</h3>
+<p>Lets remember that we have to set the appropiate bit in <code>msgh_bits</code> field in our mach message header to direct that our message is a complex message setting the <code>MACH_MSGH_BITS_COMPLEX</code> bit:</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -2866,11 +2867,11 @@ is the file descriptor (int) to monitor and the mask is unused and should be zer
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">OOLMachMessage</span> <span class="n">message</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
-</span></span><span class="line"><span class="cl">    <span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_bits</span> <span class="o">=</span> <span class="n">MACH_MSGH_BITS_SET</span><span class="p">(</span>
-</span></span><span class="line"><span class="cl">      <span class="n">MACH_MSG_TYPE_COPY_SEND</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">      <span class="mi">0</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">      <span class="mi">0</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">      <span class="n">MACH_MSGH_BITS_COMPLEX</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">message</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">msgh_bits</span> <span class="o">=</span> <span class="n">MACH_MSGH_BITS_SET</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">MACH_MSG_TYPE_COPY_SEND</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">MACH_MSGH_BITS_COMPLEX</span><span class="p">);</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="crafting-an-ool-message">Crafting an OOL Message</h3>
