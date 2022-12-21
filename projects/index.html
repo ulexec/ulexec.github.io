@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <title>macOS · ulexec | blog</title>
+  <title> - ulexec | blog</title>
   <meta name="renderer" content="webkit" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
 
@@ -16,7 +16,14 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
 
 
-<meta name="author" content="ulexec" /><meta name="description" content="A research blog by Ignacio Sanmillan" /><meta name="keywords" content="Hugo, theme, even" />
+<meta name="author" content="ulexec" /><meta name="description" content="Exploits Repository of exploits and pwn CTF solutions
+SHELFLoading Evasive ELF static PIE User-Land-Exec
+SBTG PoC metamorphic encoder engine for ELF32 binaries
+Linux.RV PoC reverse text segment ELF file infector
+ELFLocker PoC multi-layer software protector for ELF32 x86 binaries
+OniPacker PoC binary packer for x86 PE binaries
+EmotetCFU Emotet control-flow unflattening using miasm and radare2
+elf_rela_obfuscation A small PoC of an EPO technique abusing Elf64_Rela relocations for ELF64 PIE binaries" /><meta name="keywords" content="Hugo, theme, even" />
 
 
 
@@ -26,9 +33,7 @@
 <meta name="generator" content="Hugo 0.107.0 with theme even" />
 
 
-<link rel="canonical" href="http://ulexec.github.io/tags/macos/" />
-  <link href="http://ulexec.github.io/tags/macos/index.xml" rel="alternate" type="application/rss+xml" title="ulexec | blog" />
-  <link href="http://ulexec.github.io/tags/macos/index.xml" rel="feed" type="application/rss+xml" title="ulexec | blog" />
+<link rel="canonical" href="http://ulexec.github.io/projects/" />
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -41,15 +46,41 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
 
 
-<meta property="og:title" content="macOS" />
-<meta property="og:description" content="A research blog by Ignacio Sanmillan" />
-<meta property="og:type" content="website" />
-<meta property="og:url" content="http://ulexec.github.io/tags/macos/" />
+<meta property="og:title" content="" />
+<meta property="og:description" content="Exploits Repository of exploits and pwn CTF solutions
+SHELFLoading Evasive ELF static PIE User-Land-Exec
+SBTG PoC metamorphic encoder engine for ELF32 binaries
+Linux.RV PoC reverse text segment ELF file infector
+ELFLocker PoC multi-layer software protector for ELF32 x86 binaries
+OniPacker PoC binary packer for x86 PE binaries
+EmotetCFU Emotet control-flow unflattening using miasm and radare2
+elf_rela_obfuscation A small PoC of an EPO technique abusing Elf64_Rela relocations for ELF64 PIE binaries" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://ulexec.github.io/projects/" /><meta property="article:section" content="" />
 
-<meta itemprop="name" content="macOS">
-<meta itemprop="description" content="A research blog by Ignacio Sanmillan"><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="macOS"/>
-<meta name="twitter:description" content="A research blog by Ignacio Sanmillan"/>
+
+
+<meta itemprop="name" content="">
+<meta itemprop="description" content="Exploits Repository of exploits and pwn CTF solutions
+SHELFLoading Evasive ELF static PIE User-Land-Exec
+SBTG PoC metamorphic encoder engine for ELF32 binaries
+Linux.RV PoC reverse text segment ELF file infector
+ELFLocker PoC multi-layer software protector for ELF32 x86 binaries
+OniPacker PoC binary packer for x86 PE binaries
+EmotetCFU Emotet control-flow unflattening using miasm and radare2
+elf_rela_obfuscation A small PoC of an EPO technique abusing Elf64_Rela relocations for ELF64 PIE binaries">
+
+<meta itemprop="wordCount" content="110">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content=""/>
+<meta name="twitter:description" content="Exploits Repository of exploits and pwn CTF solutions
+SHELFLoading Evasive ELF static PIE User-Land-Exec
+SBTG PoC metamorphic encoder engine for ELF32 binaries
+Linux.RV PoC reverse text segment ELF file infector
+ELFLocker PoC multi-layer software protector for ELF32 x86 binaries
+OniPacker PoC binary packer for x86 PE binaries
+EmotetCFU Emotet control-flow unflattening using miasm and radare2
+elf_rela_obfuscation A small PoC of an EPO technique abusing Elf64_Rela relocations for ELF64 PIE binaries"/>
 
 <!--[if lte IE 9]>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
@@ -123,29 +154,52 @@
     <main id="main" class="main">
       <div class="content-wrapper">
         <div id="content" class="content">
-          <section id="archive" class="archive">
-  <div class="archive-title tag">
-        <h2 class="archive-name">macOS</h2>
-      </div>
+          <article class="post">
+  <div class="post-content">
+    <h2 id="exploitshttpsgithubcomulexecexploits"><a href="https://github.com/ulexec/Exploits">Exploits</a></h2>
+<p>Repository of exploits and pwn CTF solutions</p>
+<hr>
+<h2 id="shelfloadinghttpsgithubcomulexecshelf-loading"><a href="https://github.com/ulexec/SHELF-Loading">SHELFLoading</a></h2>
+<p>Evasive ELF static PIE User-Land-Exec</p>
+<hr>
+<h2 id="sbtghttpsgithubcomulexecsbtg"><a href="https://github.com/ulexec/SBTG">SBTG</a></h2>
+<p>PoC metamorphic encoder engine for ELF32 binaries</p>
+<hr>
+<h2 id="linuxrvhttpsgithubcomulexeclinuxrv"><a href="https://github.com/ulexec/Linux.RV">Linux.RV</a></h2>
+<p>PoC reverse text segment ELF file infector</p>
+<hr>
+<h2 id="elflockerhttpsgithubcomulexecelflocker"><a href="https://github.com/ulexec/ElfLocker">ELFLocker</a></h2>
+<p>PoC multi-layer software protector for ELF32 x86 binaries</p>
+<hr>
+<h2 id="onipackerhttpsgithubcomulexeconipacker"><a href="https://github.com/ulexec/OniPacker">OniPacker</a></h2>
+<p>PoC binary packer for x86 PE binaries</p>
+<hr>
+<h2 id="emotetcfuhttpsgithubcomulexecemotetcfu"><a href="https://github.com/ulexec/EmotetCFU">EmotetCFU</a></h2>
+<p>Emotet control-flow unflattening using miasm and radare2</p>
+<hr>
+<h2 id="elf_rela_obfuscationhttpsgithubcomulexecelf_rela_obfuscation"><a href="https://github.com/ulexec/elf_rela_obfuscation">elf_rela_obfuscation</a></h2>
+<p>A small PoC of an EPO technique abusing Elf64_Rela relocations for ELF64 PIE binaries</p>
+<hr>
+<h2 id="elf_dynsym_objfuscationhttpsgithubcomulexecelf_dynsym_obfuscation"><a href="https://github.com/ulexec/elf_dynsym_obfuscation">elf_dynsym_objfuscation</a></h2>
+<p>A PoC of a dynamic symbol table obfuscation technique relying on a tailored symbol hash resolver for ELF64 x64 binaries</p>
+<hr>
+<h2 id="libwormhttpsgithubcomulexeclibworm"><a href="https://github.com/ulexec/libworm">libworm</a></h2>
+<p>Multi-purpose library dedicated to ELF code injection</p>
+<hr>
+<h2 id="qemunpackerhttpsgithubcomulexecqemunpacker"><a href="https://github.com/ulexec/QEMUnpacker">QEMUnpacker</a></h2>
+<p>Generic ELF Unpacker using QEMU</p>
+<hr>
+<h2 id="cowrietrackerhttpsgithubcomulexeccowrietracker"><a href="https://github.com/ulexec/CowrieTracker">CowrieTracker</a></h2>
+<p>Minimalistic low-interaction honeypot Visualization</p>
 
-  <div class="archive-post">
-      <span class="archive-post-time">
-        2022-11-28
-      </span>
-      <span class="archive-post-title">
-        <a href="/post/2022-12-01-xnu_ipc/" class="archive-post-link">
-          Notes on Mach IPC
-        </a>
-      </span>
-    </div>
-</section>
-
-<nav class="pagination">
-  
-  
-</nav>
+  </div>
+</article>
         </div>
         
+
+  
+
+  
 
       </div>
     </main>
