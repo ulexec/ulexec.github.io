@@ -1,410 +1,230 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <title>SharifCTF7 - Nanomites - ulexec | blog</title>
-  <meta name="renderer" content="webkit" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
-
-<meta http-equiv="Cache-Control" content="no-transform" />
-<meta http-equiv="Cache-Control" content="no-siteapp" />
-
-<meta name="theme-color" content="#f8f5ec" />
-<meta name="msapplication-navbutton-color" content="#f8f5ec">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
-
-
-<meta name="author" content="ulexec" /><meta name="description" content="Nanomites was a Reverse engineering challenge of 300 point in SharifCTF7. The specification of this problem was the following:
-1 2 Analyze the given file. Find the C&amp;amp;C IP address and the data sent to it in plain text. Flag = SharifCTF{md5(strcat(IP, Data))}_ For the ones that coud not attend the competition, You can download the challenge from here.
-After running the command file against the binary, I got the following output:" /><meta name="keywords" content="Hugo, theme, even" />
-
-
-
-
-
-
-<meta name="generator" content="Hugo 0.107.0 with theme even" />
-
-
-<link rel="canonical" href="http://ulexec.github.io/post/2016-12-19-sharifctf2016-nanomites/" />
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="manifest" href="/manifest.json">
-<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
-
-
-
-<link href="/sass/main.min.f73a6ffa72be6986c3a367201316a0ad5a90db5f09b95dc0bbaedb923d419e87.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
-
-
-<meta property="og:title" content="SharifCTF7 - Nanomites" />
-<meta property="og:description" content="Nanomites was a Reverse engineering challenge of 300 point in SharifCTF7. The specification of this problem was the following:
-1 2 Analyze the given file. Find the C&amp;C IP address and the data sent to it in plain text. Flag = SharifCTF{md5(strcat(IP, Data))}_ For the ones that coud not attend the competition, You can download the challenge from here.
-After running the command file against the binary, I got the following output:" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="http://ulexec.github.io/post/2016-12-19-sharifctf2016-nanomites/" /><meta property="article:section" content="post" />
-<meta property="article:published_time" content="2016-12-19T00:00:00+00:00" />
-<meta property="article:modified_time" content="2016-12-19T00:00:00+00:00" />
-
-<meta itemprop="name" content="SharifCTF7 - Nanomites">
-<meta itemprop="description" content="Nanomites was a Reverse engineering challenge of 300 point in SharifCTF7. The specification of this problem was the following:
-1 2 Analyze the given file. Find the C&amp;C IP address and the data sent to it in plain text. Flag = SharifCTF{md5(strcat(IP, Data))}_ For the ones that coud not attend the competition, You can download the challenge from here.
-After running the command file against the binary, I got the following output:"><meta itemprop="datePublished" content="2016-12-19T00:00:00+00:00" />
-<meta itemprop="dateModified" content="2016-12-19T00:00:00+00:00" />
-<meta itemprop="wordCount" content="706">
-<meta itemprop="keywords" content="reversing,ctf," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="SharifCTF7 - Nanomites"/>
-<meta name="twitter:description" content="Nanomites was a Reverse engineering challenge of 300 point in SharifCTF7. The specification of this problem was the following:
-1 2 Analyze the given file. Find the C&amp;C IP address and the data sent to it in plain text. Flag = SharifCTF{md5(strcat(IP, Data))}_ For the ones that coud not attend the competition, You can download the challenge from here.
-After running the command file against the binary, I got the following output:"/>
-
-<!--[if lte IE 9]>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
-<![endif]-->
-
-<!--[if lt IE 9]>
-  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
-<![endif]-->
-
+<html lang="en"><head>
+    <title>ulexec.github.io</title>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="theme-color" content="#000084" />
+    <link rel="icon" href="https://ulexec.github.io/favicon.ico">
+    <link rel="canonical" href="https://ulexec.github.io">
+    
+    
 </head>
-<body>
-  <div id="mobile-navbar" class="mobile-navbar">
-  <div class="mobile-header-logo">
-    <a href="/" class="logo">ulexec 의 연구</a>
-  </div>
-  <div class="mobile-navbar-icon">
-    <span></span>
-    <span></span>
-    <span></span>
-  </div>
-</div>
-<nav id="mobile-menu" class="mobile-menu slideout-menu">
-  <ul class="mobile-menu-list">
-    <a href="/">
-        <li class="mobile-menu-item">Home</li>
-      </a><a href="/post/">
-        <li class="mobile-menu-item">Archives</li>
-      </a><a href="/projects/">
-        <li class="mobile-menu-item">Projects</li>
-      </a><a href="/tags/">
-        <li class="mobile-menu-item">Tags</li>
-      </a><a href="/about/">
-        <li class="mobile-menu-item">About</li>
-      </a>
-  </ul>
+<body class="bootstra-enable-cursor ">
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <a class="navbar-brand" href="https://ulexec.github.io">ulexec.github.io</a>
+    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#main-nav" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div id="main-nav" class="collapse nav-collapse">
+        <ul class="navbar-nav">
+              
+            <li class="nav-item ">
+                <a class="nav-link" href="/post/">
+                                    
+                                    <span>Archives</span>
+                                </a>
+            </li>
+              
+            <li class="nav-item ">
+                <a class="nav-link" href="/projects/">
+                                    
+                                    <span>Projects</span>
+                                </a>
+            </li>
+              
+            <li class="nav-item ">
+                <a class="nav-link" href="/bugs/">
+                                    
+                                    <span>Bugs</span>
+                                </a>
+            </li>
+              
+            <li class="nav-item ">
+                <a class="nav-link" href="/publications/">
+                                    
+                                    <span>Publications</span>
+                                </a>
+            </li>
+              
+            <li class="nav-item ">
+                <a class="nav-link" href="/about/">
+                                    
+                                    <span>About</span>
+                                </a>
+            </li>
+             
+        </ul>
+    </div>
+    </div>
+    </div>
+</nav><div id="content" class="container">
 
-  
+<div class="row">
+    <div class="col">
 
+        <h1 class="mb-3">SharifCTF7 - Nanomites - Mon, Dec 19, 2016</h1>
 
-</nav>
-
-  <div class="container" id="mobile-panel">
-    <header id="header" class="header">
-        <div class="logo-wrapper">
-  <a href="/" class="logo">ulexec 의 연구</a>
-</div>
-
-
-
-
-
-<nav class="site-navbar">
-  <ul id="menu" class="menu">
-    <li class="menu-item">
-        <a class="menu-item-link" href="/">Home</a>
-      </li><li class="menu-item">
-        <a class="menu-item-link" href="/post/">Archives</a>
-      </li><li class="menu-item">
-        <a class="menu-item-link" href="/projects/">Projects</a>
-      </li><li class="menu-item">
-        <a class="menu-item-link" href="/tags/">Tags</a>
-      </li><li class="menu-item">
-        <a class="menu-item-link" href="/about/">About</a>
-      </li>
-  </ul>
-</nav>
-
-    </header>
-
-    <main id="main" class="main">
-      <div class="content-wrapper">
-        <div id="content" class="content">
-          <article class="post">
-    
-    <header class="post-header">
-      <h1 class="post-title">SharifCTF7 - Nanomites</h1>
-
-      <div class="post-meta">
-        <span class="post-time"> 2016-12-19 </span>
-        <div class="post-category">
-            <a href="/categories/writeup/"> Writeup </a>
-            </div>
-          <span class="more-meta"> 706 words </span>
-          <span class="more-meta"> 4 mins read </span>
-        
-      </div>
-    </header>
-
-    
-    <div class="post-content">
-      <p>Nanomites was a Reverse engineering challenge of 300 point in SharifCTF7. The specification of this problem was the following:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">Analyze the given file. Find the C<span class="p">&amp;</span>C IP address and the data sent to it in plain text.
-</span></span><span class="line"><span class="cl"><span class="nv">Flag</span> <span class="o">=</span> SharifCTF<span class="o">{</span>md5<span class="o">(</span>strcat<span class="o">(</span>IP, Data<span class="o">))}</span>_
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>For the ones that coud not attend the competition, You can download the challenge from <a href="../files/Nanomites.exe">here</a>.</p>
+        <p class="lead"></p>
+        <p>Nanomites was a Reverse engineering challenge of 300 point in SharifCTF7. The specification of this problem was the following:</p>
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Analyze the given file. Find the C&amp;C IP address and the data sent to it in plain text.
+</span></span><span style="display:flex;"><span>Flag <span style="color:#f92672">=</span> SharifCTF<span style="color:#f92672">{</span>md5<span style="color:#f92672">(</span>strcat<span style="color:#f92672">(</span>IP, Data<span style="color:#f92672">))}</span>_</span></span></code></pre></div>
+For the ones that coud not attend the competition, You can download the challenge from <a href="../files/Nanomites.exe">here</a>.</p>
 <p>After running the command <code>file</code> against the binary, I got the following output:</p>
 <p><code>Nanomites.exe: PE32 executable (GUI) Intel 80386, for MS Windows</code></p>
 <p>My next steps after knowing this was to analyze it with IDA in order to find  out any evidence of the binary connecting to a remote host.</p>
 <p>Once the file is in IDA, we can see that the binary is some what obfuscated.</p>
-<div style="text-align:center">
-<img src="/SharifCTF7/1.png"/>
-</div>
-<div style="text-align:center">
-<img src="/SharifCTF7/2.png"/>
-</div>
+<p><img src="/SharifCTF7/1.png#center" alt=""></p>
+<p><img src="/SharifCTF7/2.png#center" alt=""></p>
 <p>Looking for strings XREFs, I found myself with the IP address of the C&amp;C:</p>
-<div style="text-align:center">
-<img src="/SharifCTF7/3.png"/>
-</div>
+<p><img src="/SharifCTF7/3.png#center" alt=""></p>
 <p>After knowing the IP address of the C&amp;C, I then opened wireshark to see if I could intercept any communications. I indeed intercepted a stream. This stream looked like this:</p>
-<div style="text-align:center">
-<img src="/SharifCTF7/4.png"/>
-</div>
+<p><img src="/SharifCTF7/4.png#center" alt=""></p>
 <p>Clearly there is an encrypted message that our host is sending to <code>155.64.16.51</code>.
 Note the size of the encryped payload is of <code>24 bytes</code></p>
 <p>After knowing this information, then I proceeded to look where the application sent the buffer with the encrypted payload.
 Looking at the imported functions. We can see that <code>send</code> is at address <code>0x401564</code></p>
-<div style="text-align:center">
-<img src="/SharifCTF7/5.png"/>
-</div>
+<p><img src="/SharifCTF7/5.png#center" alt=""></p>
 <p>Based on the arguments that sends has. we can see the buffer that is supposed to hold the encrypted payload.
 If we look above the call to <code>send</code> we can see that this buffer is passed to two more functions. these are at <code>0x402C97</code> and <code>0x401260</code></p>
-<div style="text-align:center">
-<img src="/SharifCTF7/6.png"/>
-</div>
-<div style="text-align:center">
-<img src="/SharifCTF7/7.png"/>
-</div>
+<p><img src="/SharifCTF7/6.png#center" alt=""></p>
+<p><img src="/SharifCTF7/7.png#center" alt=""></p>
 <p>For sake of simplicity we are not really going to explain the purpose of function 0x402c97 since I think this function is merely used for confusion purposes. Depending how well we do debugging it, this function will return a value of <code>34</code>, <code>22</code>, <code>0</code> or instead redirect execution into an end_point of execution. Moreover, this function even though retrieves a different return value in <code>eax</code> depending which path is executed, this return value is never actually used outside the context of itself. However it really doesnt matter what this function returns. The actual purpose of this function is to copy the contents of its 3rd argument to its 1st argument. Wheter this copy will be successfull will be determined by the value of the second argument. The following is a decompilation of this function:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span><span class="lnt">12
-</span><span class="lnt">13
-</span><span class="lnt">14
-</span><span class="lnt">15
-</span><span class="lnt">16
-</span><span class="lnt">17
-</span><span class="lnt">18
-</span><span class="lnt">19
-</span><span class="lnt">20
-</span><span class="lnt">21
-</span><span class="lnt">22
-</span><span class="lnt">23
-</span><span class="lnt">24
-</span><span class="lnt">25
-</span><span class="lnt">26
-</span><span class="lnt">27
-</span><span class="lnt">28
-</span><span class="lnt">29
-</span><span class="lnt">30
-</span><span class="lnt">31
-</span><span class="lnt">32
-</span><span class="lnt">33
-</span><span class="lnt">34
-</span><span class="lnt">35
-</span><span class="lnt">36
-</span><span class="lnt">37
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">signed</span> <span class="kt">int</span> <span class="kr">__cdecl</span> <span class="nf">copy_cond</span><span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="n">copy</span><span class="p">,</span> <span class="kt">int</span> <span class="n">centinel</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">payload</span><span class="p">)</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">  <span class="kt">int</span> <span class="n">v3</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">  <span class="n">_DWORD</span> <span class="o">*</span><span class="n">v4</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">  <span class="kt">signed</span> <span class="kt">int</span> <span class="n">v5</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">  <span class="kt">char</span> <span class="n">v7</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">  <span class="kt">signed</span> <span class="kt">int</span> <span class="n">v8</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">  <span class="nf">__debugbreak</span><span class="p">();</span>
-</span></span><span class="line"><span class="cl">  <span class="n">v3</span> <span class="o">=</span> <span class="n">centinel</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="n">centinel</span> <span class="p">)</span>
-</span></span><span class="line"><span class="cl">    <span class="k">goto</span> <span class="n">LABEL_4</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="n">payload</span> <span class="p">)</span>
-</span></span><span class="line"><span class="cl">  <span class="p">{</span>
-</span></span><span class="line"><span class="cl">    <span class="o">*</span><span class="n">copy</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="nl">LABEL_4</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl">    <span class="n">v4</span> <span class="o">=</span> <span class="nf">junk</span><span class="p">();</span>
-</span></span><span class="line"><span class="cl">    <span class="n">v8</span> <span class="o">=</span> <span class="mi">22</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">    <span class="k">goto</span> <span class="n">LABEL_5</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">  <span class="p">}</span>
-</span></span><span class="line"><span class="cl">  <span class="n">v7</span> <span class="o">=</span> <span class="o">*</span><span class="n">payload</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">  <span class="o">*</span><span class="n">copy</span> <span class="o">=</span> <span class="o">*</span><span class="n">payload</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span> <span class="n">v7</span> <span class="p">)</span>
-</span></span><span class="line"><span class="cl">  <span class="p">{</span>
-</span></span><span class="line"><span class="cl">    <span class="n">v3</span> <span class="o">=</span> <span class="n">centinel</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">    <span class="nf">__debugbreak</span><span class="p">();</span>
-</span></span><span class="line"><span class="cl">  <span class="p">}</span>
-</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span> <span class="n">v3</span> <span class="p">)</span>
-</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">  <span class="o">*</span><span class="n">copy</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">  <span class="n">v4</span> <span class="o">=</span> <span class="nf">junk</span><span class="p">();</span>
-</span></span><span class="line"><span class="cl">  <span class="n">v8</span> <span class="o">=</span> <span class="mi">34</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="nl">LABEL_5</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl">  <span class="n">v5</span> <span class="o">=</span> <span class="n">v8</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">  <span class="o">*</span><span class="n">v4</span> <span class="o">=</span> <span class="n">v8</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl">  <span class="nf">trigger_exception</span><span class="p">();</span>
-</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="n">v5</span><span class="p">;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>Furthermore, something more interesting happens when we analyze the function at <code>0x401260</code>. In this function, the function discussed above (<code>copy_cond</code>) is called. Interesting enough, one of its arguments results some what familiar:</p>
-<div style="text-align:center">
-<img src="/SharifCTF7/8.png"/>
-</div>
-<div style="text-align:center">
-<img src="/SharifCTF7/9.png"/>
-</div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#66d9ef">signed</span> <span style="color:#66d9ef">int</span> <span style="color:#66d9ef">__cdecl</span> <span style="color:#a6e22e">copy_cond</span>(<span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>copy, <span style="color:#66d9ef">int</span> centinel, <span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>payload) {
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">int</span> v3;
+</span></span><span style="display:flex;"><span>  _DWORD <span style="color:#f92672">*</span>v4;
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">signed</span> <span style="color:#66d9ef">int</span> v5;
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">char</span> v7;
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">signed</span> <span style="color:#66d9ef">int</span> v8;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">__debugbreak</span>();
+</span></span><span style="display:flex;"><span>  v3 <span style="color:#f92672">=</span> centinel;
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> ( <span style="color:#f92672">!</span>centinel )
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">goto</span> LABEL_4;
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> ( <span style="color:#f92672">!</span>payload )
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">*</span>copy <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>LABEL_4:
+</span></span><span style="display:flex;"><span>    v4 <span style="color:#f92672">=</span> <span style="color:#a6e22e">junk</span>();
+</span></span><span style="display:flex;"><span>    v8 <span style="color:#f92672">=</span> <span style="color:#ae81ff">22</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">goto</span> LABEL_5;
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  v7 <span style="color:#f92672">=</span> <span style="color:#f92672">*</span>payload;
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">*</span>copy <span style="color:#f92672">=</span> <span style="color:#f92672">*</span>payload;
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> ( v7 )
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    v3 <span style="color:#f92672">=</span> centinel <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">__debugbreak</span>();
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> ( v3 )
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">*</span>copy <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>  v4 <span style="color:#f92672">=</span> <span style="color:#a6e22e">junk</span>();
+</span></span><span style="display:flex;"><span>  v8 <span style="color:#f92672">=</span> <span style="color:#ae81ff">34</span>;
+</span></span><span style="display:flex;"><span>LABEL_5:
+</span></span><span style="display:flex;"><span>  v5 <span style="color:#f92672">=</span> v8;
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">*</span>v4 <span style="color:#f92672">=</span> v8;
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">trigger_exception</span>();
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span> v5;
+</span></span><span style="display:flex;"><span>}</span></span></code></pre></div>
+<p>Furthermore, something more interesting happens when we analyze the function at <code>0x401260</code>. In this function, the function discussed above (<code>copy_cond</code>) is called. Interesting enough, one of its arguments results some what familiar:</p>
+<p><img src="/SharifCTF7/8.png#center" alt=""></p>
+<p><img src="/SharifCTF7/9.png#center" alt=""></p>
 <p>That is the encrypted payload we intercepted previously with wireshark. Assuming that the contents of the payload are copied to the first argument of that call, seeing the following will be enlighten:</p>
-<div style="text-align:center">
-<img src="/SharifCTF7/10.png"/>
-</div>
+<p><img src="/SharifCTF7/10.png#center" alt=""></p>
 <p>The previous routine is xoring each byte of the buffer-copy of the encrypted payload against <code>70 (0x46)</code>. Knowing this, I run the following python script:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span><span class="lnt">5
-</span><span class="lnt">6
-</span><span class="lnt">7
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="ch">#!usr/bin/env python</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">payload</span> <span class="o">=</span> <span class="p">[</span> <span class="mh">0x12</span><span class="p">,</span> <span class="mh">0x2e</span><span class="p">,</span> <span class="mh">0x2f</span><span class="p">,</span> <span class="mh">0x35</span><span class="p">,</span> <span class="mh">0x19</span><span class="p">,</span> <span class="mh">0x0f</span><span class="p">,</span> <span class="mh">0x35</span><span class="p">,</span> <span class="mh">0x19</span><span class="p">,</span> \
-</span></span><span class="line"><span class="cl">            <span class="mh">0x12</span><span class="p">,</span> <span class="mh">0x2e</span><span class="p">,</span> <span class="mh">0x23</span><span class="p">,</span> <span class="mh">0x19</span><span class="p">,</span> <span class="mh">0x15</span><span class="p">,</span> <span class="mh">0x23</span><span class="p">,</span> <span class="mh">0x25</span><span class="p">,</span> <span class="mh">0x34</span><span class="p">,</span> \
-</span></span><span class="line"><span class="cl">            <span class="mh">0x23</span><span class="p">,</span> <span class="mh">0x32</span><span class="p">,</span> <span class="mh">0x19</span><span class="p">,</span> <span class="mh">0x02</span><span class="p">,</span> <span class="mh">0x27</span><span class="p">,</span> <span class="mh">0x32</span><span class="p">,</span> <span class="mh">0x27</span><span class="p">,</span> <span class="mh">0x46</span> <span class="p">]</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="nb">print</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">chr</span><span class="p">(</span><span class="n">i</span> <span class="o">^</span> <span class="mi">70</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">payload</span><span class="p">])</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>The output of this script is: <code>This_Is_The_Secret_Data</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#75715e">#!usr/bin/env python</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>payload <span style="color:#f92672">=</span> [ <span style="color:#ae81ff">0x12</span>, <span style="color:#ae81ff">0x2e</span>, <span style="color:#ae81ff">0x2f</span>, <span style="color:#ae81ff">0x35</span>, <span style="color:#ae81ff">0x19</span>, <span style="color:#ae81ff">0x0f</span>, <span style="color:#ae81ff">0x35</span>, <span style="color:#ae81ff">0x19</span>, \
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">0x12</span>, <span style="color:#ae81ff">0x2e</span>, <span style="color:#ae81ff">0x23</span>, <span style="color:#ae81ff">0x19</span>, <span style="color:#ae81ff">0x15</span>, <span style="color:#ae81ff">0x23</span>, <span style="color:#ae81ff">0x25</span>, <span style="color:#ae81ff">0x34</span>, \
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">0x23</span>, <span style="color:#ae81ff">0x32</span>, <span style="color:#ae81ff">0x19</span>, <span style="color:#ae81ff">0x02</span>, <span style="color:#ae81ff">0x27</span>, <span style="color:#ae81ff">0x32</span>, <span style="color:#ae81ff">0x27</span>, <span style="color:#ae81ff">0x46</span> ]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print <span style="color:#e6db74">&#39;&#39;</span><span style="color:#f92672">.</span>join([chr(i <span style="color:#f92672">^</span> <span style="color:#ae81ff">70</span>) <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> payload])</span></span></code></pre></div>
+<p>The output of this script is: <code>This_Is_The_Secret_Data</code>.</p>
 <p>Having found the secret message, and knowing the IP address of the C&amp;C server we can find the md5 for our flag, which happens to be:</p>
 <p><code>SharifCTF{fb0e90f2ec7a701783e70e674fa94848}</code>.</p>
 
+
     </div>
-
-    <div class="post-copyright">
-  <p class="copyright-item">
-    <span class="item-title">Author</span>
-    <span class="item-content">ulexec</span>
-  </p>
-  <p class="copyright-item">
-    <span class="item-title">LastMod</span>
-    <span class="item-content">
-        2016-12-19
-        
-    </span>
-  </p>
-  
-  
 </div>
-<footer class="post-footer">
-      <div class="post-tags">
-          <a href="/tags/reversing/">reversing</a>
-          <a href="/tags/ctf/">ctf</a>
-          </div>
-      <nav class="post-nav">
-        <a class="prev" href="/post/2017-02-10-alexctf-packedmovement/">
-            <i class="iconfont icon-left"></i>
-            <span class="prev-text nav-default">AlexCTF - PackedMovement</span>
-            <span class="prev-text nav-mobile">Prev</span>
-          </a>
-        
-      </nav>
-    </footer>
-  </article>
-        </div>
-        
-
-  
-
-  
-
-      </div>
-    </main>
-
-    <footer id="footer" class="footer">
-      <div class="social-links">
-      <a href="ulexecve@protonmail.com" class="iconfont icon-email" title="email"></a>
-      <a href="https://twitter.com/ulexec" class="iconfont icon-twitter" title="twitter"></a>
-      <a href="https://linkedin.com/in/ignacio-sanmillan-1aa244b8" class="iconfont icon-linkedin" title="linkedin"></a>
-      <a href="https://github.com/ulexec" class="iconfont icon-github" title="github"></a>
-  <a href="http://ulexec.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
-</div>
-
-<div class="copyright">
-  <span class="power-by">
-    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
-  </span>
-  <span class="division">|</span>
-  <span class="theme-info">
-    Theme - 
-    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
-  </span>
-
-  
-
-  <span class="copyright-year">
-    &copy; 
-    2017 - 
-    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>ulexec</span>
-  </span>
-</div>
-
-    </footer>
-
-    <div class="back-to-top" id="back-to-top">
-      <i class="iconfont icon-up"></i>
+<div class="row align-center">
+    <div class="col">
+        <a href="https://ulexec.github.io" class="btn btn-primary btn-lg">Back to Home</a>
     </div>
-  </div>
-  
-  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+</div>
+
+
+    </div><footer class="container">
+    <hr class="soften" />
+    <p class="text-center">
+    Content Licensed under <a href="">MIT</a> | 
+
+
+&copy;&nbsp;
 
 
 
-<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+    Ignacio Sanmillan
+
+
+
+<span id="thisyear">
+    2023
+</span>
 
 
 
 
+</p>
+    <p class="text-center">
+        
 
+        
+            <a href="https://twitter.com/ulexec">Twitter</a>
+        
 
+        
+            <a href="https://linkedin.com/in/ignacio-sanmillan-1aa244b8">Linkedin</a>
+        
 
+        
+            <a href="https://github.com/ulexec">GitHub</a>
+        
 
-</body>
-</html>
+        
+    </p>
+</footer>
+</body><link rel="stylesheet" href="/css/bootstrap.min.css">
+<link rel="stylesheet" href="/css/bootstrap-theme.min.css">
+<link rel="stylesheet" href="/css/style.css"> 
+<script src="/js/jquery.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+
+<script>
+    
+    function ThisYear() {
+        document.getElementById('thisyear').innerHTML = new Date().getFullYear();
+    };
+</script>
+<script>	
+	
+(function(){
+  _386.magicCursor();
+  _386.scrollLock();
+  $('[data-toggle="tooltip"]').tooltip();
+  $('[data-toggle="popover"]').popover();
+
+  $(window).scroll(function() {
+    var top = $(document).scrollTop();
+    if(top > 50)
+      $('#home > .navbar').removeClass('navbar-transparent');
+    else
+      $('#home > .navbar').addClass('navbar-transparent');
+  });
+
+  $("a[href='#']").click(function(e) {
+    e.preventDefault();
+  });
+
+})();</script></html>

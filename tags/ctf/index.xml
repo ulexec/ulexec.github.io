@@ -1,47 +1,51 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>ctf on ulexec | blog</title>
-    <link>http://ulexec.github.io/tags/ctf/</link>
-    <description>Recent content in ctf on ulexec | blog</description>
+    <title>ctf on ulexec.github.io</title>
+    <link>https://ulexec.github.io/tags/ctf/</link>
+    <description>Recent content in ctf on ulexec.github.io</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Thu, 20 May 2021 00:00:00 +0000</lastBuildDate><atom:link href="http://ulexec.github.io/tags/ctf/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 20 May 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://ulexec.github.io/tags/ctf/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>HTB 2021: Modern Typer </title>
-      <link>http://ulexec.github.io/post/2021-04-09-htb_modern_typer/</link>
+      <link>https://ulexec.github.io/post/2021-04-09-htb_modern_typer/</link>
       <pubDate>Thu, 20 May 2021 00:00:00 +0000</pubDate>
       
-      <guid>http://ulexec.github.io/post/2021-04-09-htb_modern_typer/</guid>
+      <guid>https://ulexec.github.io/post/2021-04-09-htb_modern_typer/</guid>
       <description>Overview SPOILER: This blog contains the solution of Modern Typer Chrome exploitation challenge from HTB. If you are planning to take this challenge, I would highly encourage attempting the challenge first before reading this blog. This challenge can be obtained from the Challenges section of hackthebox.
 Prerequisites This blog is not a Turbofan reference and is not intended to be. There are excellent public resources to acquire a basic understanding of Turbofan.</description>
     </item>
     
     <item>
       <title>*CTF 2019 - oob-v8</title>
-      <link>http://ulexec.github.io/post/2021-05-20-startctf2019_oobv8/</link>
+      <link>https://ulexec.github.io/post/2021-05-20-startctf2019_oobv8/</link>
       <pubDate>Thu, 08 Apr 2021 00:00:00 +0000</pubDate>
       
-      <guid>http://ulexec.github.io/post/2021-05-20-startctf2019_oobv8/</guid>
+      <guid>https://ulexec.github.io/post/2021-05-20-startctf2019_oobv8/</guid>
       <description>This post will cover the chrome exploit challenge oob-v8 from *CTF. The challenge can be found here.
 01 -Analyzing the Patch if we take a close look at the patch oob.diff from the *CTF v8-oob challenge we will observe the introduction of the ArrayOob function. Authors of this challenge didn&amp;rsquo;t really wanted to make the discovery of the vulnerability a hard task, and there are even comments for the read/write primitives.</description>
     </item>
     
     <item>
       <title>Hitcon2017CTF - 家徒四壁~Everlasting Imaginative Void~</title>
-      <link>http://ulexec.github.io/post/2017-11-06-hitconctf2017-everlasting-imaginative-void/</link>
+      <link>https://ulexec.github.io/post/2017-11-06-hitconctf2017-everlasting-imaginative-void/</link>
       <pubDate>Mon, 06 Nov 2017 00:00:00 +0000</pubDate>
       
-      <guid>http://ulexec.github.io/post/2017-11-06-hitconctf2017-everlasting-imaginative-void/</guid>
-      <description>Everlasting Imaginative void was a Hitcon2017&amp;rsquo;s reversing challenge worthing 300 points. The challenge description was the following: Astonishingly impoverished elf Not much information. Executing a file command, we get the following information: 1 2 n4x0r@pwn1e~$ file void-1b63cbab5d58da4294c2f97d6b60f568 void-1b63cbab5d58da4294c2f97d6b60f568: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 2.6.32, BuildID[sha1]=5f8a87150720003c217508ffd74883c715ffe7c3, stripped If we execute the file we see the following: 1 2 3 n4x0r@pwn1e~$ ./void-1b63cbab5d58da4294c2f97d6b60f568</description>
+      <guid>https://ulexec.github.io/post/2017-11-06-hitconctf2017-everlasting-imaginative-void/</guid>
+      <description>Everlasting Imaginative void was a Hitcon2017&amp;rsquo;s reversing challenge worthing 300 points. The challenge description was the following:
+Astonishingly impoverished elf
+Not much information. Executing a file command, we get the following information:
+n4x0r@pwn1e~$ file void-1b63cbab5d58da4294c2f97d6b60f568 void-1b63cbab5d58da4294c2f97d6b60f568: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 2.6.32, BuildID[sha1]=5f8a87150720003c217508ffd74883c715ffe7c3, stripped If we execute the file we see the following:
+n4x0r@pwn1e~$ ./void-1b63cbab5d58da4294c2f97d6b60f568 blabla hitcon{blabla} Ok, Lets dig inside and see what we can find.</description>
     </item>
     
     <item>
       <title>CodeGateCTF - Angrybird</title>
-      <link>http://ulexec.github.io/post/2017-02-11-codegatectf2017-angrybird/</link>
+      <link>https://ulexec.github.io/post/2017-02-11-codegatectf2017-angrybird/</link>
       <pubDate>Sat, 11 Feb 2017 00:00:00 +0000</pubDate>
       
-      <guid>http://ulexec.github.io/post/2017-02-11-codegatectf2017-angrybird/</guid>
+      <guid>https://ulexec.github.io/post/2017-02-11-codegatectf2017-angrybird/</guid>
       <description>Angrybird was the first challenge that I solved on the 2017 CodeGate2017 CTF. There was no description for the challenge just a binary.
 When we opened the binary with IDA, we can see the graph overview of the main function:
 if we have a closer look at the call graph, every basic block is composed of a small check. if that check holds, then the flow of execution continues to the next block.</description>
@@ -49,24 +53,24 @@ if we have a closer look at the call graph, every basic block is composed of a s
     
     <item>
       <title>AlexCTF - PackedMovement</title>
-      <link>http://ulexec.github.io/post/2017-02-10-alexctf-packedmovement/</link>
+      <link>https://ulexec.github.io/post/2017-02-10-alexctf-packedmovement/</link>
       <pubDate>Fri, 10 Feb 2017 00:00:00 +0000</pubDate>
       
-      <guid>http://ulexec.github.io/post/2017-02-10-alexctf-packedmovement/</guid>
+      <guid>https://ulexec.github.io/post/2017-02-10-alexctf-packedmovement/</guid>
       <description>PackedMovement was the last Reverse Engineering challenge on AlexCTF 2017. The puntuation of this challnege was of 350 points.
 The only hint given to this challenge was its name. You will see why later on in this writeup.
 The retrieved binary is called move. if we run the file command over it we find the following:
-1 move: ELF 32-bit LSB executable, Intel 80386, version 1 (GNU/Linux), statically linked, stripped Even more interesting is when we see the binaries segments with readelf -l move</description>
+move: ELF 32-bit LSB executable, Intel 80386, version 1 (GNU/Linux), statically linked, stripped Even more interesting is when we see the binaries segments with readelf -l move</description>
     </item>
     
     <item>
       <title>SharifCTF7 - Nanomites</title>
-      <link>http://ulexec.github.io/post/2016-12-19-sharifctf2016-nanomites/</link>
+      <link>https://ulexec.github.io/post/2016-12-19-sharifctf2016-nanomites/</link>
       <pubDate>Mon, 19 Dec 2016 00:00:00 +0000</pubDate>
       
-      <guid>http://ulexec.github.io/post/2016-12-19-sharifctf2016-nanomites/</guid>
+      <guid>https://ulexec.github.io/post/2016-12-19-sharifctf2016-nanomites/</guid>
       <description>Nanomites was a Reverse engineering challenge of 300 point in SharifCTF7. The specification of this problem was the following:
-1 2 Analyze the given file. Find the C&amp;amp;C IP address and the data sent to it in plain text. Flag = SharifCTF{md5(strcat(IP, Data))}_ For the ones that coud not attend the competition, You can download the challenge from here.
+Analyze the given file. Find the C&amp;amp;C IP address and the data sent to it in plain text. Flag = SharifCTF{md5(strcat(IP, Data))}_ For the ones that coud not attend the competition, You can download the challenge from here.
 After running the command file against the binary, I got the following output:</description>
     </item>
     

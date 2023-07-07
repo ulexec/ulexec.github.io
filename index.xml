@@ -1,143 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>ulexec | blog</title>
-    <link>http://ulexec.github.io/</link>
-    <description>Recent content on ulexec | blog</description>
+    <title>ulexec.github.io</title>
+    <link>https://ulexec.github.io/</link>
+    <description>Recent content on ulexec.github.io</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Mon, 28 Nov 2022 00:00:00 +0000</lastBuildDate><atom:link href="http://ulexec.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 28 Nov 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://ulexec.github.io/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>About</title>
-      <link>http://ulexec.github.io/about/</link>
+      <title>Projects</title>
+      <link>https://ulexec.github.io/projects/</link>
       <pubDate>Sun, 20 Aug 2017 21:38:52 +0800</pubDate>
       
-      <guid>http://ulexec.github.io/about/</guid>
-      <description>My name is Nacho Sanmillan.
-I’m a Security Researcher experienced in Malware Analysis, Forensics and Threat Intelligence. Currently I am mostly interested in Fuzzing and Software Exploitation with an emphasis in *OS.</description>
-    </item>
-    
-    <item>
-      <title>Notes on Mach IPC</title>
-      <link>http://ulexec.github.io/post/2022-12-01-xnu_ipc/</link>
-      <pubDate>Mon, 28 Nov 2022 00:00:00 +0000</pubDate>
-      
-      <guid>http://ulexec.github.io/post/2022-12-01-xnu_ipc/</guid>
-      <description>Introduction This blog is intended to be a dedicated effort to structure information in relation to Mach Messages in a way that I can remember and use as a reference for the future.
-Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with today&amp;rsquo;s enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces.</description>
-    </item>
-    
-    <item>
-      <title>SHELF encounters of the elements kind</title>
-      <link>http://ulexec.github.io/post/2022-02-22-shelfchrome/</link>
-      <pubDate>Tue, 22 Feb 2022 00:00:00 +0000</pubDate>
-      
-      <guid>http://ulexec.github.io/post/2022-02-22-shelfchrome/</guid>
-      <description>This is a mirror of my article publsihed at Tmp.0ut zine volume 2. Original post can be found here.
-I&amp;rsquo;ve been focusing lately on Chrome exploitation, and after a while I became curious of the idea to attempt to make SHELF loading work for Chrome exploits targeting Linux.
-If you are new to the concept of SHELF, it is a reflective loading methodology me and my colleague _Anonymous from Tmp.0ut wrote about last year.</description>
-    </item>
-    
-    <item>
-      <title>HTB 2021: Modern Typer </title>
-      <link>http://ulexec.github.io/post/2021-04-09-htb_modern_typer/</link>
-      <pubDate>Thu, 20 May 2021 00:00:00 +0000</pubDate>
-      
-      <guid>http://ulexec.github.io/post/2021-04-09-htb_modern_typer/</guid>
-      <description>Overview SPOILER: This blog contains the solution of Modern Typer Chrome exploitation challenge from HTB. If you are planning to take this challenge, I would highly encourage attempting the challenge first before reading this blog. This challenge can be obtained from the Challenges section of hackthebox.
-Prerequisites This blog is not a Turbofan reference and is not intended to be. There are excellent public resources to acquire a basic understanding of Turbofan.</description>
-    </item>
-    
-    <item>
-      <title>*CTF 2019 - oob-v8</title>
-      <link>http://ulexec.github.io/post/2021-05-20-startctf2019_oobv8/</link>
-      <pubDate>Thu, 08 Apr 2021 00:00:00 +0000</pubDate>
-      
-      <guid>http://ulexec.github.io/post/2021-05-20-startctf2019_oobv8/</guid>
-      <description>This post will cover the chrome exploit challenge oob-v8 from *CTF. The challenge can be found here.
-01 -Analyzing the Patch if we take a close look at the patch oob.diff from the *CTF v8-oob challenge we will observe the introduction of the ArrayOob function. Authors of this challenge didn&amp;rsquo;t really wanted to make the discovery of the vulnerability a hard task, and there are even comments for the read/write primitives.</description>
-    </item>
-    
-    <item>
-      <title>SHELF Loading</title>
-      <link>http://ulexec.github.io/post/2021-04-08-shelfloading/</link>
-      <pubDate>Thu, 08 Apr 2021 00:00:00 +0000</pubDate>
-      
-      <guid>http://ulexec.github.io/post/2021-04-08-shelfloading/</guid>
-      <description>SHELF Loading is a new type of ELF binary reflective loading that my colleague @Anonymous_ and I first documented on April 21st 2021. This new ELF reflective loading methodology enables the capability to generate compiler-based artifacts with properties that resemble those of shellcode. These compiler-based artifacts are ultimately a Hybrid ELF file between conventional static and PIE binaries. Had the pleasure to publish this research at Tmp0ut, a Linux VX zine.</description>
-    </item>
-    
-    <item>
-      <title>Tales Of Binary Deobfuscation</title>
-      <link>http://ulexec.github.io/post/2020-03-03-deobfuscation_1/</link>
-      <pubDate>Tue, 03 Mar 2020 00:00:00 +0000</pubDate>
-      
-      <guid>http://ulexec.github.io/post/2020-03-03-deobfuscation_1/</guid>
-      <description>This article is going to serve as my personal reference on this topic. Since I&amp;rsquo;ve always wanted to write about it and just finished Yuma Kurogome&amp;rsquo;s course on Advance Binary Deobfuscation, I thought it would be a good time to write notes regarding what I learned in this course with a fresh state of mind on the subject matter for future reference.
-Introduction There are close to 31 known code transformations.</description>
-    </item>
-    
-    <item>
-      <title>Dissecting the Internals of custom Linux Binary Packers</title>
-      <link>http://ulexec.github.io/post/2017-11-17-unpacking_a_linux_tsunami_sample/</link>
-      <pubDate>Fri, 17 Nov 2017 00:00:00 +0000</pubDate>
-      
-      <guid>http://ulexec.github.io/post/2017-11-17-unpacking_a_linux_tsunami_sample/</guid>
-      <description>Overview In this writeup we&amp;rsquo;re going to unpack a Tsunami malware sample packed with a modified version of UPX. Hashes of this specific sample are the following:
-1 2 3 SHA256: f22ffc07e0cc907f00fd6a4ecee09fe8411225badb2289c1bffa867a2a3bd863 SHA1: 76584c9a22835353186e753903ee0a853663bd83 MD5: 171edd284f6a19c6ed3fe010b79c94af In VirusTotal the malware is identified as a Tsunami Variant for the most part:
-If we do some static recon about the file, we can see the following: ```c readelf -lh f22ffc07e0cc907f00fd6a4ecee09fe8411225badb2289c1bffa867a2a3bd863 ELF Header: Magic: 7f 45 4c 46 01 01 01 03 00 00 00 00 00 00 00 00 Class: ELF32 Data: 2&#39;s complement, little endian Version: 1 (current) OS/ABI: UNIX - GNU ABI Version: 0 Type: EXEC (Executable file) Machine: Intel 80386 Version: 0x1 Entry point address: 0xc8da20 Start of program headers: 52 (bytes into file) Start of section headers: 0 (bytes into file) Flags: 0x0 Size of this header: 52 (bytes) Size of program headers: 32 (bytes) Number of program headers: 2 Size of section headers: 40 (bytes) Number of section headers: 0 Section header string table index: 0 Program Headers: Type Offset VirtAddr PhysAddr FileSiz MemSiz Flg Align LOAD 0x000000 0x00c01000 0x00c01000 0x8d1c2 0x8d1c2 R E 0x1000 LOAD 0x000304 0x0819b304 0x0819b304 0x00000 0x00000 RW 0x1000</description>
-    </item>
-    
-    <item>
-      <title>Hitcon2017CTF - 家徒四壁~Everlasting Imaginative Void~</title>
-      <link>http://ulexec.github.io/post/2017-11-06-hitconctf2017-everlasting-imaginative-void/</link>
-      <pubDate>Mon, 06 Nov 2017 00:00:00 +0000</pubDate>
-      
-      <guid>http://ulexec.github.io/post/2017-11-06-hitconctf2017-everlasting-imaginative-void/</guid>
-      <description>Everlasting Imaginative void was a Hitcon2017&amp;rsquo;s reversing challenge worthing 300 points. The challenge description was the following: Astonishingly impoverished elf Not much information. Executing a file command, we get the following information: 1 2 n4x0r@pwn1e~$ file void-1b63cbab5d58da4294c2f97d6b60f568 void-1b63cbab5d58da4294c2f97d6b60f568: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 2.6.32, BuildID[sha1]=5f8a87150720003c217508ffd74883c715ffe7c3, stripped If we execute the file we see the following: 1 2 3 n4x0r@pwn1e~$ ./void-1b63cbab5d58da4294c2f97d6b60f568</description>
-    </item>
-    
-    <item>
-      <title>CodeGateCTF - Angrybird</title>
-      <link>http://ulexec.github.io/post/2017-02-11-codegatectf2017-angrybird/</link>
-      <pubDate>Sat, 11 Feb 2017 00:00:00 +0000</pubDate>
-      
-      <guid>http://ulexec.github.io/post/2017-02-11-codegatectf2017-angrybird/</guid>
-      <description>Angrybird was the first challenge that I solved on the 2017 CodeGate2017 CTF. There was no description for the challenge just a binary.
-When we opened the binary with IDA, we can see the graph overview of the main function:
-if we have a closer look at the call graph, every basic block is composed of a small check. if that check holds, then the flow of execution continues to the next block.</description>
-    </item>
-    
-    <item>
-      <title>AlexCTF - PackedMovement</title>
-      <link>http://ulexec.github.io/post/2017-02-10-alexctf-packedmovement/</link>
-      <pubDate>Fri, 10 Feb 2017 00:00:00 +0000</pubDate>
-      
-      <guid>http://ulexec.github.io/post/2017-02-10-alexctf-packedmovement/</guid>
-      <description>PackedMovement was the last Reverse Engineering challenge on AlexCTF 2017. The puntuation of this challnege was of 350 points.
-The only hint given to this challenge was its name. You will see why later on in this writeup.
-The retrieved binary is called move. if we run the file command over it we find the following:
-1 move: ELF 32-bit LSB executable, Intel 80386, version 1 (GNU/Linux), statically linked, stripped Even more interesting is when we see the binaries segments with readelf -l move</description>
-    </item>
-    
-    <item>
-      <title>SharifCTF7 - Nanomites</title>
-      <link>http://ulexec.github.io/post/2016-12-19-sharifctf2016-nanomites/</link>
-      <pubDate>Mon, 19 Dec 2016 00:00:00 +0000</pubDate>
-      
-      <guid>http://ulexec.github.io/post/2016-12-19-sharifctf2016-nanomites/</guid>
-      <description>Nanomites was a Reverse engineering challenge of 300 point in SharifCTF7. The specification of this problem was the following:
-1 2 Analyze the given file. Find the C&amp;amp;C IP address and the data sent to it in plain text. Flag = SharifCTF{md5(strcat(IP, Data))}_ For the ones that coud not attend the competition, You can download the challenge from here.
-After running the command file against the binary, I got the following output:</description>
-    </item>
-    
-    <item>
-      <title></title>
-      <link>http://ulexec.github.io/projects/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>http://ulexec.github.io/projects/</guid>
-      <description>Exploits Repository of exploits and pwn CTF solutions
+      <guid>https://ulexec.github.io/projects/</guid>
+      <description>Exploits Repository of exploits and pwn CTF challenge solutions
 SHELFLoading Evasive ELF static PIE User-Land-Exec
 SBTG PoC metamorphic encoder engine for ELF32 binaries
 Linux.RV PoC reverse text segment ELF file infector
@@ -145,6 +21,162 @@ ELFLocker PoC multi-layer software protector for ELF32 x86 binaries
 OniPacker PoC binary packer for x86 PE binaries
 EmotetCFU Emotet control-flow unflattening using miasm and radare2
 elf_rela_obfuscation A small PoC of an EPO technique abusing Elf64_Rela relocations for ELF64 PIE binaries</description>
+    </item>
+    
+    <item>
+      <title>Bugs</title>
+      <link>https://ulexec.github.io/bugs/</link>
+      <pubDate>Tue, 20 Jun 2023 21:38:52 +0800</pubDate>
+      
+      <guid>https://ulexec.github.io/bugs/</guid>
+      <description>Publicly Reported Vulnerabilities CVE-2023-32402 (WebKit) Impact: Processing web content may disclose sensitive information Description: An out-of-bounds read in WebKit was addressed with improved input validation. CVE-2023-32423 (WebKit) Impact: Processing web content may disclose sensitive information Description: A buffer overflow issue was addressed with improved memory handling. </description>
+    </item>
+    
+    <item>
+      <title>Publications</title>
+      <link>https://ulexec.github.io/publications/</link>
+      <pubDate>Tue, 20 Jun 2023 21:38:52 +0800</pubDate>
+      
+      <guid>https://ulexec.github.io/publications/</guid>
+      <description>Public Papers, Publications and Talks Kobalos – A complex Linux threat to high performance computing infrastructure - (2021-02) ESET researchers publish a white paper about unique multiplatform malware they’ve named Kobalos Operation NightScout: Supply‑chain attack targets online gaming in Asia - (2021-02) ESET researchers uncover a supply-chain attack used in a cyberespionage operation targeting online‑gaming communities in Asia Operation SignSight: Supply‑chain attack against a certification authority in Southeast Asia &amp;rsquo; (2020-12) ESET researchers have uncovered a supply-chain attack on the website of a government in Southeast Asia.</description>
+    </item>
+    
+    <item>
+      <title>About</title>
+      <link>https://ulexec.github.io/about/</link>
+      <pubDate>Tue, 20 Jun 2023 21:38:52 +0800</pubDate>
+      
+      <guid>https://ulexec.github.io/about/</guid>
+      <description>Heya! My name is Ignacio Sanmillan, I’m a Security Researcher experienced in Malware Analysis, Forensics and Threat Intelligence.
+Nowadays I´m mostly focused in *OS and browser security.
+I´m available at Signal, Telegram and Twitter for any enquiries.</description>
+    </item>
+    
+    <item>
+      <title>Notes on Mach IPC</title>
+      <link>https://ulexec.github.io/post/2022-12-01-xnu_ipc/</link>
+      <pubDate>Mon, 28 Nov 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://ulexec.github.io/post/2022-12-01-xnu_ipc/</guid>
+      <description>Introduction This blog is intended to be a dedicated effort to structure information in relation to Mach Messages in a way that I can remember and use as a reference for the future.
+Often as a vulnerability researcher, attack-surfaces involving compromising other adjacent processes relative to a preliminar target are increasingly important with today&amp;rsquo;s enforced mitigations (specially in the SBX realm), and having a good understanding of the internals of the underlying technology which makes this inter-process communication mechanism possible is vital to understand and tackle adjacent attack surfaces.</description>
+    </item>
+    
+    <item>
+      <title>SHELF encounters of the elements kind</title>
+      <link>https://ulexec.github.io/post/2022-02-22-shelfchrome/</link>
+      <pubDate>Tue, 22 Feb 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://ulexec.github.io/post/2022-02-22-shelfchrome/</guid>
+      <description>This is a mirror of my article publsihed at Tmp.0ut zine volume 2. Original post can be found here.
+I&amp;rsquo;ve been focusing lately on Chrome exploitation, and after a while I became curious of the idea to attempt to make SHELF loading work for Chrome exploits targeting Linux.
+If you are new to the concept of SHELF, it is a reflective loading methodology me and my colleague _Anonymous from Tmp.0ut wrote about last year.</description>
+    </item>
+    
+    <item>
+      <title>HTB 2021: Modern Typer </title>
+      <link>https://ulexec.github.io/post/2021-04-09-htb_modern_typer/</link>
+      <pubDate>Thu, 20 May 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://ulexec.github.io/post/2021-04-09-htb_modern_typer/</guid>
+      <description>Overview SPOILER: This blog contains the solution of Modern Typer Chrome exploitation challenge from HTB. If you are planning to take this challenge, I would highly encourage attempting the challenge first before reading this blog. This challenge can be obtained from the Challenges section of hackthebox.
+Prerequisites This blog is not a Turbofan reference and is not intended to be. There are excellent public resources to acquire a basic understanding of Turbofan.</description>
+    </item>
+    
+    <item>
+      <title>*CTF 2019 - oob-v8</title>
+      <link>https://ulexec.github.io/post/2021-05-20-startctf2019_oobv8/</link>
+      <pubDate>Thu, 08 Apr 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://ulexec.github.io/post/2021-05-20-startctf2019_oobv8/</guid>
+      <description>This post will cover the chrome exploit challenge oob-v8 from *CTF. The challenge can be found here.
+01 -Analyzing the Patch if we take a close look at the patch oob.diff from the *CTF v8-oob challenge we will observe the introduction of the ArrayOob function. Authors of this challenge didn&amp;rsquo;t really wanted to make the discovery of the vulnerability a hard task, and there are even comments for the read/write primitives.</description>
+    </item>
+    
+    <item>
+      <title>SHELF Loading</title>
+      <link>https://ulexec.github.io/post/2021-04-08-shelfloading/</link>
+      <pubDate>Thu, 08 Apr 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://ulexec.github.io/post/2021-04-08-shelfloading/</guid>
+      <description>SHELF Loading is a new type of ELF binary reflective loading that my colleague @Anonymous_ and I first documented on April 21st 2021. This new ELF reflective loading methodology enables the capability to generate compiler-based artifacts with properties that resemble those of shellcode. These compiler-based artifacts are ultimately a Hybrid ELF file between conventional static and PIE binaries. Had the pleasure to publish this research at Tmp0ut, a Linux VX zine.</description>
+    </item>
+    
+    <item>
+      <title>Tales Of Binary Deobfuscation</title>
+      <link>https://ulexec.github.io/post/2020-03-03-deobfuscation_1/</link>
+      <pubDate>Tue, 03 Mar 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://ulexec.github.io/post/2020-03-03-deobfuscation_1/</guid>
+      <description>This article is going to serve as my personal reference on this topic. Since I&amp;rsquo;ve always wanted to write about it and just finished Yuma Kurogome&amp;rsquo;s course on Advance Binary Deobfuscation, I thought it would be a good time to write notes regarding what I learned in this course with a fresh state of mind on the subject matter for future reference.
+Introduction There are close to 31 known code transformations.</description>
+    </item>
+    
+    <item>
+      <title></title>
+      <link>https://ulexec.github.io/archives/</link>
+      <pubDate>Tue, 28 May 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://ulexec.github.io/archives/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Dissecting the Internals of custom Linux Binary Packers</title>
+      <link>https://ulexec.github.io/post/2017-11-17-unpacking_a_linux_tsunami_sample/</link>
+      <pubDate>Fri, 17 Nov 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://ulexec.github.io/post/2017-11-17-unpacking_a_linux_tsunami_sample/</guid>
+      <description>Overview In this writeup we&amp;rsquo;re going to unpack a Tsunami malware sample packed with a modified version of UPX. Hashes of this specific sample are the following:
+SHA256: f22ffc07e0cc907f00fd6a4ecee09fe8411225badb2289c1bffa867a2a3bd863 SHA1: 76584c9a22835353186e753903ee0a853663bd83 MD5: 171edd284f6a19c6ed3fe010b79c94af In VirusTotal the malware is identified as a Tsunami Variant for the most part:
+Is common in Linux systems to encounter packed malware with UPX. I then tried to see if I could find the UPX magic in the file.</description>
+    </item>
+    
+    <item>
+      <title>Hitcon2017CTF - 家徒四壁~Everlasting Imaginative Void~</title>
+      <link>https://ulexec.github.io/post/2017-11-06-hitconctf2017-everlasting-imaginative-void/</link>
+      <pubDate>Mon, 06 Nov 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://ulexec.github.io/post/2017-11-06-hitconctf2017-everlasting-imaginative-void/</guid>
+      <description>Everlasting Imaginative void was a Hitcon2017&amp;rsquo;s reversing challenge worthing 300 points. The challenge description was the following:
+Astonishingly impoverished elf
+Not much information. Executing a file command, we get the following information:
+n4x0r@pwn1e~$ file void-1b63cbab5d58da4294c2f97d6b60f568 void-1b63cbab5d58da4294c2f97d6b60f568: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 2.6.32, BuildID[sha1]=5f8a87150720003c217508ffd74883c715ffe7c3, stripped If we execute the file we see the following:
+n4x0r@pwn1e~$ ./void-1b63cbab5d58da4294c2f97d6b60f568 blabla hitcon{blabla} Ok, Lets dig inside and see what we can find.</description>
+    </item>
+    
+    <item>
+      <title>CodeGateCTF - Angrybird</title>
+      <link>https://ulexec.github.io/post/2017-02-11-codegatectf2017-angrybird/</link>
+      <pubDate>Sat, 11 Feb 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://ulexec.github.io/post/2017-02-11-codegatectf2017-angrybird/</guid>
+      <description>Angrybird was the first challenge that I solved on the 2017 CodeGate2017 CTF. There was no description for the challenge just a binary.
+When we opened the binary with IDA, we can see the graph overview of the main function:
+if we have a closer look at the call graph, every basic block is composed of a small check. if that check holds, then the flow of execution continues to the next block.</description>
+    </item>
+    
+    <item>
+      <title>AlexCTF - PackedMovement</title>
+      <link>https://ulexec.github.io/post/2017-02-10-alexctf-packedmovement/</link>
+      <pubDate>Fri, 10 Feb 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://ulexec.github.io/post/2017-02-10-alexctf-packedmovement/</guid>
+      <description>PackedMovement was the last Reverse Engineering challenge on AlexCTF 2017. The puntuation of this challnege was of 350 points.
+The only hint given to this challenge was its name. You will see why later on in this writeup.
+The retrieved binary is called move. if we run the file command over it we find the following:
+move: ELF 32-bit LSB executable, Intel 80386, version 1 (GNU/Linux), statically linked, stripped Even more interesting is when we see the binaries segments with readelf -l move</description>
+    </item>
+    
+    <item>
+      <title>SharifCTF7 - Nanomites</title>
+      <link>https://ulexec.github.io/post/2016-12-19-sharifctf2016-nanomites/</link>
+      <pubDate>Mon, 19 Dec 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://ulexec.github.io/post/2016-12-19-sharifctf2016-nanomites/</guid>
+      <description>Nanomites was a Reverse engineering challenge of 300 point in SharifCTF7. The specification of this problem was the following:
+Analyze the given file. Find the C&amp;amp;C IP address and the data sent to it in plain text. Flag = SharifCTF{md5(strcat(IP, Data))}_ For the ones that coud not attend the competition, You can download the challenge from here.
+After running the command file against the binary, I got the following output:</description>
     </item>
     
   </channel>

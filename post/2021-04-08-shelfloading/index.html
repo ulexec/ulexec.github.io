@@ -1,179 +1,73 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <title>SHELF Loading - ulexec | blog</title>
-  <meta name="renderer" content="webkit" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
-
-<meta http-equiv="Cache-Control" content="no-transform" />
-<meta http-equiv="Cache-Control" content="no-siteapp" />
-
-<meta name="theme-color" content="#f8f5ec" />
-<meta name="msapplication-navbutton-color" content="#f8f5ec">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
-
-
-<meta name="author" content="ulexec" /><meta name="description" content="SHELF Loading is a new type of ELF binary reflective loading that my colleague @Anonymous_ and I first documented on April 21st 2021. This new ELF reflective loading methodology enables the capability to generate compiler-based artifacts with properties that resemble those of shellcode. These compiler-based artifacts are ultimately a Hybrid ELF file between conventional static and PIE binaries. Had the pleasure to publish this research at Tmp0ut, a Linux VX zine." /><meta name="keywords" content="Hugo, theme, even" />
-
-
-
-
-
-
-<meta name="generator" content="Hugo 0.107.0 with theme even" />
-
-
-<link rel="canonical" href="http://ulexec.github.io/post/2021-04-08-shelfloading/" />
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="manifest" href="/manifest.json">
-<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
-
-
-
-<link href="/sass/main.min.f73a6ffa72be6986c3a367201316a0ad5a90db5f09b95dc0bbaedb923d419e87.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
-
-
-<meta property="og:title" content="SHELF Loading" />
-<meta property="og:description" content="SHELF Loading is a new type of ELF binary reflective loading that my colleague @Anonymous_ and I first documented on April 21st 2021. This new ELF reflective loading methodology enables the capability to generate compiler-based artifacts with properties that resemble those of shellcode. These compiler-based artifacts are ultimately a Hybrid ELF file between conventional static and PIE binaries. Had the pleasure to publish this research at Tmp0ut, a Linux VX zine." />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="http://ulexec.github.io/post/2021-04-08-shelfloading/" /><meta property="article:section" content="post" />
-<meta property="article:published_time" content="2021-04-08T00:00:00+00:00" />
-<meta property="article:modified_time" content="2021-04-08T00:00:00+00:00" />
-
-<meta itemprop="name" content="SHELF Loading">
-<meta itemprop="description" content="SHELF Loading is a new type of ELF binary reflective loading that my colleague @Anonymous_ and I first documented on April 21st 2021. This new ELF reflective loading methodology enables the capability to generate compiler-based artifacts with properties that resemble those of shellcode. These compiler-based artifacts are ultimately a Hybrid ELF file between conventional static and PIE binaries. Had the pleasure to publish this research at Tmp0ut, a Linux VX zine."><meta itemprop="datePublished" content="2021-04-08T00:00:00+00:00" />
-<meta itemprop="dateModified" content="2021-04-08T00:00:00+00:00" />
-<meta itemprop="wordCount" content="3661">
-<meta itemprop="keywords" content="reversing,malware," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="SHELF Loading"/>
-<meta name="twitter:description" content="SHELF Loading is a new type of ELF binary reflective loading that my colleague @Anonymous_ and I first documented on April 21st 2021. This new ELF reflective loading methodology enables the capability to generate compiler-based artifacts with properties that resemble those of shellcode. These compiler-based artifacts are ultimately a Hybrid ELF file between conventional static and PIE binaries. Had the pleasure to publish this research at Tmp0ut, a Linux VX zine."/>
-
-<!--[if lte IE 9]>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
-<![endif]-->
-
-<!--[if lt IE 9]>
-  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
-<![endif]-->
-
-</head>
-<body>
-  <div id="mobile-navbar" class="mobile-navbar">
-  <div class="mobile-header-logo">
-    <a href="/" class="logo">ulexec 의 연구</a>
-  </div>
-  <div class="mobile-navbar-icon">
-    <span></span>
-    <span></span>
-    <span></span>
-  </div>
-</div>
-<nav id="mobile-menu" class="mobile-menu slideout-menu">
-  <ul class="mobile-menu-list">
-    <a href="/">
-        <li class="mobile-menu-item">Home</li>
-      </a><a href="/post/">
-        <li class="mobile-menu-item">Archives</li>
-      </a><a href="/projects/">
-        <li class="mobile-menu-item">Projects</li>
-      </a><a href="/tags/">
-        <li class="mobile-menu-item">Tags</li>
-      </a><a href="/about/">
-        <li class="mobile-menu-item">About</li>
-      </a>
-  </ul>
-
-  
-
-
-</nav>
-
-  <div class="container" id="mobile-panel">
-    <header id="header" class="header">
-        <div class="logo-wrapper">
-  <a href="/" class="logo">ulexec 의 연구</a>
-</div>
-
-
-
-
-
-<nav class="site-navbar">
-  <ul id="menu" class="menu">
-    <li class="menu-item">
-        <a class="menu-item-link" href="/">Home</a>
-      </li><li class="menu-item">
-        <a class="menu-item-link" href="/post/">Archives</a>
-      </li><li class="menu-item">
-        <a class="menu-item-link" href="/projects/">Projects</a>
-      </li><li class="menu-item">
-        <a class="menu-item-link" href="/tags/">Tags</a>
-      </li><li class="menu-item">
-        <a class="menu-item-link" href="/about/">About</a>
-      </li>
-  </ul>
-</nav>
-
-    </header>
-
-    <main id="main" class="main">
-      <div class="content-wrapper">
-        <div id="content" class="content">
-          <article class="post">
+<html lang="en"><head>
+    <title>ulexec.github.io</title>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="theme-color" content="#000084" />
+    <link rel="icon" href="https://ulexec.github.io/favicon.ico">
+    <link rel="canonical" href="https://ulexec.github.io">
     
-    <header class="post-header">
-      <h1 class="post-title">SHELF Loading</h1>
+    
+</head>
+<body class="bootstra-enable-cursor ">
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <a class="navbar-brand" href="https://ulexec.github.io">ulexec.github.io</a>
+    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#main-nav" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div id="main-nav" class="collapse nav-collapse">
+        <ul class="navbar-nav">
+              
+            <li class="nav-item ">
+                <a class="nav-link" href="/post/">
+                                    
+                                    <span>Archives</span>
+                                </a>
+            </li>
+              
+            <li class="nav-item ">
+                <a class="nav-link" href="/projects/">
+                                    
+                                    <span>Projects</span>
+                                </a>
+            </li>
+              
+            <li class="nav-item ">
+                <a class="nav-link" href="/bugs/">
+                                    
+                                    <span>Bugs</span>
+                                </a>
+            </li>
+              
+            <li class="nav-item ">
+                <a class="nav-link" href="/publications/">
+                                    
+                                    <span>Publications</span>
+                                </a>
+            </li>
+              
+            <li class="nav-item ">
+                <a class="nav-link" href="/about/">
+                                    
+                                    <span>About</span>
+                                </a>
+            </li>
+             
+        </ul>
+    </div>
+    </div>
+    </div>
+</nav><div id="content" class="container">
 
-      <div class="post-meta">
-        <span class="post-time"> 2021-04-08 </span>
-        <div class="post-category">
-            <a href="/categories/article/"> Article </a>
-            </div>
-          <span class="more-meta"> 3661 words </span>
-          <span class="more-meta"> 18 mins read </span>
-        
-      </div>
-    </header>
+<div class="row">
+    <div class="col">
 
-    <div class="post-toc" id="post-toc">
-  <h2 class="post-toc-title">Contents</h2>
-  <div class="post-toc-content always-active">
-    <nav id="TableOfContents">
-  <ul>
-    <li>
-      <ul>
-        <li><a href="#introduction">Introduction</a></li>
-        <li><a href="#a-primer-on-elf-reflective-loading">A Primer On ELF Reflective Loading</a></li>
-        <li><a href="#internals-of-static-pie-executable-generation">Internals Of Static PIE Executable Generation</a>
-          <ul>
-            <li><a href="#background">Background</a></li>
-            <li><a href="#non-compatibility-of-gccs--n-and-static-pie-flags">Non-compatibility of GCC&rsquo;s -N and static-pie flags</a></li>
-            <li><a href="#circumvention-via-custom-linker-script">Circumvention via custom Linker Script</a></li>
-          </ul>
-        </li>
-        <li><a href="#shelf-loading">SHELF Loading</a>
-          <ul>
-            <li><a href="#anti-forensic-capabilities">Anti-Forensic Capabilities</a></li>
-            <li><a href="#obscuring-shelf-features-by-pt_tls-patching">Obscuring SHELF features by PT_TLS patching</a></li>
-          </ul>
-        </li>
-        <li><a href="#conclusion">Conclusion</a></li>
-        <li><a href="#references">References</a></li>
-      </ul>
-    </li>
-  </ul>
-</nav>
-  </div>
-</div>
-    <div class="post-content">
-      <p>SHELF Loading is a new type of ELF binary reflective loading that my colleague @Anonymous_ and I first documented on April 21st 2021.
+        <h1 class="mb-3">SHELF Loading - Thu, Apr 8, 2021</h1>
+
+        <p class="lead"></p>
+        <p>SHELF Loading is a new type of ELF binary reflective loading that my colleague @Anonymous_ and I first documented on April 21st 2021.
 This new <code>ELF reflective loading</code> methodology enables the capability to generate compiler-based artifacts with properties that resemble those of <code>shellcode</code>.
 These compiler-based artifacts are ultimately a <code>Hybrid ELF</code> file between conventional static and PIE binaries.
 Had the pleasure to publish this research at <strong>Tmp0ut</strong>, a Linux VX zine. This was Volume #1, and its first release and their official site can be found at <a href="http://tmpout.sh">tmpout.sh</a>.</p>
@@ -223,9 +117,7 @@ its name.</p>
 <p>For the sake of simplicity, the steps to implement an ordinary User-Land-Exec
 with support of <code>ET_EXEC</code> and <code>ET_DYN</code> ELF binaries is illustrated in the following
 diagram, showcasing an implementation of the UPX packer for ELF binaries:</p>
-<div style="text-align:center">
-<a href="https://tmpout.sh/1/10/10.1.png" align:center><img src="https://tmpout.sh/1/10/10.1.png" width="600px"></a>
-</div>
+<p><img src="https://tmpout.sh/1/10/10.1.png#center" alt=""></p>
 <p>As we can observe, this technique has the following requirements (by @thegrugq):</p>
 <ol>
 <li>Clean out the address space</li>
@@ -299,9 +191,7 @@ flags and calls to internal wrappers. As an example, the linking phase is
 handled by the tool <code>/usr/lib/gcc/x86_64-linux-gnu/9/collect2</code> and GCC itself is
 wrapped by <code>/usr/lib/gcc/x86_64-linux-gnu/9/cc1</code>. Nevertheless, we managed to
 remove the irrelevant flags and we ended up with the following steps:</p>
-<div style="text-align:center">
-<a href="10.2.png"><img src="https://tmpout.sh/1/10/10.2.png" width="600px"></a>
-</div>
+<p><img src="https://tmpout.sh/1/10/10.2.png#center" alt=""></p>
 <p>These steps are in fact the same provided by Lu, supplying the linker with input
 files compiled with <code>–fpie</code>, and <code>–static, -pie, -z text, --no-dynamic-linker</code>.
 In particular, the most relevant artifacts for static PIE creation are <code>rcrt1.o</code>,
@@ -309,39 +199,29 @@ In particular, the most relevant artifacts for static PIE creation are <code>rcr
 <code>_start</code> code which has the code required to correctly load the application before
 executing its entry point by calling the correspondent libc startup code
 contained in <code>__libc_start_main</code>:</p>
-<div style="text-align:center">
-<a href="10.3.png"><img src="https://tmpout.sh/1/10/10.3.png" width="600px"></a>
-</div>
+<p><img src="https://tmpout.sh/1/10/10.3.png#center" alt=""></p>
 <p>As previously mentioned, <code>__libc_start_main</code> will call the new added function
 <code>_dl_relocate_static_pie</code> (defined at <code>elf/dl-reloc-static-pie.c</code> file of glibc
 source). The primary steps performed by this function are commented in the
 source:</p>
-<div style="text-align:center">
-<a href="10.4.png"><img src="https://tmpout.sh/1/10/10.4.png" width="600px"></a>
-</div>
+<p><img src="https://tmpout.sh/1/10/10.4.png#center" alt=""></p>
 <p>With the help of these features, GCC is capable of generating static executables
 which can be loaded at any arbitrary address.</p>
 <p>We can observe that <code>_dl_relocate_static_pie</code> will handle the needed dynamic
 relocations. One noticeable difference of <code>rcrt1.o</code> from conventional <code>crt1.o</code> is
 that all contained code is position independent. Inspecting what the generated
 binaries look like we see the following:</p>
-<div style="text-align:center">
-<a href="10.5.png"><img src="https://tmpout.sh/1/10/10.5.png" width="600px"></a>
-</div>
+<p><img src="https://tmpout.sh/1/10/10.5.png#center" alt=""></p>
 <p>At first glance they seem to be common dynamically linked PIE executables, based
 on the <code>ET_DYN</code> executable type retrieved from the ELF header. However, upon
 closer examination of the segments, we will observe the nonexistent <code>PT_INTERP</code>
 segment usually denoting the path to the interpreter in dynamically linked
 executables and the existence of a <code>PT_TLS</code> segment, usually contained only in
 statically linked executables.</p>
-<div style="text-align:center">
-<a href="10.6.png"><img src="https://tmpout.sh/1/10/10.6.png" width="600px"></a>
-</div>
+<p><img src="https://tmpout.sh/1/10/10.6.png#center" alt=""></p>
 <p>If we check what the dynamic linker identifies the subject executable as, we
 will see it identifies the file type correctly:</p>
-<div style="text-align:center">
-<a href="10.7.png"><img src="https://tmpout.sh/1/10/10.7.png" width="600px"></a>
-</div>
+<p><img src="https://tmpout.sh/1/10/10.7.png#center" alt=""></p>
 <p>In order to load this file, all we would need to do is map all the <code>PT_LOAD</code>
 segments to memory, set up the process stack with the correspondent <code>Auxiliary Vector</code> entries, and then pivot to the mapped executable&rsquo;s entry point. We do
 not need to be concerned about mapping the <code>RTLD</code> since we don&rsquo;t have any external
@@ -353,9 +233,7 @@ flag to merge data and text within a single segment.</p>
 <h3 id="non-compatibility-of-gccs--n-and-static-pie-flags">Non-compatibility of GCC&rsquo;s -N and static-pie flags</h3>
 <p>If we pass <code>–static-pie</code> and <code>–N</code> flags together to GCC we see that it generates the
 following executable:</p>
-<div style="text-align:center">
-<a href="10.8.png"><img src="https://tmpout.sh/1/10/10.8.png" width="600px"></a>
-</div>
+<p><img src="https://tmpout.sh/1/10/10.8.png#center" alt=""></p>
 <p>The first thing we noticed about the type of generated ELF when using
 <code>–static-pie</code> alone was that it had a type of <code>ET_DYN</code>, and now together with <code>–N</code> it
 results in an <code>ET_EXEC</code>.</p>
@@ -366,9 +244,7 @@ relative ones. To understand why our program is not being linked as expected, we
 inspected the linker script that was being used.</p>
 <p>As we are using the ld linker from binutils, we took a look on how ld selected
 the linker script; this is done in the <code>ld/ldmain.c</code> code at line 345:</p>
-<div style="text-align:center">
-<a href="10.9.png"><img src="https://tmpout.sh/1/10/10.9.png" width="600px"></a>
-</div>
+<p><img src="https://tmpout.sh/1/10/10.9.png#center" alt=""></p>
 <p>The <code>ldfile_open_default_command_file</code> is in fact an indirect call to an
 architecture independent function generated at compile time that contains a set
 of internal linker scripts to be selected depending upon the flags passed to ld.
@@ -378,9 +254,7 @@ Because we are using the x86_64 architecture, the generated source will be
 select the internal linker script. The <code>–N</code> option sets the config.text_read_only
 variable to false, which forces the selection function to use an internal script
 which does not produce PIC as can be seen below:</p>
-<div style="text-align:center">
-<a href="10.10.png"><img src="https://tmpout.sh/1/10/10.10.png" width="600px"></a>
-</div>
+<p><img src="https://tmpout.sh/1/10/10.10.png#center" alt=""></p>
 <p>This way of selecting the default script makes the <code>–static-pie</code> and <code>–N</code> flags
 non-compatible, because the forced test of selecting the script based on –N is
 parsed before <code>–static-pie</code>.</p>
@@ -403,66 +277,46 @@ the subject linker script.</p>
 <p>Taking into account the details discussed above, we added a PHDRS command to the
 default linker script, starting with all the original segments which are created
 by default when using <code>–static-pie</code>:</p>
-<div style="text-align:center">
-<a href="10.11.png"><img src="https://tmpout.sh/1/10/10.11.png" width="600px"></a>
-</div>
+<p><img src="https://tmpout.sh/1/10/10.11.png#center" alt=""></p>
 <p>After this we need to know how each section maps to each segment – and for this
 we can use readelf as shown below:</p>
-<div style="text-align:center">
-<a href="10.12.png"><img src="https://tmpout.sh/1/10/10.12.png" width="600px"></a>
-</div>
+<p><img src="https://tmpout.sh/1/10/10.12.png#center" alt=""></p>
 <p>With knowledge of the mappings, we just needed to change the section output
 definition in the linker script which adds the appropriate segment name at the
 end of each function definition, as shown in the following example:</p>
-<div style="text-align:center">
-<a href="10.13.png"><img src="https://tmpout.sh/1/10/10.13.png" width="600px"></a>
-</div>
+<p><img src="https://tmpout.sh/1/10/10.13.png#center" alt=""></p>
 <p>Here, the .tdata and .tbss sections are being assigned to the segments that get
 mapped in the same order that we saw in the output of the readelf –l command.
 Eventually, we ended up having a working script precisely changing all mapped
 sections which were mapped in data to the text segment:</p>
-<div style="text-align:center">
-<a href="10.14.png"><img src="https://tmpout.sh/1/10/10.14.png" width="600px"></a>
-</div>
+<p><img src="https://tmpout.sh/1/10/10.14.png#center" alt=""></p>
 <p>If we compile our subject test file with this linker script, we see the
 following generated executable:</p>
-<div style="text-align:center">
-<a href="10.15.png"><img src="https://tmpout.sh/1/10/10.15.png" width="600px"></a>
-</div>
+<p><img src="https://tmpout.sh/1/10/10.15.png#center" alt=""></p>
 <p>We now have a static-pie with just one loadable segment. The same approach can
 be repeated to remove other irrelevant segments, keeping only critical segments
 necessary for the execution of the binary. As an example, the following is a
 static-pie executable instance with minimal program headers needed to run:</p>
-<div style="text-align:center">
-<a href="10.16.png"><img src="https://tmpout.sh/1/10/10.16.png" width="600px"></a>
-</div>
+<p><img src="https://tmpout.sh/1/10/10.16.png#center" alt=""></p>
 <p>The following is the final output of our desired ELF structure – having only one
 PT_LOAD segment generated by a linker script with the PHDRS command configured
 as in the screenshot below:</p>
-<div style="text-align:center">
-<a href="10.17.png"><img src="https://tmpout.sh/1/10/10.17.png" width="600px"></a>
-</div>
+<p><img src="https://tmpout.sh/1/10/10.17.png#center" alt=""></p>
 <h2 id="shelf-loading">SHELF Loading</h2>
 <p>This generated ELF flavor gives us some interesting capabilities that other ELF
 types are not able to provide. For the sake of simplicity, we have labelled this
 type of ELF binary as SHELF, and we will be referencing it throughout the rest
 of this paper. The following is an updated diagram of the loading stages needed
 for SHELF loading:</p>
-<div style="text-align:center">
-<a href="10.18.png"><img src="https://tmpout.sh/1/10/10.18.png" width="600px"></a>
-</div>
+<p><img src="https://tmpout.sh/1/10/10.18.png#center" alt=""></p>
 <p>As we can see in the diagram above, the process of loading SHELF files is highly
 reduced in complexity compared to conventional ELF loading schemes.</p>
 <p>To illustrate the reduced set of constraints to load these types of files, a
 snippet of a minimalistic SHELF User-Land-Exec approach is as follows:</p>
-<div style="text-align:center">
-<a href="10.19.png"><img src="https://tmpout.sh/1/10/10.19.png" width="600px"></a>
-</div>
+<p><img src="https://tmpout.sh/1/10/10.19.png#center" alt=""></p>
 <p>By using this approach, a subject SHELF file would look as follows in memory and
 on disk:</p>
-<div style="text-align:center">
-<a href="10.20.png"><img src="https://tmpout.sh/1/10/10.20.png" width="600px"></a>
-</div>
+<p><img src="https://tmpout.sh/1/10/10.20.png#center" alt=""></p>
 <p>As we can observe, the ELF header and Program Headers are missing from the
 process image. This is a feature that this flavor of ELF enables us to implement
 and is discussed in the following section.</p>
@@ -487,16 +341,12 @@ load the file by applying the needed runtime relocations. Regardless, there are
 many approaches to obfuscating the <code>PHT</code>. The simplest approach is to remove the
 original <code>Program Header Table</code> location, and relocate it somewhere in the file
 that is only known by the <code>Auxiliary Vector</code>.</p>
-<div style="text-align:center">
-<a href="10.21.png"><img src="https://tmpout.sh/1/10/10.21.png" width="600px"></a>
-</div>
+<p><img src="https://tmpout.sh/1/10/10.21.png#center" alt=""></p>
 <p>We can precompute the location of each of the <code>Auxiliary Vector</code> entries and
 define each entry as a macro in an include file, tailoring our loader to every
 subject SHELF file at compile-time. The following is an example of how these
 macros can be generated:</p>
-<div style="text-align:center">
-<a href="10.22.png"><img src="https://tmpout.sh/1/10/10.22.png" width="600px"></a>
-</div>
+<p><img src="https://tmpout.sh/1/10/10.22.png#center" alt=""></p>
 <p>As we can observe, we have parsed the subject <code>SHELF</code> file for its e_entry and
 e_phnum fields, creating corresponding macros to hold those values. We also have
 to choose a random base image to load the file. Finally, we locate the PHT and
@@ -518,9 +368,7 @@ reads the <code>Auxiliary Vector</code> fields.</p>
 <p>The code that does this is in <code>elf/dl_support.c</code> in the function <code>_dl_aux_init</code>. In
 abstract, the code iterates over all the <code>auxv_t</code> entries, and each of these
 entries initialize internal variables from glibc:</p>
-<div style="text-align:center">
-<a href="10.23.png"><img src="https://tmpout.sh/1/10/10.23.png" width="600px"></a>
-</div>
+<p><img src="https://tmpout.sh/1/10/10.23.png#center" alt=""></p>
 <p>The only reason the Auxiliary Vector is required is to initialize internal <code>_dl_*</code>
 variables. Knowing this, we can bypass the creation of the <code>Auxiliary Vector</code>
 entirely and do the same job that <code>_dl_aux_init</code> would do before passing control
@@ -530,17 +378,13 @@ Therefore, we only need to patch the respective <code>_dl_*</code> variables tha
 these fields. As an example of how to retrieve these values, we can use the
 following one-liner to generate an include file with precomputed macros holding
 the offset to every <code>dl_*</code> variable:</p>
-<div style="text-align:center">
-<a href="10.24.png"><img src="https://tmpout.sh/1/10/10.24.png" width="600px"></a>
-</div>
+<p><img src="https://tmpout.sh/1/10/10.24.png#center" alt=""></p>
 <p>With the offset to these variables located, we only need to patch them in the
 same way the original startup code would do so using the <code>Auxiliary Vector</code>. As a
 way to illustrate this technique, the following code will initialize the
 addresses of the <code>Program Headers</code> to <code>new_address</code>, and the number of program
 headers to the correct number:</p>
-<div style="text-align:center">
-<a href="10.25.png"><img src="https://tmpout.sh/1/10/10.25.png" width="600px"></a>
-</div>
+<p><img src="https://tmpout.sh/1/10/10.25.png#center" alt=""></p>
 <p>At this point we have a working program without supplying the <code>Auxiliary Vector</code>.
 Because the subject binary is <code>statically linked</code>, and the code that will load the
 <code>SHELF</code> file is our loader, we can neglect every other segment in the Auxiliary
@@ -549,9 +393,7 @@ exception, which is the <code>PT_TLS</code> segment which is the interface in wh
 Local Storage is implemented in the ELF file format.</p>
 <p>The following code which resides in <code>csu/libc-tls.c</code> on function <code>__libc_setup_tls</code>
 show the type of information that gets retrieved from the <code>PT_TLS</code> segment:</p>
-<div style="text-align:center">
-<a href="10.26.png"><img src="https://tmpout.sh/1/10/10.26.png" width="600px"></a>
-</div>
+<p><img src="https://tmpout.sh/1/10/10.26.png#center" alt=""></p>
 <p>In the code snippet above, we can see that TLS initialization relies on the
 presence of the <code>PT_TLS</code> segment. We have several approaches that can obfuscate
 this artifact, such as patching the <code>__libc_setup_tls</code> function to just return and
@@ -561,24 +403,16 @@ quick patch to glibc instead as a PoC.</p>
 to hold the values from <code>PT_TLS</code> and set the values inside <code>__libc_setup_tls</code>,
 reading from our global variable instead of the subject <code>SHELF</code> file Program
 Header Table. With this small change we finally strip all the program headers:</p>
-<div style="text-align:center">
-<a href="10.27.png"><img src="https://tmpout.sh/1/10/10.27.png" width="600px"></a>
-</div>
+<p><img src="https://tmpout.sh/1/10/10.27.png#center" alt=""></p>
 <p>Using the following script to generate <code>_phdr.h</code>:</p>
-<div style="text-align:center">
-<a href="10.28.png"><img src="https://tmpout.sh/1/10/10.28.png" width="600px"></a>
-</div>
+<p><img src="https://tmpout.sh/1/10/10.28.png#center" alt=""></p>
 <p>We can apply our patches in the following way after including <code>_phdr.h</code>:</p>
-<div style="text-align:center">
-<a href="10.29.png"><img src="https://tmpout.sh/1/10/10.29.png" width="600px"></a>
-</div>
+<p><img src="https://tmpout.sh/1/10/10.29.png#center" alt=""></p>
 <p>Applying the methodology shown above, we gain a high level of evasiveness by
 loading and executing our <code>SHELF</code> file without an ELF header, Program Header
 Table, and <code>Auxiliary Vector</code> – just as shellcode gets loaded. The following
 diagram illustrates how straightforward the loading process of <code>SHELF</code> files is:</p>
-<div style="text-align:center">
-<a href="10.30.png"><img src="https://tmpout.sh/1/10/10.30.png" width="600px"></a>
-</div>
+<p><img src="https://tmpout.sh/1/10/10.30.png#center" alt=""></p>
 <h2 id="conclusion">Conclusion</h2>
 <p>We have covered the internals of Reflective Loading of ELF files, explaining
 previous implementations of User-Land-Exec, along with its benefits and
@@ -619,101 +453,86 @@ h=c4af10f4e9121949b1b66df6428e95e66ce3eed4;hb=HEAD#l345</li>
 /2017/11/17/UnPacking_a_Linux_Tsunami_Sample.html</li>
 </ul>
 
-    </div>
 
-    <div class="post-copyright">
-  <p class="copyright-item">
-    <span class="item-title">Author</span>
-    <span class="item-content">ulexec</span>
-  </p>
-  <p class="copyright-item">
-    <span class="item-title">LastMod</span>
-    <span class="item-content">
-        2021-04-08
-        
-    </span>
-  </p>
-  
-  
+    </div>
 </div>
-<footer class="post-footer">
-      <div class="post-tags">
-          <a href="/tags/reversing/">reversing</a>
-          <a href="/tags/malware/">malware</a>
-          </div>
-      <nav class="post-nav">
-        <a class="prev" href="/post/2021-05-20-startctf2019_oobv8/">
-            <i class="iconfont icon-left"></i>
-            <span class="prev-text nav-default">*CTF 2019 - oob-v8</span>
-            <span class="prev-text nav-mobile">Prev</span>
-          </a>
-        <a class="next" href="/post/2020-03-03-deobfuscation_1/">
-            <span class="next-text nav-default">Tales Of Binary Deobfuscation</span>
-            <span class="next-text nav-mobile">Next</span>
-            <i class="iconfont icon-right"></i>
-          </a>
-      </nav>
-    </footer>
-  </article>
-        </div>
+<div class="row align-center">
+    <div class="col">
+        <a href="https://ulexec.github.io" class="btn btn-primary btn-lg">Back to Home</a>
+    </div>
+</div>
+
+
+    </div><footer class="container">
+    <hr class="soften" />
+    <p class="text-center">
+    Content Licensed under <a href="">MIT</a> | 
+
+
+&copy;&nbsp;
+
+
+
+    Ignacio Sanmillan
+
+
+
+<span id="thisyear">
+    2023
+</span>
+
+
+
+
+</p>
+    <p class="text-center">
         
 
-  
+        
+            <a href="https://twitter.com/ulexec">Twitter</a>
+        
 
-  
+        
+            <a href="https://linkedin.com/in/ignacio-sanmillan-1aa244b8">Linkedin</a>
+        
 
-      </div>
-    </main>
+        
+            <a href="https://github.com/ulexec">GitHub</a>
+        
 
-    <footer id="footer" class="footer">
-      <div class="social-links">
-      <a href="ulexecve@protonmail.com" class="iconfont icon-email" title="email"></a>
-      <a href="https://twitter.com/ulexec" class="iconfont icon-twitter" title="twitter"></a>
-      <a href="https://linkedin.com/in/ignacio-sanmillan-1aa244b8" class="iconfont icon-linkedin" title="linkedin"></a>
-      <a href="https://github.com/ulexec" class="iconfont icon-github" title="github"></a>
-  <a href="http://ulexec.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
-</div>
+        
+    </p>
+</footer>
+</body><link rel="stylesheet" href="/css/bootstrap.min.css">
+<link rel="stylesheet" href="/css/bootstrap-theme.min.css">
+<link rel="stylesheet" href="/css/style.css"> 
+<script src="/js/jquery.js"></script>
+<script src="/js/bootstrap.min.js"></script>
 
-<div class="copyright">
-  <span class="power-by">
-    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
-  </span>
-  <span class="division">|</span>
-  <span class="theme-info">
-    Theme - 
-    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
-  </span>
+<script>
+    
+    function ThisYear() {
+        document.getElementById('thisyear').innerHTML = new Date().getFullYear();
+    };
+</script>
+<script>	
+	
+(function(){
+  _386.magicCursor();
+  _386.scrollLock();
+  $('[data-toggle="tooltip"]').tooltip();
+  $('[data-toggle="popover"]').popover();
 
-  
+  $(window).scroll(function() {
+    var top = $(document).scrollTop();
+    if(top > 50)
+      $('#home > .navbar').removeClass('navbar-transparent');
+    else
+      $('#home > .navbar').addClass('navbar-transparent');
+  });
 
-  <span class="copyright-year">
-    &copy; 
-    2017 - 
-    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>ulexec</span>
-  </span>
-</div>
+  $("a[href='#']").click(function(e) {
+    e.preventDefault();
+  });
 
-    </footer>
-
-    <div class="back-to-top" id="back-to-top">
-      <i class="iconfont icon-up"></i>
-    </div>
-  </div>
-  
-  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
-
-
-
-<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
-
-
-
-
-
-
-
-
-</body>
-</html>
+})();</script></html>

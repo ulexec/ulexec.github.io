@@ -1,306 +1,133 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <title>AlexCTF - PackedMovement - ulexec | blog</title>
-  <meta name="renderer" content="webkit" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
-
-<meta http-equiv="Cache-Control" content="no-transform" />
-<meta http-equiv="Cache-Control" content="no-siteapp" />
-
-<meta name="theme-color" content="#f8f5ec" />
-<meta name="msapplication-navbutton-color" content="#f8f5ec">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
-
-
-<meta name="author" content="ulexec" /><meta name="description" content="PackedMovement was the last Reverse Engineering challenge on AlexCTF 2017. The puntuation of this challnege was of 350 points.
-The only hint given to this challenge was its name. You will see why later on in this writeup.
-The retrieved binary is called move. if we run the file command over it we find the following:
-1 move: ELF 32-bit LSB executable, Intel 80386, version 1 (GNU/Linux), statically linked, stripped Even more interesting is when we see the binaries segments with readelf -l move" /><meta name="keywords" content="Hugo, theme, even" />
-
-
-
-
-
-
-<meta name="generator" content="Hugo 0.107.0 with theme even" />
-
-
-<link rel="canonical" href="http://ulexec.github.io/post/2017-02-10-alexctf-packedmovement/" />
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="manifest" href="/manifest.json">
-<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
-
-
-
-<link href="/sass/main.min.f73a6ffa72be6986c3a367201316a0ad5a90db5f09b95dc0bbaedb923d419e87.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css" integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin="anonymous">
-
-
-<meta property="og:title" content="AlexCTF - PackedMovement" />
-<meta property="og:description" content="PackedMovement was the last Reverse Engineering challenge on AlexCTF 2017. The puntuation of this challnege was of 350 points.
-The only hint given to this challenge was its name. You will see why later on in this writeup.
-The retrieved binary is called move. if we run the file command over it we find the following:
-1 move: ELF 32-bit LSB executable, Intel 80386, version 1 (GNU/Linux), statically linked, stripped Even more interesting is when we see the binaries segments with readelf -l move" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="http://ulexec.github.io/post/2017-02-10-alexctf-packedmovement/" /><meta property="article:section" content="post" />
-<meta property="article:published_time" content="2017-02-10T00:00:00+00:00" />
-<meta property="article:modified_time" content="2017-02-10T00:00:00+00:00" />
-
-<meta itemprop="name" content="AlexCTF - PackedMovement">
-<meta itemprop="description" content="PackedMovement was the last Reverse Engineering challenge on AlexCTF 2017. The puntuation of this challnege was of 350 points.
-The only hint given to this challenge was its name. You will see why later on in this writeup.
-The retrieved binary is called move. if we run the file command over it we find the following:
-1 move: ELF 32-bit LSB executable, Intel 80386, version 1 (GNU/Linux), statically linked, stripped Even more interesting is when we see the binaries segments with readelf -l move"><meta itemprop="datePublished" content="2017-02-10T00:00:00+00:00" />
-<meta itemprop="dateModified" content="2017-02-10T00:00:00+00:00" />
-<meta itemprop="wordCount" content="1318">
-<meta itemprop="keywords" content="reversing,ctf," /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="AlexCTF - PackedMovement"/>
-<meta name="twitter:description" content="PackedMovement was the last Reverse Engineering challenge on AlexCTF 2017. The puntuation of this challnege was of 350 points.
-The only hint given to this challenge was its name. You will see why later on in this writeup.
-The retrieved binary is called move. if we run the file command over it we find the following:
-1 move: ELF 32-bit LSB executable, Intel 80386, version 1 (GNU/Linux), statically linked, stripped Even more interesting is when we see the binaries segments with readelf -l move"/>
-
-<!--[if lte IE 9]>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js"></script>
-<![endif]-->
-
-<!--[if lt IE 9]>
-  <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
-<![endif]-->
-
-</head>
-<body>
-  <div id="mobile-navbar" class="mobile-navbar">
-  <div class="mobile-header-logo">
-    <a href="/" class="logo">ulexec 의 연구</a>
-  </div>
-  <div class="mobile-navbar-icon">
-    <span></span>
-    <span></span>
-    <span></span>
-  </div>
-</div>
-<nav id="mobile-menu" class="mobile-menu slideout-menu">
-  <ul class="mobile-menu-list">
-    <a href="/">
-        <li class="mobile-menu-item">Home</li>
-      </a><a href="/post/">
-        <li class="mobile-menu-item">Archives</li>
-      </a><a href="/projects/">
-        <li class="mobile-menu-item">Projects</li>
-      </a><a href="/tags/">
-        <li class="mobile-menu-item">Tags</li>
-      </a><a href="/about/">
-        <li class="mobile-menu-item">About</li>
-      </a>
-  </ul>
-
-  
-
-
-</nav>
-
-  <div class="container" id="mobile-panel">
-    <header id="header" class="header">
-        <div class="logo-wrapper">
-  <a href="/" class="logo">ulexec 의 연구</a>
-</div>
-
-
-
-
-
-<nav class="site-navbar">
-  <ul id="menu" class="menu">
-    <li class="menu-item">
-        <a class="menu-item-link" href="/">Home</a>
-      </li><li class="menu-item">
-        <a class="menu-item-link" href="/post/">Archives</a>
-      </li><li class="menu-item">
-        <a class="menu-item-link" href="/projects/">Projects</a>
-      </li><li class="menu-item">
-        <a class="menu-item-link" href="/tags/">Tags</a>
-      </li><li class="menu-item">
-        <a class="menu-item-link" href="/about/">About</a>
-      </li>
-  </ul>
-</nav>
-
-    </header>
-
-    <main id="main" class="main">
-      <div class="content-wrapper">
-        <div id="content" class="content">
-          <article class="post">
+<html lang="en"><head>
+    <title>ulexec.github.io</title>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="theme-color" content="#000084" />
+    <link rel="icon" href="https://ulexec.github.io/favicon.ico">
+    <link rel="canonical" href="https://ulexec.github.io">
     
-    <header class="post-header">
-      <h1 class="post-title">AlexCTF - PackedMovement</h1>
+    
+</head>
+<body class="bootstra-enable-cursor ">
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <a class="navbar-brand" href="https://ulexec.github.io">ulexec.github.io</a>
+    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#main-nav" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div id="main-nav" class="collapse nav-collapse">
+        <ul class="navbar-nav">
+              
+            <li class="nav-item ">
+                <a class="nav-link" href="/post/">
+                                    
+                                    <span>Archives</span>
+                                </a>
+            </li>
+              
+            <li class="nav-item ">
+                <a class="nav-link" href="/projects/">
+                                    
+                                    <span>Projects</span>
+                                </a>
+            </li>
+              
+            <li class="nav-item ">
+                <a class="nav-link" href="/bugs/">
+                                    
+                                    <span>Bugs</span>
+                                </a>
+            </li>
+              
+            <li class="nav-item ">
+                <a class="nav-link" href="/publications/">
+                                    
+                                    <span>Publications</span>
+                                </a>
+            </li>
+              
+            <li class="nav-item ">
+                <a class="nav-link" href="/about/">
+                                    
+                                    <span>About</span>
+                                </a>
+            </li>
+             
+        </ul>
+    </div>
+    </div>
+    </div>
+</nav><div id="content" class="container">
 
-      <div class="post-meta">
-        <span class="post-time"> 2017-02-10 </span>
-        <div class="post-category">
-            <a href="/categories/writeup/"> Writeup </a>
-            </div>
-          <span class="more-meta"> 1318 words </span>
-          <span class="more-meta"> 7 mins read </span>
-        
-      </div>
-    </header>
+<div class="row">
+    <div class="col">
 
-    <div class="post-toc" id="post-toc">
-  <h2 class="post-toc-title">Contents</h2>
-  <div class="post-toc-content always-active">
-    <nav id="TableOfContents"></nav>
-  </div>
-</div>
-    <div class="post-content">
-      <p><code>PackedMovement</code> was the last Reverse Engineering challenge on <code>AlexCTF 2017</code>. The puntuation of this challnege was of <code>350</code> points.</p>
+        <h1 class="mb-3">AlexCTF - PackedMovement - Fri, Feb 10, 2017</h1>
+
+        <p class="lead"></p>
+        <p><code>PackedMovement</code> was the last Reverse Engineering challenge on <code>AlexCTF 2017</code>. The puntuation of this challnege was of <code>350</code> points.</p>
 <p>The only hint given to this challenge was its name. You will see why later on in this writeup.</p>
 <p>The retrieved binary is called <code>move</code>. if we run the <code>file</code> command over it we find the following:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">move: ELF 32-bit LSB executable, Intel 80386, version <span class="m">1</span> <span class="o">(</span>GNU/Linux<span class="o">)</span>, statically linked, stripped
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>Even more interesting is when we see the binaries segments with <code>readelf -l move</code></p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span><span class="lnt">5
-</span><span class="lnt">6
-</span><span class="lnt">7
-</span><span class="lnt">8
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">Elf file <span class="nb">type</span> is EXEC <span class="o">(</span>Executable file<span class="o">)</span>
-</span></span><span class="line"><span class="cl">Entry point 0xd906d0
-</span></span><span class="line"><span class="cl">There are <span class="m">2</span> program headers, starting at offset <span class="m">52</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">Program Headers:
-</span></span><span class="line"><span class="cl">  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
-</span></span><span class="line"><span class="cl">  LOAD           0x000000 0x00c01000 0x00c01000 0x18fea1 0x18fea1 R E 0x1000
-</span></span><span class="line"><span class="cl">  LOAD           0x000300 0x0880b300 0x0880b300 0x00000 0x00000 RW  0x1000
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>The fact that the binary only contains two <code>LOAD</code> segments suggest us that the binary is possibly packed.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>move: ELF 32-bit LSB executable, Intel 80386, version <span style="color:#ae81ff">1</span> <span style="color:#f92672">(</span>GNU/Linux<span style="color:#f92672">)</span>, statically linked, stripped</span></span></code></pre></div>
+<p>Even more interesting is when we see the binaries segments with <code>readelf -l move</code></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Elf file type is EXEC <span style="color:#f92672">(</span>Executable file<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>Entry point 0xd906d0
+</span></span><span style="display:flex;"><span>There are <span style="color:#ae81ff">2</span> program headers, starting at offset <span style="color:#ae81ff">52</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Program Headers:
+</span></span><span style="display:flex;"><span>  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
+</span></span><span style="display:flex;"><span>  LOAD           0x000000 0x00c01000 0x00c01000 0x18fea1 0x18fea1 R E 0x1000
+</span></span><span style="display:flex;"><span>  LOAD           0x000300 0x0880b300 0x0880b300 0x00000 0x00000 RW  0x1000</span></span></code></pre></div>
+<p>The fact that the binary only contains two <code>LOAD</code> segments suggest us that the binary is possibly packed.</p>
 <p>Lets check the entry point of the binary and see how the first couple of instructions look:</p>
-<div style="text-align:center">
-<img src="/AlextCTF7/1.png"/>
-</div>
+<p><img src="/AlextCTF7/1.png#center" alt=""></p>
 <p>Several packers use the instruction <code>pusha</code> in order to save the registry contents before running the decompression routine. One famous packer that uses this instruction is the <code>UPX</code> packer.</p>
 <p>If we run the <code>strings move | grep UPX</code> command we will confirm this binary has been packed with <code>UPX</code>:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span><span class="lnt">3
-</span><span class="lnt">4
-</span><span class="lnt">5
-</span><span class="lnt">6
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">9vUPX!
-</span></span><span class="line"><span class="cl"><span class="nv">$Info</span>: This file is packed with the UPX executable packer http://upx.sf.net $
-</span></span><span class="line"><span class="cl"><span class="nv">$Id</span>: UPX 3.91 Copyright <span class="o">(</span>C<span class="o">)</span> 1996-2013 the UPX Team. All Rights Reserved. $
-</span></span><span class="line"><span class="cl">UPX!u
-</span></span><span class="line"><span class="cl">UPX!
-</span></span><span class="line"><span class="cl">UPX!
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>Fortunately, <code>UPX</code> also contains a flag for decompression. If we run the <code>upx -d move -o dem</code> command it will decompress the <code>move</code> binary and save a copy of the decompressed binary into disk with the name <code>dem</code></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>9vUPX!
+</span></span><span style="display:flex;"><span>$Info: This file is packed with the UPX executable packer http://upx.sf.net $
+</span></span><span style="display:flex;"><span>$Id: UPX 3.91 Copyright <span style="color:#f92672">(</span>C<span style="color:#f92672">)</span> 1996-2013 the UPX Team. All Rights Reserved. $
+</span></span><span style="display:flex;"><span>UPX!u
+</span></span><span style="display:flex;"><span>UPX!
+</span></span><span style="display:flex;"><span>UPX!</span></span></code></pre></div>
+<p>Fortunately, <code>UPX</code> also contains a flag for decompression. If we run the <code>upx -d move -o dem</code> command it will decompress the <code>move</code> binary and save a copy of the decompressed binary into disk with the name <code>dem</code></p>
 <p>If we run <code>readelf -l dem</code> command to see <code>dem's</code> segments we see the following:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span><span class="lnt">12
-</span><span class="lnt">13
-</span><span class="lnt">14
-</span><span class="lnt">15
-</span><span class="lnt">16
-</span><span class="lnt">17
-</span><span class="lnt">18
-</span><span class="lnt">19
-</span><span class="lnt">20
-</span><span class="lnt">21
-</span><span class="lnt">22
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">Elf file <span class="nb">type</span> is EXEC <span class="o">(</span>Executable file<span class="o">)</span>
-</span></span><span class="line"><span class="cl">Entry point 0x804829c
-</span></span><span class="line"><span class="cl">There are <span class="m">6</span> program headers, starting at offset <span class="m">52</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">Program Headers:
-</span></span><span class="line"><span class="cl">  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
-</span></span><span class="line"><span class="cl">  PHDR           0x000034 0x08048034 0x08048034 0x000c0 0x000c0 R E 0x4
-</span></span><span class="line"><span class="cl">  INTERP         0x0000f4 0x080480f4 0x080480f4 0x00013 0x00013 R   0x1
-</span></span><span class="line"><span class="cl">      <span class="o">[</span>Requesting program interpreter: /lib/ld-linux.so.2<span class="o">]</span>
-</span></span><span class="line"><span class="cl">  LOAD           0x000000 0x08048000 0x08048000 0x18b3c 0x18b3c R E 0x1000
-</span></span><span class="line"><span class="cl">  LOAD           0x018f58 0x08061f58 0x08061f58 0x5a93a4 0x7a93a8 RW  0x1000
-</span></span><span class="line"><span class="cl">  DYNAMIC        0x018f58 0x08061f58 0x08061f58 0x000a8 0x000a8 RW  0x4
-</span></span><span class="line"><span class="cl">  GNU_RELRO      0x018f58 0x08061f58 0x08061f58 0x000a8 0x000a8 R   0x1
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"> Section to Segment mapping:
-</span></span><span class="line"><span class="cl">  Segment Sections...
-</span></span><span class="line"><span class="cl">   <span class="m">00</span>     
-</span></span><span class="line"><span class="cl">   <span class="m">01</span>     .interp 
-</span></span><span class="line"><span class="cl">   <span class="m">02</span>     .interp .hash .dynsym .dynstr .gnu.version .gnu.version_r .rel.plt .plt .text 
-</span></span><span class="line"><span class="cl">   <span class="m">03</span>     .dynamic .got.plt .data .bss 
-</span></span><span class="line"><span class="cl">   <span class="m">04</span>     .dynamic 
-</span></span><span class="line"><span class="cl">   <span class="m">05</span>     .dynamic 
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>This looks more like what we are looking for. Now that we have a decompressed file is a good chance to see what the binary on execution looks like. When we execute the file we see the following:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt">1
-</span><span class="lnt">2
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">Guess a flag: AAAAAAA
-</span></span><span class="line"><span class="cl">Wrong Flag!
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>Easy enough. Lets see how the binary looks like. When we open the <code>dem</code> binary in <code>IDA</code> we see the following:</p>
-<div style="text-align:center">
-<img src="/AlextCTF7/2.png"/>
-</div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Elf file type is EXEC <span style="color:#f92672">(</span>Executable file<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>Entry point 0x804829c
+</span></span><span style="display:flex;"><span>There are <span style="color:#ae81ff">6</span> program headers, starting at offset <span style="color:#ae81ff">52</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Program Headers:
+</span></span><span style="display:flex;"><span>  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
+</span></span><span style="display:flex;"><span>  PHDR           0x000034 0x08048034 0x08048034 0x000c0 0x000c0 R E 0x4
+</span></span><span style="display:flex;"><span>  INTERP         0x0000f4 0x080480f4 0x080480f4 0x00013 0x00013 R   0x1
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">[</span>Requesting program interpreter: /lib/ld-linux.so.2<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>  LOAD           0x000000 0x08048000 0x08048000 0x18b3c 0x18b3c R E 0x1000
+</span></span><span style="display:flex;"><span>  LOAD           0x018f58 0x08061f58 0x08061f58 0x5a93a4 0x7a93a8 RW  0x1000
+</span></span><span style="display:flex;"><span>  DYNAMIC        0x018f58 0x08061f58 0x08061f58 0x000a8 0x000a8 RW  0x4
+</span></span><span style="display:flex;"><span>  GNU_RELRO      0x018f58 0x08061f58 0x08061f58 0x000a8 0x000a8 R   0x1
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span> Section to Segment mapping:
+</span></span><span style="display:flex;"><span>  Segment Sections...
+</span></span><span style="display:flex;"><span>   <span style="color:#ae81ff">00</span>     
+</span></span><span style="display:flex;"><span>   <span style="color:#ae81ff">01</span>     .interp 
+</span></span><span style="display:flex;"><span>   <span style="color:#ae81ff">02</span>     .interp .hash .dynsym .dynstr .gnu.version .gnu.version_r .rel.plt .plt .text 
+</span></span><span style="display:flex;"><span>   <span style="color:#ae81ff">03</span>     .dynamic .got.plt .data .bss 
+</span></span><span style="display:flex;"><span>   <span style="color:#ae81ff">04</span>     .dynamic 
+</span></span><span style="display:flex;"><span>   <span style="color:#ae81ff">05</span>     .dynamic </span></span></code></pre></div>
+<p>This looks more like what we are looking for. Now that we have a decompressed file is a good chance to see what the binary on execution looks like. When we execute the file we see the following:</p>
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Guess a flag: AAAAAAA
+</span></span><span style="display:flex;"><span>Wrong Flag!</span></span></code></pre></div>
+Easy enough. Lets see how the binary looks like. When we open the <code>dem</code> binary in <code>IDA</code> we see the following:</p>
+<p><img src="/AlextCTF7/2.png#center" alt=""></p>
 <p>The binary looks like its obfuscated with <a href="https://github.com/xoreaxeaxeax/movfuscator">movfuscator</a></p>
 <p>There is a tool called <a href="https://github.com/kirschju/demovfuscator">demovfuscator</a> however this tool still under development. All I could achieve with it was to replace a chunk of mov instructions with an equivalent <code>lea</code> instruction. However <code>demovfuscator</code> can geneate flow-graphs of the actuall execution flow of the executable.</p>
 <p>This is an example of one of them:</p>
-<div style="text-align:center">
-<img src="/AlextCTF7/cfg.png"/>
-</div>
+<p><img src="/AlextCTF7/cfg.png#center" alt=""></p>
 <p>As we can see, the binary seems to have an if else behavior.</p>
 <p>Addiditonally, the binary itself seem to be a stack based virtual machine. One can assure this is true just by looking the name of some of its global variables:</p>
-<div style="text-align:center">
-<img src="/AlextCTF7/3.png"/>
-</div>
-<div style="text-align:center">
-<img src="/AlextCTF7/4.png"/>
-</div>
+<p><img src="/AlextCTF7/3.png#center" alt=""></p>
+<p><img src="/AlextCTF7/4.png#center" alt=""></p>
 <p>This being said I had to make a choice on the stategy I was going to follow to solve this challenge. I had two different options</p>
 <ul>
 <li>
@@ -314,268 +141,165 @@ The retrieved binary is called move. if we run the file command over it we find 
 <p>After I made this decission I started to do some dynamic analysis.
 At the beginning I felt like I was looking throuh glass. My assumptions about how the binary actually work would change every 5 intructions. However, at one point I saw the light.</p>
 <p>This point was at address <code>0x080493DB</code></p>
-<div style="text-align:center">
-<img src="/AlextCTF7/5.png"/>
-</div>
+<p><img src="/AlextCTF7/5.png#center" alt=""></p>
 <p>At that instruction I saw what it could be an initial idea of how the binary validates each byte of the flag. It will store the particular byte of the flag into <code>R2</code> virtual register and our input byte will be stored into the <code>R3</code> virtual register.
 Both of these registers will then be loaded into the <code>ALU</code> module of the machine. A series of operations will be done and the result of them will be stored into the <code>rax</code> register which will then be checked wether this result is 0 by a <code>test eax, eax</code> instruction. If Z flag not set when this instruction is executed, the binary will be redirected so that it finish execution. Otherwise it will proceed and compare the next byte of the flag with our input string.</p>
 <p>Something somewhat curious about this whole procedure is that the flag byte is always loaded into the <code>R2</code> virtual register. If we could see all the instructions in which some value is being loaded into <code>R2</code>, we may be able to see all the bytes our input string is being compared against.</p>
 <p>Running the following <code>IDA python</code> sript will help us find exactly that:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span><span class="lnt">12
-</span><span class="lnt">13
-</span><span class="lnt">14
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">idc</span> <span class="kn">import</span> <span class="o">*</span>
-</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">idaapi</span> <span class="kn">import</span> <span class="o">*</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">main</span> <span class="o">=</span> <span class="kc">None</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">Functions</span><span class="p">():</span>
-</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">GetFunctionName</span><span class="p">(</span><span class="n">func</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&#34;main&#34;</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl">        <span class="n">main</span> <span class="o">=</span> <span class="n">func</span>
-</span></span><span class="line"><span class="cl">    
-</span></span><span class="line"><span class="cl"><span class="n">code</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">FuncItems</span><span class="p">(</span><span class="n">main</span><span class="p">))</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">code</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">GetOpnd</span><span class="p">(</span><span class="n">line</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;R2&#39;</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl">            <span class="nb">print</span> <span class="nb">hex</span><span class="p">(</span><span class="n">line</span><span class="p">),</span> <span class="s2">&#34;</span><span class="se">\t</span><span class="s2">&#34;</span><span class="p">,</span> <span class="n">GetDisasm</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>Make sure to extend the end of the main function down to the end of the <code>_text</code> section. This is because <code>IDA</code> fails on analyzing the entire main function. That address is <code>0x08060B38</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> idc <span style="color:#f92672">import</span> <span style="color:#f92672">*</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> idaapi <span style="color:#f92672">import</span> <span style="color:#f92672">*</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>main <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> func <span style="color:#f92672">in</span> Functions():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> GetFunctionName(func) <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;main&#34;</span>:
+</span></span><span style="display:flex;"><span>        main <span style="color:#f92672">=</span> func
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>code <span style="color:#f92672">=</span> list(FuncItems(main))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> line <span style="color:#f92672">in</span> code:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> GetOpnd(line,<span style="color:#ae81ff">0</span>) <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;R2&#39;</span>:
+</span></span><span style="display:flex;"><span>            print hex(line), <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\t</span><span style="color:#e6db74">&#34;</span>, GetDisasm(line)</span></span></code></pre></div>
+<p>Make sure to extend the end of the main function down to the end of the <code>_text</code> section. This is because <code>IDA</code> fails on analyzing the entire main function. That address is <code>0x08060B38</code>.</p>
 <p>The result of this script is the following:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span><span class="lnt">12
-</span><span class="lnt">13
-</span><span class="lnt">14
-</span><span class="lnt">15
-</span><span class="lnt">16
-</span><span class="lnt">17
-</span><span class="lnt">18
-</span><span class="lnt">19
-</span><span class="lnt">20
-</span><span class="lnt">21
-</span><span class="lnt">22
-</span><span class="lnt">23
-</span><span class="lnt">24
-</span><span class="lnt">25
-</span><span class="lnt">26
-</span><span class="lnt">27
-</span><span class="lnt">28
-</span><span class="lnt">29
-</span><span class="lnt">30
-</span><span class="lnt">31
-</span><span class="lnt">32
-</span><span class="lnt">33
-</span><span class="lnt">34
-</span><span class="lnt">35
-</span><span class="lnt">36
-</span><span class="lnt">37
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-nasm" data-lang="nasm"><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x80493dbL</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">41h</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x8049ddeL</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">4Ch</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x804a7e1L</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">45h</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x804b1e4L</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">58h</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x804bb9cL</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">43h</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x804c59fL</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">54h</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x804cfa2L</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">46h</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x804d9a5L</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">7Bh</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x804e357L</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">4Dh</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x804ed5aL</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">30h</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x804f75dL</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">56h</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x8050160L</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">66h</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x8050b0cL</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">75h</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x805150fL</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">73h</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x8051f12L</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">63h</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x8052915L</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">34h</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x80532bbL</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">74h</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x8053cbeL</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">30h</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x80546c1L</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">72h</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x80550c4L</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">5Fh</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x8055a64L</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">77h</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x8056467L</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">30h</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x8056e6aL</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">72h</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x805786dL</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">6Bh</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x8058207L</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">35h</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x8058c0aL</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">5Fh</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x805960dL</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">6Ch</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x805a010L</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">31h</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x805a9a4L</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">6Bh</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x805b3a7L</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">65h</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x805bdaaL</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">5Fh</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x805c7adL</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">6Dh</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x805d13bL</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">34h</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x805db3eL</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">67h</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x805e541L</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">31h</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x805ef44L</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">63h</span>
-</span></span><span class="line"><span class="cl"><span class="err">0</span><span class="nf">x805f8ccL</span> 	<span class="nv">mov</span>     <span class="nv">R2</span><span class="p">,</span> <span class="mh">7Dh</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>If we modify the script above to print the characters that are been stored into <code>R2</code> we should get the flag.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-nasm" data-lang="nasm"><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x80493dbL</span> 	mov     R2, <span style="color:#ae81ff">41h</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x8049ddeL</span> 	mov     R2, <span style="color:#ae81ff">4Ch</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x804a7e1L</span> 	mov     R2, <span style="color:#ae81ff">45h</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x804b1e4L</span> 	mov     R2, <span style="color:#ae81ff">58h</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x804bb9cL</span> 	mov     R2, <span style="color:#ae81ff">43h</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x804c59fL</span> 	mov     R2, <span style="color:#ae81ff">54h</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x804cfa2L</span> 	mov     R2, <span style="color:#ae81ff">46h</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x804d9a5L</span> 	mov     R2, <span style="color:#ae81ff">7Bh</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x804e357L</span> 	mov     R2, <span style="color:#ae81ff">4Dh</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x804ed5aL</span> 	mov     R2, <span style="color:#ae81ff">30h</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x804f75dL</span> 	mov     R2, <span style="color:#ae81ff">56h</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x8050160L</span> 	mov     R2, <span style="color:#ae81ff">66h</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x8050b0cL</span> 	mov     R2, <span style="color:#ae81ff">75h</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x805150fL</span> 	mov     R2, <span style="color:#ae81ff">73h</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x8051f12L</span> 	mov     R2, <span style="color:#ae81ff">63h</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x8052915L</span> 	mov     R2, <span style="color:#ae81ff">34h</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x80532bbL</span> 	mov     R2, <span style="color:#ae81ff">74h</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x8053cbeL</span> 	mov     R2, <span style="color:#ae81ff">30h</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x80546c1L</span> 	mov     R2, <span style="color:#ae81ff">72h</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x80550c4L</span> 	mov     R2, <span style="color:#ae81ff">5Fh</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x8055a64L</span> 	mov     R2, <span style="color:#ae81ff">77h</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x8056467L</span> 	mov     R2, <span style="color:#ae81ff">30h</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x8056e6aL</span> 	mov     R2, <span style="color:#ae81ff">72h</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x805786dL</span> 	mov     R2, <span style="color:#ae81ff">6Bh</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x8058207L</span> 	mov     R2, <span style="color:#ae81ff">35h</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x8058c0aL</span> 	mov     R2, <span style="color:#ae81ff">5Fh</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x805960dL</span> 	mov     R2, <span style="color:#ae81ff">6Ch</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x805a010L</span> 	mov     R2, <span style="color:#ae81ff">31h</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x805a9a4L</span> 	mov     R2, <span style="color:#ae81ff">6Bh</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x805b3a7L</span> 	mov     R2, <span style="color:#ae81ff">65h</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x805bdaaL</span> 	mov     R2, <span style="color:#ae81ff">5Fh</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x805c7adL</span> 	mov     R2, <span style="color:#ae81ff">6Dh</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x805d13bL</span> 	mov     R2, <span style="color:#ae81ff">34h</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x805db3eL</span> 	mov     R2, <span style="color:#ae81ff">67h</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x805e541L</span> 	mov     R2, <span style="color:#ae81ff">31h</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x805ef44L</span> 	mov     R2, <span style="color:#ae81ff">63h</span>
+</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x805f8ccL</span> 	mov     R2, <span style="color:#ae81ff">7Dh</span></span></span></code></pre></div>
+<p>If we modify the script above to print the characters that are been stored into <code>R2</code> we should get the flag.</p>
 <p>final script is:</p>
-<div class="highlight"><div class="chroma">
-<table class="lntable"><tr><td class="lntd">
-<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
-</span><span class="lnt"> 2
-</span><span class="lnt"> 3
-</span><span class="lnt"> 4
-</span><span class="lnt"> 5
-</span><span class="lnt"> 6
-</span><span class="lnt"> 7
-</span><span class="lnt"> 8
-</span><span class="lnt"> 9
-</span><span class="lnt">10
-</span><span class="lnt">11
-</span><span class="lnt">12
-</span><span class="lnt">13
-</span><span class="lnt">14
-</span><span class="lnt">15
-</span><span class="lnt">16
-</span><span class="lnt">17
-</span></code></pre></td>
-<td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">idc</span> <span class="kn">import</span> <span class="o">*</span>
-</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">idaapi</span> <span class="kn">import</span> <span class="o">*</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">flag</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-</span></span><span class="line"><span class="cl"><span class="n">main</span> <span class="o">=</span> <span class="kc">None</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">Functions</span><span class="p">():</span>
-</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">GetFunctionName</span><span class="p">(</span><span class="n">func</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&#34;main&#34;</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl">        <span class="n">main</span> <span class="o">=</span> <span class="n">func</span>
-</span></span><span class="line"><span class="cl">    
-</span></span><span class="line"><span class="cl"><span class="n">code</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">FuncItems</span><span class="p">(</span><span class="n">main</span><span class="p">))</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">code</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">GetOpnd</span><span class="p">(</span><span class="n">line</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;R2&#39;</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl">            <span class="n">flag</span> <span class="o">+=</span> <span class="nb">chr</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">GetOpnd</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">16</span><span class="p">))</span>
-</span></span><span class="line"><span class="cl">            
-</span></span><span class="line"><span class="cl"><span class="nb">print</span> <span class="s2">&#34;</span><span class="se">\n\n</span><span class="s2">&#34;</span><span class="p">,</span> <span class="n">flag</span>
-</span></span></code></pre></td></tr></table>
-</div>
-</div><p>By Executing the previous script we will get the flag : <code>ALEXCTF{M0Vfusc4t0r_w0rk5_l1ke_m4g1c}</code></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> idc <span style="color:#f92672">import</span> <span style="color:#f92672">*</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> idaapi <span style="color:#f92672">import</span> <span style="color:#f92672">*</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>flag <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>
+</span></span><span style="display:flex;"><span>main <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> func <span style="color:#f92672">in</span> Functions():
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> GetFunctionName(func) <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;main&#34;</span>:
+</span></span><span style="display:flex;"><span>        main <span style="color:#f92672">=</span> func
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>code <span style="color:#f92672">=</span> list(FuncItems(main))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> line <span style="color:#f92672">in</span> code:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> GetOpnd(line,<span style="color:#ae81ff">0</span>) <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;R2&#39;</span>:
+</span></span><span style="display:flex;"><span>            flag <span style="color:#f92672">+=</span> chr(int(GetOpnd(line, <span style="color:#ae81ff">1</span>)[:<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>], <span style="color:#ae81ff">16</span>))
+</span></span><span style="display:flex;"><span>            
+</span></span><span style="display:flex;"><span>print <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n\n</span><span style="color:#e6db74">&#34;</span>, flag</span></span></code></pre></div>
+<p>By Executing the previous script we will get the flag :<code>ALEXCTF{M0Vfusc4t0r_w0rk5_l1ke_m4g1c}</code></p>
+
 
     </div>
-
-    <div class="post-copyright">
-  <p class="copyright-item">
-    <span class="item-title">Author</span>
-    <span class="item-content">ulexec</span>
-  </p>
-  <p class="copyright-item">
-    <span class="item-title">LastMod</span>
-    <span class="item-content">
-        2017-02-10
-        
-    </span>
-  </p>
-  
-  
 </div>
-<footer class="post-footer">
-      <div class="post-tags">
-          <a href="/tags/reversing/">reversing</a>
-          <a href="/tags/ctf/">ctf</a>
-          </div>
-      <nav class="post-nav">
-        <a class="prev" href="/post/2017-02-11-codegatectf2017-angrybird/">
-            <i class="iconfont icon-left"></i>
-            <span class="prev-text nav-default">CodeGateCTF - Angrybird</span>
-            <span class="prev-text nav-mobile">Prev</span>
-          </a>
-        <a class="next" href="/post/2016-12-19-sharifctf2016-nanomites/">
-            <span class="next-text nav-default">SharifCTF7 - Nanomites</span>
-            <span class="next-text nav-mobile">Next</span>
-            <i class="iconfont icon-right"></i>
-          </a>
-      </nav>
-    </footer>
-  </article>
-        </div>
-        
-
-  
-
-  
-
-      </div>
-    </main>
-
-    <footer id="footer" class="footer">
-      <div class="social-links">
-      <a href="ulexecve@protonmail.com" class="iconfont icon-email" title="email"></a>
-      <a href="https://twitter.com/ulexec" class="iconfont icon-twitter" title="twitter"></a>
-      <a href="https://linkedin.com/in/ignacio-sanmillan-1aa244b8" class="iconfont icon-linkedin" title="linkedin"></a>
-      <a href="https://github.com/ulexec" class="iconfont icon-github" title="github"></a>
-  <a href="http://ulexec.github.io/index.xml" type="application/rss+xml" class="iconfont icon-rss" title="rss"></a>
-</div>
-
-<div class="copyright">
-  <span class="power-by">
-    Powered by <a class="hexo-link" href="https://gohugo.io">Hugo</a>
-  </span>
-  <span class="division">|</span>
-  <span class="theme-info">
-    Theme - 
-    <a class="theme-link" href="https://github.com/olOwOlo/hugo-theme-even">Even</a>
-  </span>
-
-  
-
-  <span class="copyright-year">
-    &copy; 
-    2017 - 
-    2022<span class="heart"><i class="iconfont icon-heart"></i></span><span>ulexec</span>
-  </span>
-</div>
-
-    </footer>
-
-    <div class="back-to-top" id="back-to-top">
-      <i class="iconfont icon-up"></i>
+<div class="row align-center">
+    <div class="col">
+        <a href="https://ulexec.github.io" class="btn btn-primary btn-lg">Back to Home</a>
     </div>
-  </div>
-  
-  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js" integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js" integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin="anonymous"></script>
+</div>
+
+
+    </div><footer class="container">
+    <hr class="soften" />
+    <p class="text-center">
+    Content Licensed under <a href="">MIT</a> | 
+
+
+&copy;&nbsp;
 
 
 
-<script type="text/javascript" src="/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js"></script>
+    Ignacio Sanmillan
+
+
+
+<span id="thisyear">
+    2023
+</span>
 
 
 
 
+</p>
+    <p class="text-center">
+        
 
+        
+            <a href="https://twitter.com/ulexec">Twitter</a>
+        
 
+        
+            <a href="https://linkedin.com/in/ignacio-sanmillan-1aa244b8">Linkedin</a>
+        
 
+        
+            <a href="https://github.com/ulexec">GitHub</a>
+        
 
-</body>
-</html>
+        
+    </p>
+</footer>
+</body><link rel="stylesheet" href="/css/bootstrap.min.css">
+<link rel="stylesheet" href="/css/bootstrap-theme.min.css">
+<link rel="stylesheet" href="/css/style.css"> 
+<script src="/js/jquery.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+
+<script>
+    
+    function ThisYear() {
+        document.getElementById('thisyear').innerHTML = new Date().getFullYear();
+    };
+</script>
+<script>	
+	
+(function(){
+  _386.magicCursor();
+  _386.scrollLock();
+  $('[data-toggle="tooltip"]').tooltip();
+  $('[data-toggle="popover"]').popover();
+
+  $(window).scroll(function() {
+    var top = $(document).scrollTop();
+    if(top > 50)
+      $('#home > .navbar').removeClass('navbar-transparent');
+    else
+      $('#home > .navbar').addClass('navbar-transparent');
+  });
+
+  $("a[href='#']").click(function(e) {
+    e.preventDefault();
+  });
+
+})();</script></html>
