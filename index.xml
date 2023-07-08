@@ -8,6 +8,15 @@
     <language>en</language>
     <lastBuildDate>Mon, 28 Nov 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://ulexec.github.io/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Publications</title>
+      <link>https://ulexec.github.io/publications/</link>
+      <pubDate>Tue, 20 Jun 2023 21:38:52 +0800</pubDate>
+      
+      <guid>https://ulexec.github.io/publications/</guid>
+      <description>Public Papers, Publications and Talks Kobalos – A complex Linux threat to high performance computing infrastructure - (2021-02) ESET researchers publish a white paper about unique multiplatform malware they’ve named Kobalos Operation NightScout: Supply‑chain attack targets online gaming in Asia - (2021-02) ESET researchers uncover a supply-chain attack used in a cyberespionage operation targeting online‑gaming communities in Asia Operation SignSight: Supply‑chain attack against a certification authority in Southeast Asia &amp;rsquo; (2020-12) ESET researchers have uncovered a supply-chain attack on the website of a government in Southeast Asia.</description>
+    </item>
+    
+    <item>
       <title>Projects</title>
       <link>https://ulexec.github.io/projects/</link>
       <pubDate>Sun, 20 Aug 2017 21:38:52 +0800</pubDate>
@@ -30,15 +39,6 @@ elf_rela_obfuscation A small PoC of an EPO technique abusing Elf64_Rela relocati
       
       <guid>https://ulexec.github.io/bugs/</guid>
       <description>Publicly Reported Vulnerabilities CVE-2023-32402 (WebKit) Impact: Processing web content may disclose sensitive information Description: An out-of-bounds read in WebKit was addressed with improved input validation. CVE-2023-32423 (WebKit) Impact: Processing web content may disclose sensitive information Description: A buffer overflow issue was addressed with improved memory handling. </description>
-    </item>
-    
-    <item>
-      <title>Publications</title>
-      <link>https://ulexec.github.io/publications/</link>
-      <pubDate>Tue, 20 Jun 2023 21:38:52 +0800</pubDate>
-      
-      <guid>https://ulexec.github.io/publications/</guid>
-      <description>Public Papers, Publications and Talks Kobalos – A complex Linux threat to high performance computing infrastructure - (2021-02) ESET researchers publish a white paper about unique multiplatform malware they’ve named Kobalos Operation NightScout: Supply‑chain attack targets online gaming in Asia - (2021-02) ESET researchers uncover a supply-chain attack used in a cyberespionage operation targeting online‑gaming communities in Asia Operation SignSight: Supply‑chain attack against a certification authority in Southeast Asia &amp;rsquo; (2020-12) ESET researchers have uncovered a supply-chain attack on the website of a government in Southeast Asia.</description>
     </item>
     
     <item>

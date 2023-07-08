@@ -2,13 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://ulexec.github.io/publications/</loc>
+    <lastmod>2023-06-20T21:38:52+08:00</lastmod>
+  </url><url>
     <loc>https://ulexec.github.io/projects/</loc>
     <lastmod>2017-08-28T21:41:52+08:00</lastmod>
   </url><url>
     <loc>https://ulexec.github.io/bugs/</loc>
-    <lastmod>2023-06-20T21:38:52+08:00</lastmod>
-  </url><url>
-    <loc>https://ulexec.github.io/publications/</loc>
     <lastmod>2023-06-20T21:38:52+08:00</lastmod>
   </url><url>
     <loc>https://ulexec.github.io/about/</loc>
