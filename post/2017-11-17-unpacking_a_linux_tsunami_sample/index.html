@@ -1,73 +1,219 @@
 <!DOCTYPE html>
-<html lang="en"><head>
-    <title>ulexec.github.io</title>
-    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-    <meta content="utf-8" http-equiv="encoding">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="format-detection" content="telephone=no" />
-    <meta name="theme-color" content="#000084" />
-    <link rel="icon" href="https://ulexec.github.io/favicon.ico">
-    <link rel="canonical" href="https://ulexec.github.io">
-    
-    
+<html lang="en">
+<head>
+  
+    <title>Dissecting the Internals of custom Linux Binary Packers :: ulexec.github.io</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Overview In this writeup we&amp;rsquo;re going to unpack a Tsunami malware sample packed with a modified version of UPX. Hashes of this specific sample are the following:
+SHA256: f22ffc07e0cc907f00fd6a4ecee09fe8411225badb2289c1bffa867a2a3bd863 SHA1: 76584c9a22835353186e753903ee0a853663bd83 MD5: 171edd284f6a19c6ed3fe010b79c94af In VirusTotal the malware is identified as a Tsunami Variant for the most part:
+Is common in Linux systems to encounter packed malware with UPX. I then tried to see if I could find the UPX magic in the file." />
+<meta name="keywords" content="" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="https://ulexec.github.io/post/2017-11-17-unpacking_a_linux_tsunami_sample/" />
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="https://ulexec.github.io/styles.css">
+
+
+
+
+
+
+
+  <link rel="shortcut icon" href="https://ulexec.github.io/img/theme-colors/blue.png">
+  <link rel="apple-touch-icon" href="https://ulexec.github.io/img/theme-colors/blue.png">
+
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Dissecting the Internals of custom Linux Binary Packers">
+<meta property="og:description" content="Overview In this writeup we&amp;rsquo;re going to unpack a Tsunami malware sample packed with a modified version of UPX. Hashes of this specific sample are the following:
+SHA256: f22ffc07e0cc907f00fd6a4ecee09fe8411225badb2289c1bffa867a2a3bd863 SHA1: 76584c9a22835353186e753903ee0a853663bd83 MD5: 171edd284f6a19c6ed3fe010b79c94af In VirusTotal the malware is identified as a Tsunami Variant for the most part:
+Is common in Linux systems to encounter packed malware with UPX. I then tried to see if I could find the UPX magic in the file." />
+<meta property="og:url" content="https://ulexec.github.io/post/2017-11-17-unpacking_a_linux_tsunami_sample/" />
+<meta property="og:site_name" content="ulexec.github.io" />
+
+  
+    <meta property="og:image" content="https://ulexec.github.io/img/favicon/blue.png">
+  
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+  <meta property="article:section" content="writeup" />
+
+
+  <meta property="article:published_time" content="2017-11-17 00:00:00 &#43;0000 UTC" />
+
+
+
+
+
+
+
+
+
+
+
+
 </head>
-<body class="bootstra-enable-cursor ">
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <a class="navbar-brand" href="https://ulexec.github.io">ulexec.github.io</a>
-    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#main-nav" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div id="main-nav" class="collapse nav-collapse">
-        <ul class="navbar-nav">
-              
-            <li class="nav-item ">
-                <a class="nav-link" href="/post/">
-                                    
-                                    <span>Archives</span>
-                                </a>
-            </li>
-              
-            <li class="nav-item ">
-                <a class="nav-link" href="/publications/">
-                                    
-                                    <span>Publications</span>
-                                </a>
-            </li>
-              
-            <li class="nav-item ">
-                <a class="nav-link" href="/projects/">
-                                    
-                                    <span>Projects</span>
-                                </a>
-            </li>
-              
-            <li class="nav-item ">
-                <a class="nav-link" href="/bugs/">
-                                    
-                                    <span>Bugs</span>
-                                </a>
-            </li>
-              
-            <li class="nav-item ">
-                <a class="nav-link" href="/about/">
-                                    
-                                    <span>About</span>
-                                </a>
-            </li>
-             
-        </ul>
-    </div>
-    </div>
-    </div>
-</nav><div id="content" class="container">
+<body class="blue">
 
-<div class="row">
-    <div class="col">
 
-        <h1 class="mb-3">Dissecting the Internals of custom Linux Binary Packers - Fri, Nov 17, 2017</h1>
+<div class="container center headings--one-size">
 
-        <p class="lead"></p>
-        <h2 id="overview">Overview</h2>
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/post/">
+  <div class="logo">
+    ulexec.github.io
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+        
+          <li><a href="/post/">Archives</a></li>
+        
+      
+        
+          <li><a href="/publications/">Publications</a></li>
+        
+      
+        
+          <li><a href="/projects/">Projects</a></li>
+        
+      
+        
+          <li><a href="/bugs/">Bugs</a></li>
+        
+      
+        
+          <li><a href="/about/">About</a></li>
+        
+      
+        
+          <li><a href="/about">About</a></li>
+        
+      
+      
+    </ul>
+  </li>
+</ul>
+
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+      
+        
+          <li><a href="/post/" >Archives</a></li>
+        
+      
+        
+          <li><a href="/publications/" >Publications</a></li>
+        
+      
+        
+          <li><a href="/projects/" >Projects</a></li>
+        
+      
+        
+          <li><a href="/bugs/" >Bugs</a></li>
+        
+      
+        
+          <li><a href="/about/" >About</a></li>
+        
+      
+      
+        <li>
+          <ul class="menu">
+            <li class="menu__trigger">&nbsp;▾</li>
+            <li>
+              <ul class="menu__dropdown">
+                
+                  
+                    <li><a href="/about" >About</a></li>
+                  
+                
+              </ul>
+            </li>
+          </ul>
+        </li>
+      
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="https://ulexec.github.io/post/2017-11-17-unpacking_a_linux_tsunami_sample/">Dissecting the Internals of custom Linux Binary Packers</a>
+  </h1>
+  <div class="post-meta"><time class="post-date">2017-11-17</time><span class="post-author">ulexec</span></div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="https://ulexec.github.io/tags/reversing/">reversing</a>&nbsp;
+      
+      #<a href="https://ulexec.github.io/tags/malware/">malware</a>&nbsp;
+      
+    </span>
+  
+  
+
+
+  
+    <div class="table-of-contents">
+      <h2>
+        Table of Contents
+      </h2>
+      <nav id="TableOfContents">
+  <ul>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#static-analysis">Static Analysis</a></li>
+    <li><a href="#dynamic-analysis">Dynamic Analysis</a></li>
+  </ul>
+</nav>
+    </div>
+  
+
+  <div class="post-content"><div>
+        <h2 id="overview">Overview<a href="#overview" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
 <p>In this writeup we&rsquo;re going to unpack a Tsunami malware sample packed with a modified version of <code>UPX</code>. Hashes of this specific sample are the following:</p>
 <p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>SHA256: f22ffc07e0cc907f00fd6a4ecee09fe8411225badb2289c1bffa867a2a3bd863
 </span></span><span style="display:flex;"><span>  SHA1: <span style="color:#ae81ff">76584</span>c9a22835353186e753903ee0a853663bd83
@@ -102,7 +248,7 @@ In VirusTotal the malware is identified as a Tsunami Variant for the most part:<
 Threfore, we may be dealing with a custom packer based on a modified version of <code>UPX</code>.
 We will statically analyse the sample first, then we will continue our analysis with some dynamic analysis. At the end a brief summary of the sample will be discussed. Let&rsquo;s start with static analysis.</p>
 <!-- raw HTML omitted -->
-<h2 id="static-analysis">Static Analysis</h2>
+<h2 id="static-analysis">Static Analysis<a href="#static-analysis" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
 <!-- raw HTML omitted -->
 <p>If we open the binary with <code>IDA PRO</code> we can confirm that the sample is indeed packed:</p>
 <!-- raw HTML omitted -->
@@ -130,7 +276,7 @@ We will statically analyse the sample first, then we will continue our analysis 
 Execution then falls into <code>allocate_rwx_page</code> function, which as said before just allocates a memory page with <code>RXW</code> permissions. This buffer will be allocated at <code>0x00C8F000</code>. If the allocation fails, then execution will branch into the <code>write_message_and_exit</code> funtion, in which the string <code>'nandemo wa shiranai wa yo,'</code> gets printed to <code>stderr</code>. On the other hand, if allocation of RWX chunk is sucessfull, execution will pivot back to <code>start+5</code>.</p>
 <p>After allocating RWX memory, the malware will then proceed to copy and decode a given stub inside it. After a while analysing the code, I got to the conclusion that function <code>start+5</code> (entrypoint+5) is the routine the malware uses to decode and copy packer stub. At this point I coudn&rsquo;t do much progress just by static analysis. Therefore, I fired up the debugger ready to do some dynamic analysis.</p>
 <!-- raw HTML omitted -->
-<h2 id="dynamic-analysis">Dynamic Analysis</h2>
+<h2 id="dynamic-analysis">Dynamic Analysis<a href="#dynamic-analysis" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
 <!-- raw HTML omitted -->
 <p>Now that we have identified what routine the malware uses to decode and copy packer stub, It will be straight forward to trace the malware&rsquo;s first stage, that is to decode some stub inside the RWX chunk by decoding the data block previosly shown. We will try to follow along execution flow until the destination chunk (chunk <code>0x00c8f000</code>) of the decoded stub to remain with our analysis. One way this could be achieved would be by setting a hardware breakpoint on execution at the <code>RXW</code> chunk. However, we want to find the cleanest possible way to withness the execution transition into the chunk in order to not overlook details about the first malware&rsquo;s pivoting endeavour.</p>
 <p>On the entrypoint routine, after the function <code>pivot_to_allocate_rwx_pg</code> we can clearly see that the register context is being saved with a <code>pusha</code> instruction. Furthermore, two pointers are loaded into the <code>esi</code> and <code>edi</code> registers. Those pointers are the stub source address to be decoded, and the destination buffer address to transfer the decoded stub.</p>
@@ -344,86 +490,43 @@ Once on disk we see that the dumped file is a 1.3M statically linked binary:</p>
 Thanks for reading and I hope you learned something useful from this post!.</p>
 <p>n4x0r.</p>
 
+      </div></div>
 
-    </div>
-</div>
-<div class="row align-center">
-    <div class="col">
-        <a href="https://ulexec.github.io" class="btn btn-primary btn-lg">Back to Home</a>
-    </div>
-</div>
+  
 
-
-    </div><footer class="container">
-    <hr class="soften" />
-    <p class="text-center">
-    Content Licensed under <a href="">MIT</a> | 
-
-
-&copy;&nbsp;
-
-
-
-    Ignacio Sanmillan
-
-
-
-<span id="thisyear">
-    2023
-</span>
-
-
-
-
-</p>
-    <p class="text-center">
-        
-
-        
-            <a href="https://twitter.com/ulexec">Twitter</a>
-        
-
-        
-            <a href="https://linkedin.com/in/ignacio-sanmillan-1aa244b8">Linkedin</a>
-        
-
-        
-            <a href="https://github.com/ulexec">GitHub</a>
-        
-
-        
-    </p>
-</footer>
-</body><link rel="stylesheet" href="/css/bootstrap.min.css">
-<link rel="stylesheet" href="/css/bootstrap-theme.min.css">
-<link rel="stylesheet" href="/css/style.css"> 
-<script src="/js/jquery.js"></script>
-<script src="/js/bootstrap.min.js"></script>
-
-<script>
+  
     
-    function ThisYear() {
-        document.getElementById('thisyear').innerHTML = new Date().getFullYear();
-    };
-</script>
-<script>	
-	
-(function(){
-  _386.magicCursor();
-  _386.scrollLock();
-  $('[data-toggle="tooltip"]').tooltip();
-  $('[data-toggle="popover"]').popover();
 
-  $(window).scroll(function() {
-    var top = $(document).scrollTop();
-    if(top > 50)
-      $('#home > .navbar').removeClass('navbar-transparent');
-    else
-      $('#home > .navbar').addClass('navbar-transparent');
-  });
+  
+</article>
 
-  $("a[href='#']").click(function(e) {
-    e.preventDefault();
-  });
+  </div>
 
-})();</script></html>
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+        <span>© 2023 Powered by <a href="https://gohugo.io">Hugo</a></span>
+    
+      <span>:: <a href="https://github.com/panr/hugo-theme-terminal" target="_blank">Theme</a> made by <a href="https://github.com/panr" target="_blank">panr</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>

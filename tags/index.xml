@@ -5,7 +5,7 @@
     <link>https://ulexec.github.io/tags/</link>
     <description>Recent content in Tags on ulexec.github.io</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en</language>
+    <language>en-us</language>
     <lastBuildDate>Mon, 28 Nov 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://ulexec.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>IPC</title>
@@ -14,6 +14,7 @@
       
       <guid>https://ulexec.github.io/tags/ipc/</guid>
       <description></description>
+      <content></content>
     </item>
     
     <item>
@@ -23,6 +24,7 @@
       
       <guid>https://ulexec.github.io/tags/macos/</guid>
       <description></description>
+      <content></content>
     </item>
     
     <item>
@@ -32,6 +34,7 @@
       
       <guid>https://ulexec.github.io/tags/chrome/</guid>
       <description></description>
+      <content></content>
     </item>
     
     <item>
@@ -41,6 +44,7 @@
       
       <guid>https://ulexec.github.io/tags/pwn/</guid>
       <description></description>
+      <content></content>
     </item>
     
     <item>
@@ -50,6 +54,7 @@
       
       <guid>https://ulexec.github.io/tags/ctf/</guid>
       <description></description>
+      <content></content>
     </item>
     
     <item>
@@ -59,6 +64,7 @@
       
       <guid>https://ulexec.github.io/tags/malware/</guid>
       <description></description>
+      <content></content>
     </item>
     
     <item>
@@ -68,6 +74,7 @@
       
       <guid>https://ulexec.github.io/tags/reversing/</guid>
       <description></description>
+      <content></content>
     </item>
     
   </channel>

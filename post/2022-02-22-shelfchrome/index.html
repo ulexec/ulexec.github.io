@@ -1,72 +1,205 @@
 <!DOCTYPE html>
-<html lang="en"><head>
-    <title>ulexec.github.io</title>
-    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-    <meta content="utf-8" http-equiv="encoding">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="format-detection" content="telephone=no" />
-    <meta name="theme-color" content="#000084" />
-    <link rel="icon" href="https://ulexec.github.io/favicon.ico">
-    <link rel="canonical" href="https://ulexec.github.io">
-    
-    
+<html lang="en">
+<head>
+  
+    <title>SHELF encounters of the elements kind :: ulexec.github.io</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="This is a mirror of my article publsihed at Tmp.0ut zine volume 2. Original post can be found here.
+I&amp;rsquo;ve been focusing lately on Chrome exploitation, and after a while I became curious of the idea to attempt to make SHELF loading work for Chrome exploits targeting Linux.
+If you are new to the concept of SHELF, it is a reflective loading methodology me and my colleague _Anonymous from Tmp.0ut wrote about last year." />
+<meta name="keywords" content="" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="https://ulexec.github.io/post/2022-02-22-shelfchrome/" />
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="https://ulexec.github.io/styles.css">
+
+
+
+
+
+
+
+  <link rel="shortcut icon" href="https://ulexec.github.io/img/theme-colors/blue.png">
+  <link rel="apple-touch-icon" href="https://ulexec.github.io/img/theme-colors/blue.png">
+
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="SHELF encounters of the elements kind">
+<meta property="og:description" content="This is a mirror of my article publsihed at Tmp.0ut zine volume 2. Original post can be found here.
+I&amp;rsquo;ve been focusing lately on Chrome exploitation, and after a while I became curious of the idea to attempt to make SHELF loading work for Chrome exploits targeting Linux.
+If you are new to the concept of SHELF, it is a reflective loading methodology me and my colleague _Anonymous from Tmp.0ut wrote about last year." />
+<meta property="og:url" content="https://ulexec.github.io/post/2022-02-22-shelfchrome/" />
+<meta property="og:site_name" content="ulexec.github.io" />
+
+  
+    <meta property="og:image" content="https://ulexec.github.io/img/favicon/blue.png">
+  
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+  <meta property="article:section" content="writeup" />
+
+
+  <meta property="article:published_time" content="2022-02-22 00:00:00 &#43;0000 UTC" />
+
+
+
+
+
+
+
+
+
+
+
+
 </head>
-<body class="bootstra-enable-cursor ">
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <a class="navbar-brand" href="https://ulexec.github.io">ulexec.github.io</a>
-    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#main-nav" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div id="main-nav" class="collapse nav-collapse">
-        <ul class="navbar-nav">
-              
-            <li class="nav-item ">
-                <a class="nav-link" href="/post/">
-                                    
-                                    <span>Archives</span>
-                                </a>
-            </li>
-              
-            <li class="nav-item ">
-                <a class="nav-link" href="/publications/">
-                                    
-                                    <span>Publications</span>
-                                </a>
-            </li>
-              
-            <li class="nav-item ">
-                <a class="nav-link" href="/projects/">
-                                    
-                                    <span>Projects</span>
-                                </a>
-            </li>
-              
-            <li class="nav-item ">
-                <a class="nav-link" href="/bugs/">
-                                    
-                                    <span>Bugs</span>
-                                </a>
-            </li>
-              
-            <li class="nav-item ">
-                <a class="nav-link" href="/about/">
-                                    
-                                    <span>About</span>
-                                </a>
-            </li>
-             
-        </ul>
-    </div>
-    </div>
-    </div>
-</nav><div id="content" class="container">
+<body class="blue">
 
-<div class="row">
-    <div class="col">
 
-        <h1 class="mb-3">SHELF encounters of the elements kind - Tue, Feb 22, 2022</h1>
+<div class="container center headings--one-size">
 
-        <p class="lead"></p>
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/post/">
+  <div class="logo">
+    ulexec.github.io
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+        
+          <li><a href="/post/">Archives</a></li>
+        
+      
+        
+          <li><a href="/publications/">Publications</a></li>
+        
+      
+        
+          <li><a href="/projects/">Projects</a></li>
+        
+      
+        
+          <li><a href="/bugs/">Bugs</a></li>
+        
+      
+        
+          <li><a href="/about/">About</a></li>
+        
+      
+        
+          <li><a href="/about">About</a></li>
+        
+      
+      
+    </ul>
+  </li>
+</ul>
+
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+      
+        
+          <li><a href="/post/" >Archives</a></li>
+        
+      
+        
+          <li><a href="/publications/" >Publications</a></li>
+        
+      
+        
+          <li><a href="/projects/" >Projects</a></li>
+        
+      
+        
+          <li><a href="/bugs/" >Bugs</a></li>
+        
+      
+        
+          <li><a href="/about/" >About</a></li>
+        
+      
+      
+        <li>
+          <ul class="menu">
+            <li class="menu__trigger">&nbsp;▾</li>
+            <li>
+              <ul class="menu__dropdown">
+                
+                  
+                    <li><a href="/about" >About</a></li>
+                  
+                
+              </ul>
+            </li>
+          </ul>
+        </li>
+      
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="https://ulexec.github.io/post/2022-02-22-shelfchrome/">SHELF encounters of the elements kind</a>
+  </h1>
+  <div class="post-meta"><time class="post-date">2022-02-22</time><span class="post-author">ulexec</span></div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="https://ulexec.github.io/tags/pwn/">pwn</a>&nbsp;
+      
+      #<a href="https://ulexec.github.io/tags/chrome/">chrome</a>&nbsp;
+      
+    </span>
+  
+  
+
+
+  
+
+  <div class="post-content"><div>
         <p>This is a mirror of my article publsihed at <em>Tmp.0ut</em> zine volume 2. Original post can be found <a href="https://tmpout.sh/2/5.html">here</a>.</p>
 <p>I&rsquo;ve been focusing lately on Chrome exploitation, and after a while I became curious of the idea to attempt to make SHELF loading work for Chrome exploits targeting Linux.</p>
 <p>If you are new to the concept of SHELF, it is a reflective loading methodology me and my colleague <code>_Anonymous</code> from <em>Tmp.0ut</em> <a href="https://tmpout.sh/1/10/">wrote about</a> last year.</p>
@@ -77,9 +210,9 @@
 <p>I also wanted to present a concise analysis of a vulnerability that would grant these kinds of initial exploitation primitives. I will be covering a vulnerability I&rsquo;ve been recently analyzing, <code>CVE-2020-6418</code>. However, feel free to skip to the <em>Achieving Relative Arbitrary Read/Write</em> section if you are not interested in the root-cause analysis of this particular vulnerability.</p>
 <p>I would like to apologize in advance if there are still some mistakes or wrong assertions I may have skipped over, or simply was unaware of during the creation of this article.</p>
 <hr>
-<h2 id="cve-2020-6418">CVE-2020-6418</h2>
+<h2 id="cve-2020-6418">CVE-2020-6418<a href="#cve-2020-6418" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
 <!-- raw HTML omitted -->
-<h3 id="regression-test-analysis">Regression Test Analysis</h3>
+<h3 id="regression-test-analysis">Regression Test Analysis<a href="#regression-test-analysis" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
 <p>If we check the bug issue for this vulnerability, we can observe that a <a href="https://chromium-review.googlesource.com/c/v8/v8/+/2062396/4/test/mjsunit/compiler/regress-1053604.js">regression</a> test file was committed, which will serve us as an intial PoC for the given vulnerability. This regression test looks as follows:</p>
 <p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#75715e">// Copyright 2020 the V8 project authors. All rights reserved.
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e">// Use of this source code is governed by a BSD-style license that can be
@@ -195,7 +328,7 @@ We can leverage a type-confusion vulnerability when trying to access any of the 
 <p>This is all there is to understand for now in relation to the supplied regression test. Now let&rsquo;s dig deep into identifying the root-cause analysis in v8&rsquo;s source code.</p>
 <!-- raw HTML omitted -->
 <hr>
-<h3 id="root-cause-analysis">Root-Cause Analysis</h3>
+<h3 id="root-cause-analysis">Root-Cause Analysis<a href="#root-cause-analysis" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
 <p>Now that we have done a quick overview of the vulnerability and its implications from the regression test, let&rsquo;s take a deep dive into V8&rsquo;s source to identify the root-cause analysis for this vulnerability.</p>
 <p>To start off, it is important to have in mind a high-level overview of Turbofan&rsquo;s JIT compilation pipeline shown in the following diagram :</p>
 <p><img src="https://tmpout.sh/2/img/Pasted%20image%2020220112200715.png#center" alt="">&gt;</p>
@@ -417,7 +550,7 @@ The code path that should mitigate this vulnerability is the one in which the fu
 <p><img src="https://tmpout.sh/2/img/Pasted%20image%2020220112204615.png#center" alt=""></p>
 <!-- raw HTML omitted -->
 <hr>
-<h3 id="exploit-strategy">Exploit Strategy</h3>
+<h3 id="exploit-strategy">Exploit Strategy<a href="#exploit-strategy" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
 <p>As previously mentioned, this vulnerability allows us to trivially craft <code>addrof</code> and <code>fakeobj</code> primitives. A common technique to exploit the current scenario, in which only <code>addrof</code> and <code>fakeobj</code> primitives are available without OOB read/write, is by crafting a fake <code>ArrayBuffer</code> object with an arbitrary backing pointer. However, this approach becomes difficult with V8&rsquo;s <a href="https://v8.dev/blog/pointer-compression">pointer compression</a> enabled since <a href="https://v8.dev/blog/v8-release-80">version 8.0</a>.</p>
 <p>This is because with pointer compression, tagged pointers are stored within V8&rsquo;s heap as <code>dwords</code>, while double values are stored as <code>qwords</code>. This implicitly impacts our ability to create an effective <code>fakeobj</code> primitive for this specific scenario.</p>
 <p><em>If you are interested in knowing how this exploit would look like without pointer compression here is a really nice writeup by <a href="https://leethax0.rs/2021/04/ElectricChrome/">@HawaiiFive0day</a>.</em></p>
@@ -462,7 +595,7 @@ The code path that should mitigate this vulnerability is the one in which the fu
 </span></span></span></code></pre></div>
 <!-- raw HTML omitted --></p>
 <hr>
-<h2 id="achieving-relative-arbitrary-readwrite">Achieving Relative Arbitrary Read/Write</h2>
+<h2 id="achieving-relative-arbitrary-readwrite">Achieving Relative Arbitrary Read/Write<a href="#achieving-relative-arbitrary-readwrite" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
 <p>Once we have achieved OOB read/write and successfully overwritten the length of an adjacent array, we can now read/write into adjacent memory.</p>
 <p>From this point forward, we can neglect the original vulnerability, and think of the next sections independently of the specific vulnerability as long as we can achive OOB read/write from a JSArray with <code>PACKED_DOUBLE_ELEMENTS</code> <em>elements kind</em>.</p>
 <p>In order to read/write memory with more flexibility, we need to build a set of read/write primitives as well as to gain the ability to retrieve the address of arbitrary objects via an <code>addrof</code> primitive.</p>
@@ -513,7 +646,7 @@ The code path that should mitigate this vulnerability is the one in which the fu
 </span></span><span style="display:flex;"><span>}</span></span></code></pre></div>
 <!-- raw HTML omitted --></p>
 <hr>
-<h2 id="achieving-unstable-arbitrary-readwrite">Achieving Unstable Arbitrary Read/Write</h2>
+<h2 id="achieving-unstable-arbitrary-readwrite">Achieving Unstable Arbitrary Read/Write<a href="#achieving-unstable-arbitrary-readwrite" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
 <p>Unfortunately, this primitive is restricted to 8 bytes per operation to V8&rsquo;s tagged pointers, hence the <code>weak</code> prefix as these primitives are relative to V8&rsquo;s heap.</p>
 <p>In order to circumvent this limitation, we will have to perform the following steps to build a stronger read/write primitive:</p>
 <ul>
@@ -612,7 +745,7 @@ The value of <code>data_ptr</code>is the result of the addition of <code>base_po
 </span></span><span style="display:flex;"><span>}</span></span></code></pre></div>
 <!-- raw HTML omitted --></p>
 <hr>
-<h2 id="achieving-stable-arbitrary-readwrite">Achieving Stable Arbitrary Read/Write</h2>
+<h2 id="achieving-stable-arbitrary-readwrite">Achieving Stable Arbitrary Read/Write<a href="#achieving-stable-arbitrary-readwrite" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
 <p>Browsers heavily rely on features such as Garbage Collection in order to autonomously free orphan objects (objects that are not being referenced by any other object).</p>
 <p>However, we will soon cover how this introduces reliability issues in our exploit.
 This paper will not be covering V8 Garbage Collection internals extensively as it is a broad subject, but I highly encourage reading <a href="https://v8.dev/blog/trash-talk">this</a> reference of Orinoco (V8 GC) and <a href="https://deepu.tech/memory-management-in-v8/">this</a> on V8 memory management as an initial introduction to the subject.</p>
@@ -693,11 +826,11 @@ In order to create a set of stable arbitrary read/write primitives, we have to b
 We will be using this technique in order to build accessors to distinct memory regions outside of V8 heap moving forward.</p>
 <!-- raw HTML omitted -->
 <hr>
-<h2 id="obtaining-relevant-leaks">Obtaining relevant leaks</h2>
+<h2 id="obtaining-relevant-leaks">Obtaining relevant leaks<a href="#obtaining-relevant-leaks" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
 <p>Now that we have the capability to read and write arbitrary memory in a stable manner, we now have to locate specific memory regions that we will need to access in order to craft our SHELF loader.</p>
 <p>The following diagram illustrates the pointer relationships of the different memory regions we are interested in:</p>
 <p><img src="https://tmpout.sh/2/img/2022-02-16_23-09_1.png#center" alt=""></p>
-<h3 id="leaking-chrome-base">Leaking Chrome base</h3>
+<h3 id="leaking-chrome-base">Leaking Chrome base<a href="#leaking-chrome-base" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
 <p>Leaking chrome&rsquo;s base is relatively simple and can be illustrated in the following code snippet:</p>
 <p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#66d9ef">function</span> <span style="color:#a6e22e">get_image_base</span>(<span style="color:#a6e22e">ptr</span>) {
 </span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> <span style="color:#a6e22e">dword</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
@@ -718,12 +851,12 @@ We will be using this technique in order to build accessors to distinct memory r
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">ptr</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">itof</span>((<span style="color:#a6e22e">ftoi</span>(<span style="color:#a6e22e">HTMLDivElement_addr</span>) <span style="color:#f92672">-</span> <span style="color:#a6e22e">kBaseSearchSpaceOffset</span>) <span style="color:#f92672">&amp;</span> <span style="color:#f92672">~</span>(<span style="color:#ae81ff">0xfff</span><span style="color:#a6e22e">n</span>));
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">chrome_base</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">get_image_base</span>(<span style="color:#a6e22e">ftoi</span>(<span style="color:#a6e22e">ptr</span>));</span></span></code></pre></div>
 In order to leak the base address of Chrome, we start by creating an arbitrary DOM element. Usually, DOM elements have references within their object layout to some part of Blink&rsquo;s code base. As an example, we can create a <code>div</code> element to leak one of these pointers and then subtract the appropriate offset from it to retrieve Chrome&rsquo;s base, or scan backward in search for an ELF header magic.</p>
-<h3 id="leaking-libc-base">Leaking Libc base</h3>
+<h3 id="leaking-libc-base">Leaking Libc base<a href="#leaking-libc-base" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
 <p>Once we have successfully retrieved the base of Chrome, we can retrieve a pointer to libc from Chrome&rsquo;s Global Offset Table (GOT), as this should be a fixed offset per Chrome patch level. After that, we can apply the same methodology as for retrieving the base address of Chrome, by scanning backward for an ELF header magic:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">libc_leak</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">chrome_accesor</span>.<span style="color:#a6e22e">getFloat64</span>(<span style="color:#a6e22e">kGOTOffset</span>, <span style="color:#66d9ef">true</span>);
 </span></span><span style="display:flex;"><span><span style="color:#a6e22e">libc_leak</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">itof</span>(<span style="color:#a6e22e">ftoi</span>(<span style="color:#a6e22e">libc_leak</span>) <span style="color:#f92672">&amp;</span> <span style="color:#f92672">~</span>(<span style="color:#ae81ff">0xfff</span><span style="color:#a6e22e">n</span>));
 </span></span><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#a6e22e">libc_base</span> <span style="color:#f92672">=</span> <span style="color:#a6e22e">get_image_base</span>(<span style="color:#a6e22e">ftoi</span>(<span style="color:#a6e22e">libc_leak</span>));</span></span></code></pre></div>
-<h3 id="leaking-the-process-stack">Leaking the process stack</h3>
+<h3 id="leaking-the-process-stack">Leaking the process stack<a href="#leaking-the-process-stack" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
 <p>Now that we have libc&rsquo;s base address, we can retrieve the symbol <code>__environ</code> from libc as it will point to the process&rsquo; environment variables held in the stack.
 Since for this post we are writing an exploit that is dependent of Chrome version, we need to be able to resolve the address of this symbol independently of libc version.
 To do this, we can build a resolver in JavaScript leveraging our stable read primitive.</p>
@@ -841,7 +974,7 @@ Ultimately, we have to retrieve the address of libc&rsquo;s  <code>DYNAMIC</code
 </span></span><span style="display:flex;"><span>}</span></span></code></pre></div>
 <!-- raw HTML omitted --></p>
 <hr>
-<h2 id="achieving-a-stable-large-rwx-region">Achieving a stable large RWX region</h2>
+<h2 id="achieving-a-stable-large-rwx-region">Achieving a stable large RWX region<a href="#achieving-a-stable-large-rwx-region" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
 <p>Once we have leaked the location of all the memory regions we need, we now have to somehow allocate a big enough memory region that is both writable and executable.</p>
 <p>There are various techniques to achieve this. As documented by Brendon Tiszka, there is a possibility to disable <code>W^X</code>, a protection that was enabled on JIT memory that prevents it from being both writable and executable.</p>
 <p>There is also the possibility to encode our payload as float variables in a JITed function to neglect the need of a writable region.</p>
@@ -888,7 +1021,7 @@ Thankfully for us this flag is fetched dynamically by the WasmEngine on compilat
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">chrome_accesor</span>.<span style="color:#a6e22e">setBigUint64</span>(<span style="color:#a6e22e">kWasmCodeGC</span>, <span style="color:#ae81ff">0</span><span style="color:#a6e22e">n</span>);</span></span></code></pre></div>
 <!-- raw HTML omitted --></p>
 <hr>
-<h2 id="preparing-a-shelf-image">Preparing a SHELF image</h2>
+<h2 id="preparing-a-shelf-image">Preparing a SHELF image<a href="#preparing-a-shelf-image" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
 <p>In order to prepare our SHELF executable image, first we have to create a SHELF standalone instance. If you are interested about the internals of this process, you can check our article from <a href="https://tmpout.sh/1/10/">tmp.0ut vol 1</a>.</p>
 <p>The test C code we will be deploying is the following:
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdio.h&gt;</span><span style="color:#75715e">
@@ -1083,93 +1216,50 @@ As we can observe, there are no anomalies in process-tree hierarchy.
 This is a simple visual example, but I hope it will give the reader a glance of what kind of capability we can achieve with SHELF loading. The full exploit can be found <a href="https://github.com/ulexec/ChromeSHELFLoader">here</a></p>
 <!-- raw HTML omitted -->
 <hr>
-<h2 id="conclusion">Conclusion</h2>
+<h2 id="conclusion">Conclusion<a href="#conclusion" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
 <p>Although reflectively loading ELF images from the browser sounds like a bit of an overkill, in my opinion it is a realistic capability to achieve with SHELF loading in real-life exploit chains, even for chains requiring a SBX exploit. As shown by a Theori blog written by <a href="https://blog.theori.io/research/escaping-chrome-sandbox/">Tim Becker</a>, there are ways to implement platform-agnostic SBX exploits to ultimately disable the Chrome Sandbox for the subsequent use of a second unsandboxed renderer exploit.</p>
 <p>Nevertheless, SHELF loading is not a universal technique for every browser exploit, and there may be scenarios in which other techniques to deploy ELF files in memory would be more convenient. However, I still believe that SHELF loading is an interesting avenue for chaining consecutive payloads with anti-forensic capabilities for browser exploits in which arbitrary read/write primitives are granted, which has been a common trait for most V8 exploitable bugs.</p>
 <p>I would like to finalize showing my gratitude to the Tmp.0ut comunity, specifically to @elfmaster, @sblip, @TMZ, @netspooky, @richinseattle &amp; @David3141593. Last by not least, I would also like to show my appreciation to the content @btiszka has published in relation to Chrome exploitation, as it has been a great reference and a personal source of motivation.</p>
 <p>Thank you for reading, and see you next year!</p>
 <p>&ndash; @ulexec</p>
 
+      </div></div>
 
-    </div>
-</div>
-<div class="row align-center">
-    <div class="col">
-        <a href="https://ulexec.github.io" class="btn btn-primary btn-lg">Back to Home</a>
-    </div>
-</div>
+  
 
-
-    </div><footer class="container">
-    <hr class="soften" />
-    <p class="text-center">
-    Content Licensed under <a href="">MIT</a> | 
-
-
-&copy;&nbsp;
-
-
-
-    Ignacio Sanmillan
-
-
-
-<span id="thisyear">
-    2023
-</span>
-
-
-
-
-</p>
-    <p class="text-center">
-        
-
-        
-            <a href="https://twitter.com/ulexec">Twitter</a>
-        
-
-        
-            <a href="https://linkedin.com/in/ignacio-sanmillan-1aa244b8">Linkedin</a>
-        
-
-        
-            <a href="https://github.com/ulexec">GitHub</a>
-        
-
-        
-    </p>
-</footer>
-</body><link rel="stylesheet" href="/css/bootstrap.min.css">
-<link rel="stylesheet" href="/css/bootstrap-theme.min.css">
-<link rel="stylesheet" href="/css/style.css"> 
-<script src="/js/jquery.js"></script>
-<script src="/js/bootstrap.min.js"></script>
-
-<script>
+  
     
-    function ThisYear() {
-        document.getElementById('thisyear').innerHTML = new Date().getFullYear();
-    };
-</script>
-<script>	
-	
-(function(){
-  _386.magicCursor();
-  _386.scrollLock();
-  $('[data-toggle="tooltip"]').tooltip();
-  $('[data-toggle="popover"]').popover();
 
-  $(window).scroll(function() {
-    var top = $(document).scrollTop();
-    if(top > 50)
-      $('#home > .navbar').removeClass('navbar-transparent');
-    else
-      $('#home > .navbar').addClass('navbar-transparent');
-  });
+  
+</article>
 
-  $("a[href='#']").click(function(e) {
-    e.preventDefault();
-  });
+  </div>
 
-})();</script></html>
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+        <span>© 2023 Powered by <a href="https://gohugo.io">Hugo</a></span>
+    
+      <span>:: <a href="https://github.com/panr/hugo-theme-terminal" target="_blank">Theme</a> made by <a href="https://github.com/panr" target="_blank">panr</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>

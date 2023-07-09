@@ -1,74 +1,205 @@
 <!DOCTYPE html>
-<html lang="en"><head>
-    <title>ulexec.github.io</title>
-    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-    <meta content="utf-8" http-equiv="encoding">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="format-detection" content="telephone=no" />
-    <meta name="theme-color" content="#000084" />
-    <link rel="icon" href="https://ulexec.github.io/favicon.ico">
-    <link rel="canonical" href="https://ulexec.github.io">
-    
-    
+<html lang="en">
+<head>
+  
+    <title>Tales Of Binary Deobfuscation :: ulexec.github.io</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="This article is going to serve as my personal reference on this topic. Since I&amp;rsquo;ve always wanted to write about it and just finished Yuma Kurogome&amp;rsquo;s course on Advance Binary Deobfuscation, I thought it would be a good time to write notes regarding what I learned in this course with a fresh state of mind on the subject matter for future reference.
+Introduction There are close to 31 known code transformations." />
+<meta name="keywords" content="" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="https://ulexec.github.io/post/2020-03-03-deobfuscation_1/" />
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="https://ulexec.github.io/styles.css">
+
+
+
+
+
+
+
+  <link rel="shortcut icon" href="https://ulexec.github.io/img/theme-colors/blue.png">
+  <link rel="apple-touch-icon" href="https://ulexec.github.io/img/theme-colors/blue.png">
+
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Tales Of Binary Deobfuscation">
+<meta property="og:description" content="This article is going to serve as my personal reference on this topic. Since I&amp;rsquo;ve always wanted to write about it and just finished Yuma Kurogome&amp;rsquo;s course on Advance Binary Deobfuscation, I thought it would be a good time to write notes regarding what I learned in this course with a fresh state of mind on the subject matter for future reference.
+Introduction There are close to 31 known code transformations." />
+<meta property="og:url" content="https://ulexec.github.io/post/2020-03-03-deobfuscation_1/" />
+<meta property="og:site_name" content="ulexec.github.io" />
+
+  
+    <meta property="og:image" content="https://ulexec.github.io/img/favicon/blue.png">
+  
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+  <meta property="article:section" content="writeup" />
+
+
+  <meta property="article:published_time" content="2020-03-03 00:00:00 &#43;0000 UTC" />
+
+
+
+
+
+
+
+
+
+
+
+
 </head>
-<body class="bootstra-enable-cursor ">
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <a class="navbar-brand" href="https://ulexec.github.io">ulexec.github.io</a>
-    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#main-nav" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div id="main-nav" class="collapse nav-collapse">
-        <ul class="navbar-nav">
-              
-            <li class="nav-item ">
-                <a class="nav-link" href="/post/">
-                                    
-                                    <span>Archives</span>
-                                </a>
-            </li>
-              
-            <li class="nav-item ">
-                <a class="nav-link" href="/publications/">
-                                    
-                                    <span>Publications</span>
-                                </a>
-            </li>
-              
-            <li class="nav-item ">
-                <a class="nav-link" href="/projects/">
-                                    
-                                    <span>Projects</span>
-                                </a>
-            </li>
-              
-            <li class="nav-item ">
-                <a class="nav-link" href="/bugs/">
-                                    
-                                    <span>Bugs</span>
-                                </a>
-            </li>
-              
-            <li class="nav-item ">
-                <a class="nav-link" href="/about/">
-                                    
-                                    <span>About</span>
-                                </a>
-            </li>
-             
-        </ul>
-    </div>
-    </div>
-    </div>
-</nav><div id="content" class="container">
+<body class="blue">
 
-<div class="row">
-    <div class="col">
 
-        <h1 class="mb-3">Tales Of Binary Deobfuscation - Tue, Mar 3, 2020</h1>
+<div class="container center headings--one-size">
 
-        <p class="lead"></p>
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/post/">
+  <div class="logo">
+    ulexec.github.io
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+        
+          <li><a href="/post/">Archives</a></li>
+        
+      
+        
+          <li><a href="/publications/">Publications</a></li>
+        
+      
+        
+          <li><a href="/projects/">Projects</a></li>
+        
+      
+        
+          <li><a href="/bugs/">Bugs</a></li>
+        
+      
+        
+          <li><a href="/about/">About</a></li>
+        
+      
+        
+          <li><a href="/about">About</a></li>
+        
+      
+      
+    </ul>
+  </li>
+</ul>
+
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+      
+        
+          <li><a href="/post/" >Archives</a></li>
+        
+      
+        
+          <li><a href="/publications/" >Publications</a></li>
+        
+      
+        
+          <li><a href="/projects/" >Projects</a></li>
+        
+      
+        
+          <li><a href="/bugs/" >Bugs</a></li>
+        
+      
+        
+          <li><a href="/about/" >About</a></li>
+        
+      
+      
+        <li>
+          <ul class="menu">
+            <li class="menu__trigger">&nbsp;▾</li>
+            <li>
+              <ul class="menu__dropdown">
+                
+                  
+                    <li><a href="/about" >About</a></li>
+                  
+                
+              </ul>
+            </li>
+          </ul>
+        </li>
+      
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="https://ulexec.github.io/post/2020-03-03-deobfuscation_1/">Tales Of Binary Deobfuscation</a>
+  </h1>
+  <div class="post-meta"><time class="post-date">2020-03-03</time><span class="post-author">ulexec</span></div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="https://ulexec.github.io/tags/reversing/">reversing</a>&nbsp;
+      
+      #<a href="https://ulexec.github.io/tags/malware/">malware</a>&nbsp;
+      
+    </span>
+  
+  
+
+
+  
+
+  <div class="post-content"><div>
         <p>This article is going to serve as my personal reference on this topic. Since I&rsquo;ve always wanted to write about it and just finished Yuma Kurogome&rsquo;s course on <a href="https://github.com/malrev/ABD">Advance Binary Deobfuscation</a>, I thought it would be a good time to write notes regarding what I learned in this course with a fresh state of mind on the subject matter for future reference.</p>
-<h2 id="introduction">Introduction</h2>
+<h2 id="introduction">Introduction<a href="#introduction" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
 <p>There are close to 31 known <a href="https://mediatum.ub.tum.de/doc/1367533/1367533.pdf">code transformations</a>. However, In this article we will focus on grouping these transformation in categories based on their behavior, and we will cover some of the most relevant techniques today on a conceptual point of view.
 We will be also covering practical approaches to the aforementioned techniques using the reverse engineering framework MIASM (0.1.3.dev39).</p>
 <p>Despite the large number of transformations, obfuscation techniques can be group up into 3 different categories:</p>
@@ -147,12 +278,12 @@ Lets imagine that originally we have the following set of instructions:
 </span></span><span style="display:flex;"><span><span style="color:#a6e22e">sub</span> eax, ecx</span></span></code></pre></div><!-- raw HTML omitted --></p>
 </li>
 </ul>
-<h3 id="circumvention">Circumvention</h3>
+<h3 id="circumvention">Circumvention<a href="#circumvention" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
 <p>In order to mitigate these transformations we can do a variety of techniques based on Data Flow Analysis. Before we introduce these techniques, is important to understand that in order to succesfully implement Data Flow Analysis strategies we have to rely on a Intermediate Representation of the subject code. Compilers also rely on IRs to apply their program synthesis and code optimitations capabilities. In other words, We can deobfuscate these transformations by using the same techniques used by compilers for
 their own optimization purposes.</p>
 <p>These techniques are the following:</p>
 <!-- raw HTML omitted -->
-<h4 id="reachable-definition-analysis">Reachable Definition Analysis</h4>
+<h4 id="reachable-definition-analysis">Reachable Definition Analysis<a href="#reachable-definition-analysis" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h4>
 <ul>
 <li>Forward dataflow analysis</li>
 <li>Analyze where the value of each variable was defined when a certain point in the program was reached</li>
@@ -166,7 +297,7 @@ their own optimization purposes.</p>
 <p>An overview of how Reachability Analysis work can be shown in the following picture from Yuma&rsquo;s Course:
 <img src="/Reachability_Analysis.png#center" alt=""></p>
 <!-- raw HTML omitted -->
-<h4 id="liveless-analysis">Liveless Analysis</h4>
+<h4 id="liveless-analysis">Liveless Analysis<a href="#liveless-analysis" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h4>
 <ul>
 <li>Backward dataflow analysis</li>
 <li>Analyze whether the value x in the program point p may be used when following the edge starting from p in the flow graph with respect to x</li>
@@ -183,7 +314,7 @@ their own optimization purposes.</p>
 <!-- raw HTML omitted -->
 <p>Both reachable definition analysis and liveness analysis are IR optimization techniques used by a compiler backend, and are also useful for binary analysis.</p>
 <!-- raw HTML omitted -->
-<h4 id="practical-example-deobfuscating-ollvms-instruction-substitution-pass">Practical Example. Deobfuscating OLLVM&rsquo;s Instruction Substitution Pass</h4>
+<h4 id="practical-example-deobfuscating-ollvms-instruction-substitution-pass">Practical Example. Deobfuscating OLLVM&rsquo;s Instruction Substitution Pass<a href="#practical-example-deobfuscating-ollvms-instruction-substitution-pass" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h4>
 <p>For this example we will be using the given example compiled with o-llvm -sub flag to enable OLLVM&rsquo;s Intruction Substitution Pass.</p>
 <p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdio.h&gt;</span><span style="color:#75715e">
 </span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
@@ -283,7 +414,7 @@ The following is the result of this:</p>
 Despite this, we can clearly see that Data Flow Analysis can be very effective for instruction subtitution deobfuscation giving us a simplified version of what the function may have looked like after and even before obfuscation.</p>
 <p>As we mentioned there are some additional contraints while removing some of the dead code after simplification, such as memory writes or variables needed for conditional branches. In regards to conditional branches, in the next section we will cover the concept of opaque predicates and what we can do to indentify and mitigate them.</p>
 <!-- raw HTML omitted -->
-<h2 id="opaque-predicates">Opaque Predicates</h2>
+<h2 id="opaque-predicates">Opaque Predicates<a href="#opaque-predicates" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
 <p>Opaque predicates in a nutshell is a commonly used technique in code obfuscation intended to add complexity to control flow usually implemented as conditional branches although these conditional branches have a deterministic control flow.</p>
 <p>A simple example of what opaque predicates are can be shown in the following C code:</p>
 <p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdio.h&gt;</span><span style="color:#75715e">
@@ -302,7 +433,7 @@ The previous C snippet is an over-simplified opaque predicate example, however i
 <p>This same concept can be extrapolated to more complex equalities/conditions usually appearing in high volume on a subject obfuscated application.
 Depending on the implementation sophistication of this technique, control flow clarity can be highly affected and therefore the interpretation and time of analysis of a subject application.</p>
 <!-- raw HTML omitted -->
-<h3 id="circumvention-1">Circumvention</h3>
+<h3 id="circumvention-1">Circumvention<a href="#circumvention-1" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
 <p>One approach to identify opaque predicates is to use Symbolic Execution along with an SMT solver in order to check feasibility on conditional branches.</p>
 <p>How it works:</p>
 <ul>
@@ -324,7 +455,7 @@ Therefore, we can invoke a SMT solver at every conditional branch and verify whe
 If a subject conditional branch is not dependant on a input value the branch should be an opaque predicate.
 We can apply the technique discussed above and attempt to detect opaque predicates via Symbolic Execution + SMT solver.</p>
 <!-- raw HTML omitted -->
-<h4 id="practical-example-deobfuscating-x-tunnel-opaque-predicates">Practical Example. Deobfuscating X-Tunnel Opaque Predicates</h4>
+<h4 id="practical-example-deobfuscating-x-tunnel-opaque-predicates">Practical Example. Deobfuscating X-Tunnel Opaque Predicates<a href="#practical-example-deobfuscating-x-tunnel-opaque-predicates" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h4>
 <p>The binary file we are going to use for this example is the following:
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>X<span style="color:#f92672">-</span>Tunnel: a979c5094f75548043a22b174aa10e1f2025371bd9e1249679f052b168e194b3</span></span></code></pre></div>
 The first thing we have to do is to write a path exploration function based on Symbolic Execution.
@@ -541,7 +672,7 @@ I decided to write a solution to remove X-Tunnel&rsquo;s opaque predicates by us
 <p>Another approach to detect opaque predicates: Abstract Interpretation (TODO. Some nice <a href="https://www.msreverseengineering.com/blog/2018/2/26/concrete-and-abstract-interpretation-explained-through-chess">reference</a> by Rolf Rolles)</p>
 <p>In the following section we will cover an approach to detect Range Dividers and how we can circumvent them.</p>
 <!-- raw HTML omitted -->
-<h2 id="range-dividers">Range Dividers</h2>
+<h2 id="range-dividers">Range Dividers<a href="#range-dividers" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
 <p><a href="https://www.researchgate.net/publication/311491954_Code_obfuscation_against_symbolic_execution_attacks">Range dividers</a> are branch conditions that can be inserted at an arbitrary position inside a basic block, such that they divide the input range into multiple sets.</p>
 <p>A simple example to illustrate this technique can be shown below:
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdio.h&gt;</span><span style="color:#75715e">
@@ -585,7 +716,7 @@ I decided to write a solution to remove X-Tunnel&rsquo;s opaque predicates by us
 <li>The number of times the predicate is executed</li>
 </ul>
 <!-- raw HTML omitted -->
-<h3 id="circumvention-2">Circumvention</h3>
+<h3 id="circumvention-2">Circumvention<a href="#circumvention-2" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
 <p>An approach to identify Range Dividers is by Semtantic Equivalence Checking.
 Semantic Equivalence is an apporach to identify if two given sets of instructions have the same behavior based on the following premise:</p>
 <ul>
@@ -599,7 +730,7 @@ Semantic Equivalence is an apporach to identify if two given sets of instruction
 <li>Can be also seen as Semantic basic block diffing</li>
 </ul>
 <!-- raw HTML omitted -->
-<h4 id="practical-example-deobfuscating-asprox-range-dividers">Practical Example. Deobfuscating Asprox Range Dividers</h4>
+<h4 id="practical-example-deobfuscating-asprox-range-dividers">Practical Example. Deobfuscating Asprox Range Dividers<a href="#practical-example-deobfuscating-asprox-range-dividers" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h4>
 <p>The binary file we are going to use for this example is the following:
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>Asprox: c56792bea8ac5fbf893ae3df1be0c3c878a615db6b24fd5253e5cbbc2e3e1dd3</span></span></code></pre></div>
 The first thing we have to do is to retrieve all blocks from the subject obfuscated function.
@@ -883,86 +1014,43 @@ We can apply either of these approaches accordingly to chose the predicate that 
 <p>Is also important to emphasize that the Range Divider cleaning process may not be as trivial if higher numbers of predicates where encountered or if the structure of the predicates would make each predicate to overlap with one another. Also lets not forget that this approach is assuming that the correct comparison unit is a basic block, which is true for Asprox predicates but is not necessarily generic. For example Tigress obfuscator implements Range Divider predicates on a function granuality. Therefore, this approach wont work, but could be adapted to support Tigress predicates re-defining the granuality for comparison and equivalence computation.</p>
 <p>To finish this section on a high note, we can see that by marking blocks from a given function based on syntax and semantic equivalence can help us to indentify this obfuscation technique.</p>
 
+      </div></div>
 
-    </div>
-</div>
-<div class="row align-center">
-    <div class="col">
-        <a href="https://ulexec.github.io" class="btn btn-primary btn-lg">Back to Home</a>
-    </div>
-</div>
+  
 
-
-    </div><footer class="container">
-    <hr class="soften" />
-    <p class="text-center">
-    Content Licensed under <a href="">MIT</a> | 
-
-
-&copy;&nbsp;
-
-
-
-    Ignacio Sanmillan
-
-
-
-<span id="thisyear">
-    2023
-</span>
-
-
-
-
-</p>
-    <p class="text-center">
-        
-
-        
-            <a href="https://twitter.com/ulexec">Twitter</a>
-        
-
-        
-            <a href="https://linkedin.com/in/ignacio-sanmillan-1aa244b8">Linkedin</a>
-        
-
-        
-            <a href="https://github.com/ulexec">GitHub</a>
-        
-
-        
-    </p>
-</footer>
-</body><link rel="stylesheet" href="/css/bootstrap.min.css">
-<link rel="stylesheet" href="/css/bootstrap-theme.min.css">
-<link rel="stylesheet" href="/css/style.css"> 
-<script src="/js/jquery.js"></script>
-<script src="/js/bootstrap.min.js"></script>
-
-<script>
+  
     
-    function ThisYear() {
-        document.getElementById('thisyear').innerHTML = new Date().getFullYear();
-    };
-</script>
-<script>	
-	
-(function(){
-  _386.magicCursor();
-  _386.scrollLock();
-  $('[data-toggle="tooltip"]').tooltip();
-  $('[data-toggle="popover"]').popover();
 
-  $(window).scroll(function() {
-    var top = $(document).scrollTop();
-    if(top > 50)
-      $('#home > .navbar').removeClass('navbar-transparent');
-    else
-      $('#home > .navbar').addClass('navbar-transparent');
-  });
+  
+</article>
 
-  $("a[href='#']").click(function(e) {
-    e.preventDefault();
-  });
+  </div>
 
-})();</script></html>
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+        <span>© 2023 Powered by <a href="https://gohugo.io">Hugo</a></span>
+    
+      <span>:: <a href="https://github.com/panr/hugo-theme-terminal" target="_blank">Theme</a> made by <a href="https://github.com/panr" target="_blank">panr</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>

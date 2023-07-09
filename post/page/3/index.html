@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>Posts :: ulexec.github.io</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="" />
+<meta name="keywords" content="" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="https://ulexec.github.io/post/" />
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="https://ulexec.github.io/styles.css">
+
+
+
+
+
+
+
+  <link rel="shortcut icon" href="https://ulexec.github.io/img/theme-colors/blue.png">
+  <link rel="apple-touch-icon" href="https://ulexec.github.io/img/theme-colors/blue.png">
+
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Posts">
+<meta property="og:description" content="" />
+<meta property="og:url" content="https://ulexec.github.io/post/" />
+<meta property="og:site_name" content="ulexec.github.io" />
+
+  
+    <meta property="og:image" content="https://ulexec.github.io/img/favicon/blue.png">
+  
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+
+
+
+
+  <link href="/post/index.xml" rel="alternate" type="application/rss+xml" title="ulexec.github.io" />
+
+
+
+
+
+
+
+
+
+</head>
+<body class="blue">
+
+
+<div class="container center headings--one-size">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/post/">
+  <div class="logo">
+    ulexec.github.io
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+        
+          <li><a href="/post/">Archives</a></li>
+        
+      
+        
+          <li><a href="/publications/">Publications</a></li>
+        
+      
+        
+          <li><a href="/projects/">Projects</a></li>
+        
+      
+        
+          <li><a href="/bugs/">Bugs</a></li>
+        
+      
+        
+          <li><a href="/about/">About</a></li>
+        
+      
+        
+          <li><a href="/about">About</a></li>
+        
+      
+      
+    </ul>
+  </li>
+</ul>
+
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+      
+        
+          <li><a href="/post/" >Archives</a></li>
+        
+      
+        
+          <li><a href="/publications/" >Publications</a></li>
+        
+      
+        
+          <li><a href="/projects/" >Projects</a></li>
+        
+      
+        
+          <li><a href="/bugs/" >Bugs</a></li>
+        
+      
+        
+          <li><a href="/about/" >About</a></li>
+        
+      
+      
+        <li>
+          <ul class="menu">
+            <li class="menu__trigger">&nbsp;▾</li>
+            <li>
+              <ul class="menu__dropdown">
+                
+                  
+                    <li><a href="/about" >About</a></li>
+                  
+                
+              </ul>
+            </li>
+          </ul>
+        </li>
+      
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+  
+  <div class="posts">
+    
+      <article class="post on-list">
+        <h1 class="post-title">
+          <a href="https://ulexec.github.io/post/2017-02-11-codegatectf2017-angrybird/">CodeGateCTF - Angrybird</a>
+        </h1>
+        <div class="post-meta"><time class="post-date">2017-02-11</time><span class="post-author">ulexec</span></div>
+
+        
+          <span class="post-tags">
+            
+            #<a href="https://ulexec.github.io/tags/reversing/">reversing</a>&nbsp;
+            
+            #<a href="https://ulexec.github.io/tags/ctf/">ctf</a>&nbsp;
+            
+          </span>
+        
+
+        
+
+
+        <div class="post-content">
+          
+            Angrybird was the first challenge that I solved on the 2017 CodeGate2017 CTF. There was no description for the challenge just a binary.
+When we opened the binary with IDA, we can see the graph overview of the main function:
+if we have a closer look at the call graph, every basic block is composed of a small check. if that check holds, then the flow of execution continues to the next block.
+          
+        </div>
+
+        
+          <div>
+            <a class="read-more button" href="/post/2017-02-11-codegatectf2017-angrybird/">Read more →</a>
+          </div>
+        
+      </article>
+    
+      <article class="post on-list">
+        <h1 class="post-title">
+          <a href="https://ulexec.github.io/post/2017-02-10-alexctf-packedmovement/">AlexCTF - PackedMovement</a>
+        </h1>
+        <div class="post-meta"><time class="post-date">2017-02-10</time><span class="post-author">ulexec</span></div>
+
+        
+          <span class="post-tags">
+            
+            #<a href="https://ulexec.github.io/tags/reversing/">reversing</a>&nbsp;
+            
+            #<a href="https://ulexec.github.io/tags/ctf/">ctf</a>&nbsp;
+            
+          </span>
+        
+
+        
+
+
+        <div class="post-content">
+          
+            PackedMovement was the last Reverse Engineering challenge on AlexCTF 2017. The puntuation of this challnege was of 350 points.
+The only hint given to this challenge was its name. You will see why later on in this writeup.
+The retrieved binary is called move. if we run the file command over it we find the following:
+move: ELF 32-bit LSB executable, Intel 80386, version 1 (GNU/Linux), statically linked, stripped Even more interesting is when we see the binaries segments with readelf -l move
+          
+        </div>
+
+        
+          <div>
+            <a class="read-more button" href="/post/2017-02-10-alexctf-packedmovement/">Read more →</a>
+          </div>
+        
+      </article>
+    
+      <article class="post on-list">
+        <h1 class="post-title">
+          <a href="https://ulexec.github.io/post/2016-12-19-sharifctf2016-nanomites/">SharifCTF7 - Nanomites</a>
+        </h1>
+        <div class="post-meta"><time class="post-date">2016-12-19</time><span class="post-author">ulexec</span></div>
+
+        
+          <span class="post-tags">
+            
+            #<a href="https://ulexec.github.io/tags/reversing/">reversing</a>&nbsp;
+            
+            #<a href="https://ulexec.github.io/tags/ctf/">ctf</a>&nbsp;
+            
+          </span>
+        
+
+        
+
+
+        <div class="post-content">
+          
+            Nanomites was a Reverse engineering challenge of 300 point in SharifCTF7. The specification of this problem was the following:
+Analyze the given file. Find the C&amp;C IP address and the data sent to it in plain text. Flag = SharifCTF{md5(strcat(IP, Data))}_ For the ones that coud not attend the competition, You can download the challenge from here.
+After running the command file against the binary, I got the following output:
+          
+        </div>
+
+        
+          <div>
+            <a class="read-more button" href="/post/2016-12-19-sharifctf2016-nanomites/">Read more →</a>
+          </div>
+        
+      </article>
+    
+
+    <div class="pagination">
+  <div class="pagination__buttons">
+    
+      <a href="/post/page/2/" class="button previous">
+        <span class="button__icon">←</span>
+        <span class="button__text">Newer posts</span>
+      </a>
+    
+    
+  </div>
+</div>
+
+  </div>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+        <span>© 2023 Powered by <a href="https://gohugo.io">Hugo</a></span>
+    
+      <span>:: <a href="https://github.com/panr/hugo-theme-terminal" target="_blank">Theme</a> made by <a href="https://github.com/panr" target="_blank">panr</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>

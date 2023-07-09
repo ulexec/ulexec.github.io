@@ -1,72 +1,207 @@
 <!DOCTYPE html>
-<html lang="en"><head>
-    <title>ulexec.github.io</title>
-    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-    <meta content="utf-8" http-equiv="encoding">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="format-detection" content="telephone=no" />
-    <meta name="theme-color" content="#000084" />
-    <link rel="icon" href="https://ulexec.github.io/favicon.ico">
-    <link rel="canonical" href="https://ulexec.github.io">
-    
-    
+<html lang="en">
+<head>
+  
+    <title>AlexCTF - PackedMovement :: ulexec.github.io</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="PackedMovement was the last Reverse Engineering challenge on AlexCTF 2017. The puntuation of this challnege was of 350 points.
+The only hint given to this challenge was its name. You will see why later on in this writeup.
+The retrieved binary is called move. if we run the file command over it we find the following:
+move: ELF 32-bit LSB executable, Intel 80386, version 1 (GNU/Linux), statically linked, stripped Even more interesting is when we see the binaries segments with readelf -l move" />
+<meta name="keywords" content="" />
+
+  <meta name="robots" content="noodp" />
+
+<link rel="canonical" href="https://ulexec.github.io/post/2017-02-10-alexctf-packedmovement/" />
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="https://ulexec.github.io/styles.css">
+
+
+
+
+
+
+
+  <link rel="shortcut icon" href="https://ulexec.github.io/img/theme-colors/blue.png">
+  <link rel="apple-touch-icon" href="https://ulexec.github.io/img/theme-colors/blue.png">
+
+
+
+<meta name="twitter:card" content="summary" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="AlexCTF - PackedMovement">
+<meta property="og:description" content="PackedMovement was the last Reverse Engineering challenge on AlexCTF 2017. The puntuation of this challnege was of 350 points.
+The only hint given to this challenge was its name. You will see why later on in this writeup.
+The retrieved binary is called move. if we run the file command over it we find the following:
+move: ELF 32-bit LSB executable, Intel 80386, version 1 (GNU/Linux), statically linked, stripped Even more interesting is when we see the binaries segments with readelf -l move" />
+<meta property="og:url" content="https://ulexec.github.io/post/2017-02-10-alexctf-packedmovement/" />
+<meta property="og:site_name" content="ulexec.github.io" />
+
+  
+    <meta property="og:image" content="https://ulexec.github.io/img/favicon/blue.png">
+  
+
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+
+  <meta property="article:section" content="writeup" />
+
+
+  <meta property="article:published_time" content="2017-02-10 00:00:00 &#43;0000 UTC" />
+
+
+
+
+
+
+
+
+
+
+
+
 </head>
-<body class="bootstra-enable-cursor ">
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <a class="navbar-brand" href="https://ulexec.github.io">ulexec.github.io</a>
-    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#main-nav" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div id="main-nav" class="collapse nav-collapse">
-        <ul class="navbar-nav">
-              
-            <li class="nav-item ">
-                <a class="nav-link" href="/post/">
-                                    
-                                    <span>Archives</span>
-                                </a>
-            </li>
-              
-            <li class="nav-item ">
-                <a class="nav-link" href="/publications/">
-                                    
-                                    <span>Publications</span>
-                                </a>
-            </li>
-              
-            <li class="nav-item ">
-                <a class="nav-link" href="/projects/">
-                                    
-                                    <span>Projects</span>
-                                </a>
-            </li>
-              
-            <li class="nav-item ">
-                <a class="nav-link" href="/bugs/">
-                                    
-                                    <span>Bugs</span>
-                                </a>
-            </li>
-              
-            <li class="nav-item ">
-                <a class="nav-link" href="/about/">
-                                    
-                                    <span>About</span>
-                                </a>
-            </li>
-             
-        </ul>
-    </div>
-    </div>
-    </div>
-</nav><div id="content" class="container">
+<body class="blue">
 
-<div class="row">
-    <div class="col">
 
-        <h1 class="mb-3">AlexCTF - PackedMovement - Fri, Feb 10, 2017</h1>
+<div class="container center headings--one-size">
 
-        <p class="lead"></p>
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/post/">
+  <div class="logo">
+    ulexec.github.io
+  </div>
+</a>
+
+    </div>
+    
+      <ul class="menu menu--mobile">
+  <li class="menu__trigger">Menu&nbsp;▾</li>
+  <li>
+    <ul class="menu__dropdown">
+      
+        
+          <li><a href="/post/">Archives</a></li>
+        
+      
+        
+          <li><a href="/publications/">Publications</a></li>
+        
+      
+        
+          <li><a href="/projects/">Projects</a></li>
+        
+      
+        
+          <li><a href="/bugs/">Bugs</a></li>
+        
+      
+        
+          <li><a href="/about/">About</a></li>
+        
+      
+        
+          <li><a href="/about">About</a></li>
+        
+      
+      
+    </ul>
+  </li>
+</ul>
+
+    
+    
+  </div>
+  
+    <nav class="navigation-menu">
+  <ul class="navigation-menu__inner menu--desktop">
+    
+      
+        
+          <li><a href="/post/" >Archives</a></li>
+        
+      
+        
+          <li><a href="/publications/" >Publications</a></li>
+        
+      
+        
+          <li><a href="/projects/" >Projects</a></li>
+        
+      
+        
+          <li><a href="/bugs/" >Bugs</a></li>
+        
+      
+        
+          <li><a href="/about/" >About</a></li>
+        
+      
+      
+        <li>
+          <ul class="menu">
+            <li class="menu__trigger">&nbsp;▾</li>
+            <li>
+              <ul class="menu__dropdown">
+                
+                  
+                    <li><a href="/about" >About</a></li>
+                  
+                
+              </ul>
+            </li>
+          </ul>
+        </li>
+      
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<article class="post">
+  <h1 class="post-title">
+    <a href="https://ulexec.github.io/post/2017-02-10-alexctf-packedmovement/">AlexCTF - PackedMovement</a>
+  </h1>
+  <div class="post-meta"><time class="post-date">2017-02-10</time><span class="post-author">ulexec</span></div>
+
+  
+    <span class="post-tags">
+      
+      #<a href="https://ulexec.github.io/tags/reversing/">reversing</a>&nbsp;
+      
+      #<a href="https://ulexec.github.io/tags/ctf/">ctf</a>&nbsp;
+      
+    </span>
+  
+  
+
+
+  
+
+  <div class="post-content"><div>
         <p><code>PackedMovement</code> was the last Reverse Engineering challenge on <code>AlexCTF 2017</code>. The puntuation of this challnege was of <code>350</code> points.</p>
 <p>The only hint given to this challenge was its name. You will see why later on in this writeup.</p>
 <p>The retrieved binary is called <code>move</code>. if we run the <code>file</code> command over it we find the following:</p>
@@ -220,86 +355,43 @@ Both of these registers will then be loaded into the <code>ALU</code> module of 
 </span></span><span style="display:flex;"><span>print <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n\n</span><span style="color:#e6db74">&#34;</span>, flag</span></span></code></pre></div>
 <p>By Executing the previous script we will get the flag :<code>ALEXCTF{M0Vfusc4t0r_w0rk5_l1ke_m4g1c}</code></p>
 
+      </div></div>
 
-    </div>
-</div>
-<div class="row align-center">
-    <div class="col">
-        <a href="https://ulexec.github.io" class="btn btn-primary btn-lg">Back to Home</a>
-    </div>
-</div>
+  
 
-
-    </div><footer class="container">
-    <hr class="soften" />
-    <p class="text-center">
-    Content Licensed under <a href="">MIT</a> | 
-
-
-&copy;&nbsp;
-
-
-
-    Ignacio Sanmillan
-
-
-
-<span id="thisyear">
-    2023
-</span>
-
-
-
-
-</p>
-    <p class="text-center">
-        
-
-        
-            <a href="https://twitter.com/ulexec">Twitter</a>
-        
-
-        
-            <a href="https://linkedin.com/in/ignacio-sanmillan-1aa244b8">Linkedin</a>
-        
-
-        
-            <a href="https://github.com/ulexec">GitHub</a>
-        
-
-        
-    </p>
-</footer>
-</body><link rel="stylesheet" href="/css/bootstrap.min.css">
-<link rel="stylesheet" href="/css/bootstrap-theme.min.css">
-<link rel="stylesheet" href="/css/style.css"> 
-<script src="/js/jquery.js"></script>
-<script src="/js/bootstrap.min.js"></script>
-
-<script>
+  
     
-    function ThisYear() {
-        document.getElementById('thisyear').innerHTML = new Date().getFullYear();
-    };
-</script>
-<script>	
-	
-(function(){
-  _386.magicCursor();
-  _386.scrollLock();
-  $('[data-toggle="tooltip"]').tooltip();
-  $('[data-toggle="popover"]').popover();
 
-  $(window).scroll(function() {
-    var top = $(document).scrollTop();
-    if(top > 50)
-      $('#home > .navbar').removeClass('navbar-transparent');
-    else
-      $('#home > .navbar').addClass('navbar-transparent');
-  });
+  
+</article>
 
-  $("a[href='#']").click(function(e) {
-    e.preventDefault();
-  });
+  </div>
 
-})();</script></html>
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+        <span>© 2023 Powered by <a href="https://gohugo.io">Hugo</a></span>
+    
+      <span>:: <a href="https://github.com/panr/hugo-theme-terminal" target="_blank">Theme</a> made by <a href="https://github.com/panr" target="_blank">panr</a></span>
+      </div>
+  </div>
+</footer>
+
+
+
+
+
+
+<script type="text/javascript" src="/bundle.min.js"></script>
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>
