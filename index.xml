@@ -192,11 +192,9 @@ elf_rela_obfuscation A small PoC of an EPO technique abusing Elf64_Rela relocati
       <pubDate>Tue, 20 Jun 2023 21:38:52 +0800</pubDate>
       
       <guid>https://ulexec.github.io/about/</guid>
-      <description>Heya! My name is Ignacio Sanmillan, I’m a Security Researcher experienced in Malware Analysis, Forensics and Threat Intelligence.
-Nowadays I´m mostly focused in *OS and browser security.
+      <description>My name is Ignacio Sanmillan, I’m a Security Researcher, Nowadays mostly focused in *OS and browser security.
 I´m available at Signal, Telegram and Twitter for any enquiries.</description>
-      <content>&lt;p&gt;Heya! My name is Ignacio Sanmillan, I’m a Security Researcher experienced in Malware Analysis, Forensics and Threat Intelligence.&lt;/p&gt;
-&lt;p&gt;Nowadays I´m mostly focused in *OS and browser security.&lt;/p&gt;
+      <content>&lt;p&gt;My name is Ignacio Sanmillan, I’m a Security Researcher, Nowadays mostly focused in *OS and browser security.&lt;/p&gt;
 &lt;p&gt;I´m available at Signal, Telegram and Twitter for any enquiries.&lt;/p&gt;
 </content>
     </item>
