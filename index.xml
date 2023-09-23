@@ -14,66 +14,60 @@
       <pubDate>Tue, 20 Jun 2023 21:38:52 +0800</pubDate>
       
       <guid>https://ulexec.github.io/publications/</guid>
-      <description>Public Papers, Publications and Talks Kobalos – A complex Linux threat to high performance computing infrastructure - (2021-02) ESET researchers publish a white paper about unique multiplatform malware they’ve named Kobalos Operation NightScout: Supply‑chain attack targets online gaming in Asia - (2021-02) ESET researchers uncover a supply-chain attack used in a cyberespionage operation targeting online‑gaming communities in Asia Operation SignSight: Supply‑chain attack against a certification authority in Southeast Asia &amp;rsquo; (2020-12) ESET researchers have uncovered a supply-chain attack on the website of a government in Southeast Asia.</description>
+      <description>Public Papers, Publications and Talks Kobalos – A complex Linux threat to high performance computing infrastructure - (2021-02) A white paper about an unique multiplatform malware Operation NightScout: Supply‑chain attack targets online gaming in Asia - (2021-02) A supply-chain attack used in a cyberespionage operation targeting online‑gaming communities in Asia Operation SignSight: Supply‑chain attack against a certification authority in Southeast Asia &amp;rsquo; (2020-12) A supply-chain attack on the website of a government in Southeast Asia.</description>
       <content>&lt;h2 id=&#34;public-papers-publications-and-talks&#34;&gt;Public Papers, Publications and Talks&lt;/h2&gt;
 &lt;h3 id=&#34;kobalos--a-complex-linux-threat-to-high-performance-computing-infrastructure---2021-02httpswwwwelivesecuritycom20210202kobalos-complex-linux-threat-high-performance-computing-infrastructure&#34;&gt;&lt;a href=&#34;https://www.welivesecurity.com/2021/02/02/kobalos-complex-linux-threat-high-performance-computing-infrastructure/&#34;&gt;Kobalos – A complex Linux threat to high performance computing infrastructure - (2021-02)&lt;/a&gt;&lt;/h3&gt;
 &lt;ul&gt;
-&lt;li&gt;ESET researchers publish a white paper about unique multiplatform malware they’ve named Kobalos&lt;/li&gt;
+&lt;li&gt;A white paper about an unique multiplatform malware&lt;/li&gt;
 &lt;/ul&gt;
 &lt;hr&gt;
 &lt;h3 id=&#34;operation-nightscout-supplychain-attack-targets-online-gaming-in-asia---2021-02httpswwwwelivesecuritycom20210201operation-nightscout-supply-chain-attack-online-gaming-asia&#34;&gt;&lt;a href=&#34;https://www.welivesecurity.com/2021/02/01/operation-nightscout-supply-chain-attack-online-gaming-asia/&#34;&gt;Operation NightScout: Supply‑chain attack targets online gaming in Asia - (2021-02)&lt;/a&gt;&lt;/h3&gt;
 &lt;ul&gt;
-&lt;li&gt;ESET researchers uncover a supply-chain attack used in a cyberespionage operation targeting online‑gaming communities in Asia&lt;/li&gt;
+&lt;li&gt;A supply-chain attack used in a cyberespionage operation targeting online‑gaming communities in Asia&lt;/li&gt;
 &lt;/ul&gt;
 &lt;hr&gt;
 &lt;h3 id=&#34;operation-signsight-supplychain-attack-against-a-certification-authority-in-southeast-asia--2020-12httpswwwwelivesecuritycom20201217operation-signsight-supply-chain-attack-southeast-asia&#34;&gt;&lt;a href=&#34;https://www.welivesecurity.com/2020/12/17/operation-signsight-supply-chain-attack-southeast-asia/&#34;&gt;Operation SignSight: Supply‑chain attack against a certification authority in Southeast Asia &amp;rsquo; (2020-12)&lt;/a&gt;&lt;/h3&gt;
 &lt;ul&gt;
-&lt;li&gt;ESET researchers have uncovered a supply-chain attack on the website of a government in Southeast Asia.&lt;/li&gt;
+&lt;li&gt;A supply-chain attack on the website of a government in Southeast Asia.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;hr&gt;
 &lt;h3 id=&#34;ramsay-a-cyberespionage-toolkit-tailored-for-airgapped-networks---2020-05httpswwwwelivesecuritycom20200513ramsay-cyberespionage-toolkit-airgapped-networks&#34;&gt;&lt;a href=&#34;https://www.welivesecurity.com/2020/05/13/ramsay-cyberespionage-toolkit-airgapped-networks/&#34;&gt;Ramsay: A cyber‑espionage toolkit tailored for air‑gapped networks - (2020-05)&lt;/a&gt;&lt;/h3&gt;
 &lt;ul&gt;
-&lt;li&gt;ESET researchers uncover several instances of malware that uses various attack vectors to target systems isolated by an air gap&lt;/li&gt;
+&lt;li&gt;An implant designed to operate and spread through air-gapped networks&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://www.youtube.com/watch?v=SKIu4LqMrns&#34;&gt;Presentation&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://www.virusbulletin.com/blog/2020/11/vb2020-presentation-ramsay-cyber-espionage-toolkit-tailored-air-gapped-networks/&#34;&gt;WhitePaper&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;hr&gt;
 &lt;h3 id=&#34;linuxrekoobe-operating-undetected---01-2020httpsintezercomblogresearchlinux-rekoobe-operating-with-new-undetected-malware-samples&#34;&gt;&lt;a href=&#34;https://intezer.com/blog/research/linux-rekoobe-operating-with-new-undetected-malware-samples/&#34;&gt;Linux.Rekoobe Operating Undetected - (01-2020)&lt;/a&gt;&lt;/h3&gt;
 &lt;ul&gt;
-&lt;li&gt;New versions of an old Linux malware known as Rekoobe, were found ITW. Rekoobe is a minimalistic trojan with a complex CNC authentication protocol originally targeting SPARC and Intel x86, x86-64 systems back in 2015.&lt;/li&gt;
+&lt;li&gt;Rekoobe is a minimalistic trojan with a complex CNC authentication protocol originally targeting SPARC and Intel x86, x86-64 systems back in 2015, reemerging in early 2020.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;hr&gt;
 &lt;h3 id=&#34;elf-crafting-uncovering-advance-anti-analysis-techniques-for-the-linux-platform-r2con2019httpswwwyoutubecomwatchvadyoso0tn9m&#34;&gt;&lt;a href=&#34;https://www.youtube.com/watch?v=adYOSO0tn9M&#34;&gt;ELF Crafting. Uncovering Advance Anti-analysis techniques for the Linux Platform (r2con2019)&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;A presentation covering the intricacies of the ELF file format, and how could it be abused by threat-actors to make their malware more challenging to analyze for malware researchers.&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;https://www.youtube.com/watch?v=adYOSO0tn9M&#34;&gt;Presentation&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://github.com/radareorg/r2con2019/blob/c66e4e00398cc39654ed234f551844f14345d3f4/talks/elf_crafting/ELF_Crafting_ulexec.pdf&#34;&gt;Slides&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;hr&gt;
-&lt;h3 id=&#34;chinaz-new-undetected-toolset---12-2019httpsintezercomblogresearchchinaz-updates-toolkit-by-introducing-new-undetected-malware&#34;&gt;&lt;a href=&#34;https://intezer.com/blog/research/chinaz-updates-toolkit-by-introducing-new-undetected-malware/&#34;&gt;ChinaZ New Undetected Toolset - (12-2019)&lt;/a&gt;&lt;/h3&gt;
+&lt;h3 id=&#34;chinaz-updates-toolset---12-2019httpsintezercomblogresearchchinaz-updates-toolkit-by-introducing-new-undetected-malware&#34;&gt;&lt;a href=&#34;https://intezer.com/blog/research/chinaz-updates-toolkit-by-introducing-new-undetected-malware/&#34;&gt;ChinaZ updates toolset - (12-2019)&lt;/a&gt;&lt;/h3&gt;
 &lt;ul&gt;
-&lt;li&gt;New samples of ChinaZ, a Chinese-speaking cybercrime group were discovered ITW.&lt;/li&gt;
+&lt;li&gt;Analysis of new samples of ChinaZ, a Chinese-speaking cybercrime group authors of Elknot, and BillGates among other botnets.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;hr&gt;
-&lt;h3 id=&#34;exploring-links-between-east-asian-cybercrime-groups---12-2019httpsintezercomblogresearchexploring-the-chinese-ddos-threat-landscape&#34;&gt;&lt;a href=&#34;https://intezer.com/blog/research/exploring-the-chinese-ddos-threat-landscape/&#34;&gt;Exploring links between East Asian Cybercrime groups - (12-2019)&lt;/a&gt;&lt;/h3&gt;
+&lt;h3 id=&#34;acbackdoor---the-story-of-a-multiplatform-trojan---10-2019httpsintezercomblogresearchacbackdoor-analysis-of-a-new-multiplatform-backdoor&#34;&gt;&lt;a href=&#34;https://intezer.com/blog/research/acbackdoor-analysis-of-a-new-multiplatform-backdoor/&#34;&gt;ACBackdoor - The story of a multiplatform trojan - (10-2019)&lt;/a&gt;&lt;/h3&gt;
 &lt;ul&gt;
-&lt;li&gt;An overview of Chinese state-sponsored DDoS operations and relationships between  Chinese Cybercrime groups.&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://www.youtube.com/watch?v=Pj9Zt6C2ong&#34;&gt;Presentation&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://www.virusbulletin.com/virusbulletin/2019/12/vb2019-paper-exploring-chinese-ddos-threat-landscape/&#34;&gt;WhitePaper&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;hr&gt;
-&lt;h3 id=&#34;acbackdoor---a-multiplatform-backdoor---10-2019httpsintezercomblogresearchacbackdoor-analysis-of-a-new-multiplatform-backdoor&#34;&gt;&lt;a href=&#34;https://intezer.com/blog/research/acbackdoor-analysis-of-a-new-multiplatform-backdoor/&#34;&gt;ACBackdoor - A multiplatform Backdoor - (10-2019)&lt;/a&gt;&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;An Analysis of a Linux backdoor which did not have any known connections to other threat groups at the team.&lt;/li&gt;
+&lt;li&gt;Analysis of a Linux trojan in which authors tried to port to Windows.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;hr&gt;
 &lt;h3 id=&#34;how-we-disrupted-15-active-ransomware-campaigns-targeting-linux-file-storage-servers---07-2019httpsintezercomblogresearchseizing-15-active-ransomware-campaigns-targeting-linux-file-storage-servers&#34;&gt;&lt;a href=&#34;https://intezer.com/blog/research/seizing-15-active-ransomware-campaigns-targeting-linux-file-storage-servers/&#34;&gt;How we disrupted 15 active ransomware campaigns targeting Linux file-storage servers - (07-2019)&lt;/a&gt;&lt;/h3&gt;
 &lt;ul&gt;
-&lt;li&gt;How we detected and temporarily DoS’d the operation of a ransomware group targeting Linux-based file storage systems (NAS servers).&lt;/li&gt;
+&lt;li&gt;How to temporarily DoS’d the operation of a ransomware targeting Linux-based file storage systems (NAS servers) abusing on a bug in the logic of the malware.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;hr&gt;
 &lt;h3 id=&#34;watching-the-watchbog-new-cython-sample-and-linux-exploits---07-2019httpsintezercomblogresearchwatching-the-watchbog-new-bluekeep-scanner-and-linux-exploits&#34;&gt;&lt;a href=&#34;https://intezer.com/blog/research/watching-the-watchbog-new-bluekeep-scanner-and-linux-exploits/&#34;&gt;Watching the Watchbog, new Cython sample and Linux Exploits - (07-2019)&lt;/a&gt;&lt;/h3&gt;
 &lt;ul&gt;
-&lt;li&gt;Analysis of a new version of Linux.WatchBog writen in Cython that was suspected to have compromised more than 4,500 Linux machines in newer campaigns.&lt;/li&gt;
+&lt;li&gt;Analysis of a new version of Linux.WatchBog writen in Cython that was suspected to have compromised more than 4,500 linux machines, highlighting how effective Cython could be for obfuscation purposes.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;hr&gt;
 &lt;h3 id=&#34;hiddenwasp---linux-implant-targeting-linux-systems---95-2019httpsintezercomblogresearchhiddenwasp-malware-targeting-linux-systems&#34;&gt;&lt;a href=&#34;https://intezer.com/blog/research/hiddenwasp-malware-targeting-linux-systems/&#34;&gt;HiddenWasp - Linux implant targeting Linux systems - (95-2019)&lt;/a&gt;&lt;/h3&gt;
@@ -81,19 +75,19 @@
 &lt;li&gt;Analysis of a Linux implant with ties to Winnti malware used by Chinese state-nexus actors.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;hr&gt;
-&lt;h3 id=&#34;war-in-the-cloud-east-asian-cybercrime-actors-compete-for-foothold---05-2019httpsintezercomblogresearchtechnical-analysis-cryptocurrency-mining-war-on-the-cloud&#34;&gt;&lt;a href=&#34;https://intezer.com/blog/research/technical-analysis-cryptocurrency-mining-war-on-the-cloud/&#34;&gt;War in the cloud: East Asian Cybercrime actors compete for foothold - (05-2019)&lt;/a&gt;&lt;/h3&gt;
+&lt;h3 id=&#34;war-in-the-cloud-east-asian-cybercrime-actors-compete-for-persistance---05-2019httpsintezercomblogresearchtechnical-analysis-cryptocurrency-mining-war-on-the-cloud&#34;&gt;&lt;a href=&#34;https://intezer.com/blog/research/technical-analysis-cryptocurrency-mining-war-on-the-cloud/&#34;&gt;War in the cloud: East Asian Cybercrime actors compete for persistance - (05-2019)&lt;/a&gt;&lt;/h3&gt;
 &lt;ul&gt;
-&lt;li&gt;Pacha Group, a group targeting cloud-based environments was caught conducting great efforts to disrupt other crypto-mining groups, namely Rocke Group who was also known to target cloud environments.&lt;/li&gt;
+&lt;li&gt;Pacha Group, a Chinese-speaking group targeting cloud-based infrastructure was disrupting foothold of other crypto-mining groups, namely Rocke Group/Iron Group which was also known to target cloud environments at the time.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;hr&gt;
 &lt;h3 id=&#34;analysis-of-pacha-group-unconventional-toolset---02-2019httpsintezercomblogresearchtechnical-analysis-pacha-group&#34;&gt;&lt;a href=&#34;https://intezer.com/blog/research/technical-analysis-pacha-group/&#34;&gt;Analysis of Pacha Group unconventional toolset - (02-2019)&lt;/a&gt;&lt;/h3&gt;
 &lt;ul&gt;
-&lt;li&gt;Techniques showcased by this threat actor where unconventional, and had no ties with other known treat actor at the time.&lt;/li&gt;
+&lt;li&gt;Pacha Group, a suspected Chinese-speaking ecrime group showcased unconventional Linux malware at the time, with no ties to other known threat actors.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;hr&gt;
 &lt;h3 id=&#34;muhstik-reloaded---new-linux-variants-target-phpmyadmin-servers---11-2018httpsintezercomblogresearchmuhstik-botnet-reloaded-new-variants-targeting-phpmyadmin-servers&#34;&gt;&lt;a href=&#34;https://intezer.com/blog/research/muhstik-botnet-reloaded-new-variants-targeting-phpmyadmin-servers/&#34;&gt;Muhstik reloaded - New Linux variants target phpmyadmin servers - (11-2018)&lt;/a&gt;&lt;/h3&gt;
 &lt;ul&gt;
-&lt;li&gt;This was my first public malware analysis report, and its here for historic purposes :)&lt;/li&gt;
+&lt;li&gt;This was my first public malware analysis report, nothing too special really. Staying here for historic purposes&lt;/li&gt;
 &lt;/ul&gt;
 &lt;hr&gt;
 &lt;h3 id=&#34;elf-101-part-3---04-2018httpsintezercomblogresearchexecutable-and-linkable-format-101-part-3-relocations&#34;&gt;&lt;a href=&#34;https://intezer.com/blog/research/executable-and-linkable-format-101-part-3-relocations/&#34;&gt;ELF 101: Part 3 - (04-2018)&lt;/a&gt;&lt;/h3&gt;
@@ -102,7 +96,8 @@
 &lt;hr&gt;
 &lt;h3 id=&#34;elf-101-part-1---01-2018httpsintezercomblogresearchexecutable-linkable-format-101-part1-sections-segments&#34;&gt;&lt;a href=&#34;https://intezer.com/blog/research/executable-linkable-format-101-part1-sections-segments/&#34;&gt;ELF 101: Part 1 - (01-2018)&lt;/a&gt;&lt;/h3&gt;
 &lt;hr&gt;
-&lt;h3 id=&#34;glibc-heap-analysis-with-radare2-r2con2016httpswwwyoutubecomwatchvsvm5v4leeho&#34;&gt;&lt;a href=&#34;https://www.youtube.com/watch?v=Svm5V4leEho&#34;&gt;Glibc Heap Analysis with Radare2 (r2con2016)&lt;/a&gt;&lt;/h3&gt;
+&lt;h3 id=&#34;glibc-heap-analysis-with-radare2-r2con2016httpswwwyoutubecomwatchvsvm5v4leeho&#34;&gt;&lt;a href=&#34;https://www.youtube.com/watch?v=Svm5V4leEho&#34;&gt;glibc heap analysis with Radare2 (r2con2016)&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;Talk intended to document the internals of the Linux heap layout formed by the glibc malloc dynamic memory allocator algorithm along with its analysis using radare2.&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;https://www.youtube.com/watch?v=Svm5V4leEho&#34;&gt;Presentation&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://github.com/radareorg/r2con2016/blob/03f27eba5410e9edaa517af3be8c7a4cc06cedb1/talks/05-HeapAnalysis/HeapAnalysis_r2.pdf&#34;&gt;Slides&lt;/a&gt;&lt;/li&gt;
@@ -164,11 +159,11 @@ elf_rela_obfuscation A small PoC of an EPO technique abusing Elf64_Rela relocati
     </item>
     
     <item>
-      <title>Bugs</title>
-      <link>https://ulexec.github.io/bugs/</link>
+      <title>Advisories</title>
+      <link>https://ulexec.github.io/advisories/</link>
       <pubDate>Tue, 20 Jun 2023 21:38:52 +0800</pubDate>
       
-      <guid>https://ulexec.github.io/bugs/</guid>
+      <guid>https://ulexec.github.io/advisories/</guid>
       <description>Publicly Reported Vulnerabilities CVE-2023-32402 (WebKit) Impact: Processing web content may disclose sensitive information Description: An out-of-bounds read in WebKit was addressed with improved input validation. CVE-2023-32423 (WebKit) Impact: Processing web content may disclose sensitive information Description: A buffer overflow issue was addressed with improved memory handling. </description>
       <content>&lt;h2 id=&#34;publicly-reported-vulnerabilities&#34;&gt;Publicly Reported Vulnerabilities&lt;/h2&gt;
 &lt;h3 id=&#34;cve-2023-32402-webkithttpssupportapplecomen-usht213762&#34;&gt;&lt;a href=&#34;https://support.apple.com/en-us/HT213762&#34;&gt;CVE-2023-32402 (WebKit)&lt;/a&gt;&lt;/h3&gt;
@@ -192,9 +187,9 @@ elf_rela_obfuscation A small PoC of an EPO technique abusing Elf64_Rela relocati
       <pubDate>Tue, 20 Jun 2023 21:38:52 +0800</pubDate>
       
       <guid>https://ulexec.github.io/about/</guid>
-      <description>My name is Ignacio Sanmillan, I’m a Security Researcher, Nowadays mostly focused in *OS and browser security.
+      <description>My name is Ignacio Sanmillan, I’m a Security Researcher mostly focused in *OS and browser security.
 I´m available at Signal, Telegram and Twitter for any enquiries.</description>
-      <content>&lt;p&gt;My name is Ignacio Sanmillan, I’m a Security Researcher, Nowadays mostly focused in *OS and browser security.&lt;/p&gt;
+      <content>&lt;p&gt;My name is Ignacio Sanmillan, I’m a Security Researcher mostly focused in *OS and browser security.&lt;/p&gt;
 &lt;p&gt;I´m available at Signal, Telegram and Twitter for any enquiries.&lt;/p&gt;
 </content>
     </item>
@@ -5572,10 +5567,10 @@ We can apply either of these approaches accordingly to chose the predicate that 
     
     <item>
       <title></title>
-      <link>https://ulexec.github.io/archives/</link>
+      <link>https://ulexec.github.io/posts/</link>
       <pubDate>Tue, 28 May 2019 00:00:00 +0000</pubDate>
       
-      <guid>https://ulexec.github.io/archives/</guid>
+      <guid>https://ulexec.github.io/posts/</guid>
       <description></description>
       <content></content>
     </item>
