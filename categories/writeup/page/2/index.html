@@ -1,344 +1,173 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  
-    <title>writeup :: ulexec.github.io</title>
-  
-  <meta http-equiv="content-type" content="text/html; charset=utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="" />
-<meta name="keywords" content="" />
+<html lang="en"
+  dir="ltr">
 
-  <meta name="robots" content="noodp" />
-
-<link rel="canonical" href="https://ulexec.github.io/categories/writeup/" />
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
 
 
 
+<link rel="icon" type="image/ico" href="http://localhost:1313//favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313//favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313//favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="http://localhost:1313//android-chrome-192x192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="http://localhost:1313//apple-touch-icon.png">
+
+<link rel="alternate" type="application/rss+xml" href="http://localhost:1313/categories/writeup/index.xml" title="ulexec.github.io">
+<meta name="description" content=""/>
 
 
 
-  
-  
-  
-  
-  
-  <link rel="stylesheet" href="https://ulexec.github.io/styles.css">
+<title>
+    
+    Writeup | ulexec.github.io
+    
+</title>
 
+<link rel="canonical" href="http://localhost:1313/categories/writeup/"/>
 
-
-
-
-
-
-  <link rel="shortcut icon" href="https://ulexec.github.io/img/theme-colors/orange.png">
-  <link rel="apple-touch-icon" href="https://ulexec.github.io/img/theme-colors/orange.png">
-
-
-
-<meta name="twitter:card" content="summary" />
-
-
-
-<meta property="og:locale" content="en" />
-<meta property="og:type" content="website" />
-<meta property="og:title" content="writeup">
-<meta property="og:description" content="" />
-<meta property="og:url" content="https://ulexec.github.io/categories/writeup/" />
-<meta property="og:site_name" content="ulexec.github.io" />
-
-  
-    <meta property="og:image" content="https://ulexec.github.io/img/favicon/orange.png">
-  
-
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="627">
+<meta property="og:url" content="http://localhost:1313/categories/writeup/">
+  <meta property="og:site_name" content="ulexec.github.io">
+  <meta property="og:title" content="Writeup">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="website">
 
 
 
 
 
-  <link href="/categories/writeup/index.xml" rel="alternate" type="application/rss+xml" title="ulexec.github.io" />
 
 
 
-
+<link rel="stylesheet" href="/assets/combined.min.db1f6bdda2e5a4d5c9a316aa295aaeba691b0d6154397bbb6787fea95b273e6a.css" media="all">
 
 
 
 
 
 </head>
-<body class="orange">
 
 
-<div class="container center headings--one-size">
 
-  <header class="header">
-  <div class="header__inner">
-    <div class="header__logo">
-      <a href="/post/">
-  <div class="logo">
-    ulexec.github.io
-  </div>
-</a>
 
-    </div>
-    
-      <ul class="menu menu--mobile">
-  <li class="menu__trigger">Menu&nbsp;▾</li>
-  <li>
-    <ul class="menu__dropdown">
-      
-        
-          <li><a href="/post/">Posts</a></li>
-        
-      
-        
-          <li><a href="/publications/">Publications</a></li>
-        
-      
-        
-          <li><a href="/projects/">Projects</a></li>
-        
-      
-        
-          <li><a href="/advisories/">Advisories</a></li>
-        
-      
-        
-          <li><a href="/about/">About</a></li>
-        
-      
-      
-    </ul>
-  </li>
-</ul>
 
-    
-    
-  </div>
-  
-    <nav class="navigation-menu">
-  <ul class="navigation-menu__inner menu--desktop">
-    
-      
-        
-          <li><a href="/post/" >Posts</a></li>
-        
-      
-        
-          <li><a href="/publications/" >Publications</a></li>
-        
-      
-        
-          <li><a href="/projects/" >Projects</a></li>
-        
-      
-        
-          <li><a href="/advisories/" >Advisories</a></li>
-        
-      
-        
-          <li><a href="/about/" >About</a></li>
-        
-      
-      
-    
-  </ul>
-</nav>
-
-  
-</header>
-
+<body class="auto">
 
   <div class="content">
-    
-  <h1>Posts for: #writeup</h1>
-  
-  <div class="posts">
-    
-      <article class="post on-list">
-        <h1 class="post-title">
-          <a href="https://ulexec.github.io/post/2021-04-08-shelfloading/">SHELF Loading</a>
-        </h1>
-        <div class="post-meta"><time class="post-date">2021-04-08</time><span class="post-author">ulexec</span></div>
+    <header>
+      
 
-        
-          <span class="post-tags">
-            
-            #<a href="https://ulexec.github.io/tags/reversing/">reversing</a>&nbsp;
-            
-            #<a href="https://ulexec.github.io/tags/malware/">malware</a>&nbsp;
-            
-          </span>
-        
+<div class="header">
 
-        
-
-
-        <div class="post-content">
-          
-            SHELF Loading is a new type of ELF binary reflective loading that my colleague @Anonymous_ and I first documented on April 21st 2021. This new ELF reflective loading methodology enables the capability to generate compiler-based artifacts with properties that resemble those of shellcode. These compiler-based artifacts are ultimately a Hybrid ELF file between conventional static and PIE binaries. Had the pleasure to publish this research at Tmp0ut, a Linux VX zine.
-          
-        </div>
-
-        
-          <div>
-            <a class="read-more button" href="/post/2021-04-08-shelfloading/">Read more →</a>
-          </div>
-        
-      </article>
-    
-      <article class="post on-list">
-        <h1 class="post-title">
-          <a href="https://ulexec.github.io/post/2020-03-03-deobfuscation_1/">Tales Of Binary Deobfuscation</a>
-        </h1>
-        <div class="post-meta"><time class="post-date">2020-03-03</time><span class="post-author">ulexec</span></div>
-
-        
-          <span class="post-tags">
-            
-            #<a href="https://ulexec.github.io/tags/reversing/">reversing</a>&nbsp;
-            
-            #<a href="https://ulexec.github.io/tags/malware/">malware</a>&nbsp;
-            
-          </span>
-        
-
-        
-
-
-        <div class="post-content">
-          
-            This article is going to serve as my personal reference on this topic. Since I&rsquo;ve always wanted to write about it and just finished Yuma Kurogome&rsquo;s course on Advance Binary Deobfuscation, I thought it would be a good time to write notes regarding what I learned in this course with a fresh state of mind on the subject matter for future reference.
-Introduction There are close to 31 known code transformations.
-          
-        </div>
-
-        
-          <div>
-            <a class="read-more button" href="/post/2020-03-03-deobfuscation_1/">Read more →</a>
-          </div>
-        
-      </article>
-    
-      <article class="post on-list">
-        <h1 class="post-title">
-          <a href="https://ulexec.github.io/post/2017-11-17-unpacking_a_linux_tsunami_sample/">Dissecting the Internals of custom Linux Binary Packers</a>
-        </h1>
-        <div class="post-meta"><time class="post-date">2017-11-17</time><span class="post-author">ulexec</span></div>
-
-        
-          <span class="post-tags">
-            
-            #<a href="https://ulexec.github.io/tags/reversing/">reversing</a>&nbsp;
-            
-            #<a href="https://ulexec.github.io/tags/malware/">malware</a>&nbsp;
-            
-          </span>
-        
-
-        
-
-
-        <div class="post-content">
-          
-            Overview In this writeup we&rsquo;re going to unpack a Tsunami malware sample packed with a modified version of UPX. Hashes of this specific sample are the following:
-SHA256: f22ffc07e0cc907f00fd6a4ecee09fe8411225badb2289c1bffa867a2a3bd863 SHA1: 76584c9a22835353186e753903ee0a853663bd83 MD5: 171edd284f6a19c6ed3fe010b79c94af In VirusTotal the malware is identified as a Tsunami Variant for the most part:
-Is common in Linux systems to encounter packed malware with UPX. I then tried to see if I could find the UPX magic in the file.
-          
-        </div>
-
-        
-          <div>
-            <a class="read-more button" href="/post/2017-11-17-unpacking_a_linux_tsunami_sample/">Read more →</a>
-          </div>
-        
-      </article>
-    
-      <article class="post on-list">
-        <h1 class="post-title">
-          <a href="https://ulexec.github.io/post/2017-11-06-hitconctf2017-everlasting-imaginative-void/">Hitcon2017CTF - 家徒四壁~Everlasting Imaginative Void~</a>
-        </h1>
-        <div class="post-meta"><time class="post-date">2017-11-06</time><span class="post-author">ulexec</span></div>
-
-        
-          <span class="post-tags">
-            
-            #<a href="https://ulexec.github.io/tags/reversing/">reversing</a>&nbsp;
-            
-            #<a href="https://ulexec.github.io/tags/ctf/">ctf</a>&nbsp;
-            
-          </span>
-        
-
-        
-
-
-        <div class="post-content">
-          
-            Everlasting Imaginative void was a Hitcon2017&rsquo;s reversing challenge worthing 300 points. The challenge description was the following:
-Astonishingly impoverished elf
-Not much information. Executing a file command, we get the following information:
-n4x0r@pwn1e~$ file void-1b63cbab5d58da4294c2f97d6b60f568 void-1b63cbab5d58da4294c2f97d6b60f568: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 2.6.32, BuildID[sha1]=5f8a87150720003c217508ffd74883c715ffe7c3, stripped If we execute the file we see the following:
-n4x0r@pwn1e~$ ./void-1b63cbab5d58da4294c2f97d6b60f568 blabla hitcon{blabla} Ok, Lets dig inside and see what we can find.
-          
-        </div>
-
-        
-          <div>
-            <a class="read-more button" href="/post/2017-11-06-hitconctf2017-everlasting-imaginative-void/">Read more →</a>
-          </div>
-        
-      </article>
     
 
-    <div class="pagination">
-  <div class="pagination__buttons">
+    <h1 class="header-title">
+        <a href="http://localhost:1313/">ulexec.github.io</a>
+    </h1>
+
+    <div class="flex">
+        
+
+        
+    </div>
+
     
-      <a href="/categories/writeup/" class="button previous">
-        <span class="button__icon">←</span>
-        <span class="button__text">Newer posts</span>
-      </a>
-    
-    
-      <a href="/categories/writeup/page/3/" class="button next">
-        <span class="button__text">Older posts</span>
-        <span class="button__icon">→</span>
-      </a>
-    
-  </div>
+
 </div>
 
-  </div>
+    </header>
 
-  </div>
+    <main class="main">
+      
 
-  
-    <footer class="footer">
-  <div class="footer__inner">
+<div class="list-container">
+
     
-      <div class="copyright copyright--user">
-        <span>Ignacio Sanmillan</span>
+
+    <h1>Writeup</h1>
     
-      </div>
-  </div>
-</footer>
 
+    
 
+    
+    
 
+    
 
+    
 
+    
+    <div class="post-line">
 
-<script type="text/javascript" src="/bundle.min.js"></script>
+    
+    
 
+    <p class="line-date">22 Feb 2022 </p>
 
+    <div>
+        <p class="line-title">
+            <a href="/post/2022-02-22-shelfchrome/">
+                SHELF encounters of the elements kind
+            </a>
+        </p>
 
-
-
-  
+        
+    </div>
 </div>
+    
+
+    
+
+    
+<div class="pagination">
+    <div class="pagination-control">
+        
+        <a href="http://localhost:1313/categories/writeup/">
+            prev
+        </a>
+        
+    </div>
+    <div class="page-number">
+        <p>
+            2/11
+        </p>
+    </div>
+    <div class="pagination-control">
+        
+        <a href="http://localhost:1313/categories/writeup/page/3/">
+            next
+        </a>
+        
+    </div>
+</div>
+
+
+</div>
+
+    </main>
+  </div>
+
+  <footer>
+    
+
+    
+    <p>Powered by
+        <a href="https://gohugo.io/">Hugo</a>
+        and
+        <a href="https://github.com/tomfran/typo">tomfran/typo</a>
+    </p>
+    
+    
+    
+
+
+  </footer>
+
+  
 
 </body>
+
+<script src="/js/theme-switch.js"></script>
+<script defer src="/js/copy-code.js"></script>
 </html>

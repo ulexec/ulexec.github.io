@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge"><meta name="robots" content="index, follow"><meta name="author" content="ulexec">
+<meta name="description" content="">
+<link rel="author" type="text/plain" href="/humans.txt">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="msapplication-TileImage" content="/mstile-144x144.png">
+<meta name="theme-color" content="#ffff">
+<meta name="msapplication-TileColor" content="#ffff">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#ffff">
+
+  <meta itemprop="name" content="Hitcon2017CTF - 家徒四壁~Everlasting Imaginative Void~">
+  <meta itemprop="description" content="Everlasting Imaginative void was a Hitcon2017’s reversing challenge worthing 300 points. The challenge description was the following:
+Astonishingly impoverished elf
+Not much information. Executing a file command, we get the following information:
+n4x0r@pwn1e~$ file void-1b63cbab5d58da4294c2f97d6b60f568 void-1b63cbab5d58da4294c2f97d6b60f568: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 2.6.32, BuildID[sha1]=5f8a87150720003c217508ffd74883c715ffe7c3, stripped If we execute the file we see the following:
+n4x0r@pwn1e~$ ./void-1b63cbab5d58da4294c2f97d6b60f568 blabla hitcon{blabla} Ok, Lets dig inside and see what we can find. Surprisingly, the main function of the application was just the following:">
+  <meta itemprop="datePublished" content="2017-11-06T00:00:00+00:00">
+  <meta itemprop="dateModified" content="2023-07-08T09:03:55+02:00">
+  <meta itemprop="wordCount" content="1513">
+  <meta itemprop="keywords" content="Reversing,Ctf"><meta property="og:url" content="//localhost:1313/en/post/2017-11-06-hitconctf2017-everlasting-imaginative-void/">
+  <meta property="og:site_name" content="Ignacio Sanmillan Research Blog">
+  <meta property="og:title" content="Hitcon2017CTF - 家徒四壁~Everlasting Imaginative Void~">
+  <meta property="og:description" content="Everlasting Imaginative void was a Hitcon2017’s reversing challenge worthing 300 points. The challenge description was the following:
+Astonishingly impoverished elf
+Not much information. Executing a file command, we get the following information:
+n4x0r@pwn1e~$ file void-1b63cbab5d58da4294c2f97d6b60f568 void-1b63cbab5d58da4294c2f97d6b60f568: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 2.6.32, BuildID[sha1]=5f8a87150720003c217508ffd74883c715ffe7c3, stripped If we execute the file we see the following:
+n4x0r@pwn1e~$ ./void-1b63cbab5d58da4294c2f97d6b60f568 blabla hitcon{blabla} Ok, Lets dig inside and see what we can find. Surprisingly, the main function of the application was just the following:">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2017-11-06T00:00:00+00:00">
+    <meta property="article:modified_time" content="2023-07-08T09:03:55+02:00">
+    <meta property="article:tag" content="Reversing">
+    <meta property="article:tag" content="Ctf">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Hitcon2017CTF - 家徒四壁~Everlasting Imaginative Void~">
+  <meta name="twitter:description" content="Everlasting Imaginative void was a Hitcon2017’s reversing challenge worthing 300 points. The challenge description was the following:
+Astonishingly impoverished elf
+Not much information. Executing a file command, we get the following information:
+n4x0r@pwn1e~$ file void-1b63cbab5d58da4294c2f97d6b60f568 void-1b63cbab5d58da4294c2f97d6b60f568: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 2.6.32, BuildID[sha1]=5f8a87150720003c217508ffd74883c715ffe7c3, stripped If we execute the file we see the following:
+n4x0r@pwn1e~$ ./void-1b63cbab5d58da4294c2f97d6b60f568 blabla hitcon{blabla} Ok, Lets dig inside and see what we can find. Surprisingly, the main function of the application was just the following:">
+
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Hitcon2017CTF - 家徒四壁~Everlasting Imaginative Void~",
+    "name": "Hitcon2017CTF - 家徒四壁~Everlasting Imaginative Void~",
+    "description": "Everlasting Imaginative void was a Hitcon2017\u0026rsquo;s reversing challenge worthing 300 points. The challenge description was the following:\nAstonishingly impoverished elf\nNot much information. Executing a file command, we get the following information:\nn4x0r@pwn1e~$ file void-1b63cbab5d58da4294c2f97d6b60f568 void-1b63cbab5d58da4294c2f97d6b60f568: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 2.6.32, BuildID[sha1]=5f8a87150720003c217508ffd74883c715ffe7c3, stripped If we execute the file we see the following:\nn4x0r@pwn1e~$ ./void-1b63cbab5d58da4294c2f97d6b60f568 blabla hitcon{blabla} Ok, Lets dig inside and see what we can find. Surprisingly, the main function of the application was just the following:\n",
+    "keywords": ["reversing", "ctf"],
+    "articleBody": "Everlasting Imaginative void was a Hitcon2017’s reversing challenge worthing 300 points. The challenge description was the following:\nAstonishingly impoverished elf\nNot much information. Executing a file command, we get the following information:\nn4x0r@pwn1e~$ file void-1b63cbab5d58da4294c2f97d6b60f568 void-1b63cbab5d58da4294c2f97d6b60f568: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 2.6.32, BuildID[sha1]=5f8a87150720003c217508ffd74883c715ffe7c3, stripped If we execute the file we see the following:\nn4x0r@pwn1e~$ ./void-1b63cbab5d58da4294c2f97d6b60f568 blabla hitcon{blabla} Ok, Lets dig inside and see what we can find. Surprisingly, the main function of the application was just the following:\nThis means that the binary must have tampered control flow. In my mind I thought about two potential possibilities:\nGOT/PLT hooks\nConstructor/Destructor pointer injection\nBased that the binary is a PIE executable and that was bind using BIND_NOW flags, we can assume that GOT entries have not been tampered, and even if they had they will get overwritten at load time anyways. Regarding PLT hooks, I did a quick look up to the .plt.got section. and all jumps seem correct.\nThe reason why there is not pivoting into PLT[0] for each PLT entry in .plt.got is because binary was linked with immediate binding as previously mentioned. Therefore, there is no need to jump back to resolver since all GOT entries will be resolved at load time.\nWe can see the binary has been linked with immediate binding by looking at the DYNAMIC segment FLAGS entry: 0x000000000000001e (FLAGS) BIND_NOW Therefore, GOT/PLT hooks are discartded at this point. The other technique that we have left is the Constructors/Destructors pointer injection. This technique is based on injecting an additional pointer to the .init_array, .fini_array sections for constructors and destructors respectively.\n[Nr] Name Type Address Offset Size EntSize Flags Link Info Align ... [18] .init_array INIT_ARRAY 0000000000200dc8 00000dc8 0000000000000008 0000000000000008 WA 0 0 8 [19] .fini_array FINI_ARRAY 0000000000200dd0 00000dd0 0000000000000008 0000000000000008 WA 0 0 8 We can see that the correspondent sizes of those sections seem to be correct. However, once one gets to know the purpose of sections and segments and the loading process of ELF files, one realizes that sections are complete rubish from an analysis standpoint. Section information can be easily crafted and they may not resemble the reality of the binary’s layout. In addition, sections are only needed at compile time, but not at runtime. For runtime we have segments.\nIf we take a look at the binary’s DYNAMIC segment, it tell us a different story:\n0x0000000000000019 (INIT_ARRAY) 0x200dc8 0x000000000000001b (INIT_ARRAYSZ) 8 (bytes) 0x000000000000001a (FINI_ARRAY) 0x200dd0 0x000000000000001c (FINI_ARRAYSZ) 16 (bytes) We can clearly see, that FINI_ARRAYSZ is 1 pointer size bigger than what .fini_array section stated. Therefore, binary has corrupted control flow by destructor pointer injection.\nI must emphasize that IDA and radare2 did not get this right since they prioritised section information over segment information:\nHowever, with radare2 we can see a pointer between the end of .fini_array and .jcr sections.\nAs we can see from the radare2 screen shot, the pointer is initialised as 0. Therefore, most possibly that pointer will be a runtime relocation.\nIf we look at the relocations of the binary we see the following:\nThe third relocation of type R_X86_64_RELATIVE is the one we are looking for. Now lets analyse the injected routine.\nThe injected routine is based in the .eh_frame section. This section usually contains dwarf information for stack unwinding at exception handling. This information may contain dwarf bytecode along with dwarf flags. However, it does not normally contain code. As we can see in the previous screenshot, the first thing this routine does is a call 0x284. This function pivots inside a crafted .build-id section.\nThis section usually holds a SHA1 specific of the binary’s build. so we can say that both .eh_frame and .build-id sections have been crafted specifically for this challenge, as a form of code cave to embed code.\nFuthermore, we can see a comparison of the byte at rdi + 0x200715 with '!'. In fact, this is the 16th byte of the input retrived with scanf function at main. If this check holds, it jumps back to function 0x284 + 5 and resumes execution in the .eh_frame routine. Otherwise, will pivot to ld.so and will do further clean up until application termination.\nAt this point we can guess that the binaries flag must be 16 bytes, and must end with '!'.\nFurther down the rabbit hole, we can see how it executes an mprotect systemcall which essentially does the following: mprotect(imageBase, 0x1000, PROT_READ|PROT_WRITE|PROT_EXEC)\nIt gives write permissions to the CODE segment of the main application. Moreover, it jumps back to the routine in the .build-id section, to then pivot to the following routine:\nThis routine basically copies spreaded bytes to a known memory location to then jump to it. After stub if finally written, we end up in the following routine:\nIn this routine, 10 rounds of aes encription are performed using the Intel’s processors AES instruction set. A nice refresher of these instructions can be found here. At the end of the 10 rounds, the computed ciphertext from our input gets compared against a hardcoded ciphertext. This comparison is done with the instruction ucomisd. If check holds, the program will print Good! string by jumping to the sycall gate previously shown (the mprotect one), changing its arguments so that it executes a write instead of mprotect syscall.\nSomething funny about this challenge is that the ucomisd instruction only compares the lower part of xmm registers. That is, the lowest 64 bits. Is quite obvious that the developer made an implementation mistake by using this instruction to compare the encription result. Just for the sake of curiosity, I have researched which instructions should have been used. One solution could have been the following\npsubd xmm0, xmm1\tptest xmm0, xmm0 jz _same Furthermore, something important to note about this aes routine, is that round-keys are actually hardcoded at addresses pointed by rsi (at the beginning of routine), so round keys can be restored to perform the Inverse Mix Column transformation in order to use them for decription. In order to do this we can use the aesimc instruction (note that aesimc should not be used on the first and last round key). Furthermore, original ciphertext can also be aquired by just getting the result of the xmm0 register after aesenclast instruction at the end of the 10 rounds, since it will get compared against the computed ciphertext derived from our input in xmm1.\nHaving the inversed key rounds and the original ciphertext, we can reconstruct the decription routine. The following code replicates the decription routine:\n{% raw %} #include #include #include #include void aes_decrypt(uint8_t *ctext, uint8_t *flag, uint8_t *round_keys) { asm volatile (\t\"movdqu (%0), %%xmm11\t\\n\" \"movdqu (%1), %%xmm10\t\\n\" \"movdqu (%2), %%xmm9\t\\n\" \"movdqu (%3), %%xmm8\t\\n\" \"movdqu (%4), %%xmm7\t\\n\" \"movdqu\t(%5), %%xmm6\t\\n\" \"movdqu (%6), %%xmm5\t\\n\" \"movdqu (%7), %%xmm4\t\\n\" \"movdqu (%8), %%xmm3\t\\n\" \"movdqu (%9), %%xmm2\t\\n\" \"movdqu (%10), %%xmm1\t\\n\" \"movdqu (%11), %%xmm0\t\\n\" \"aesimc %%xmm9, %%xmm9\t\\n\" \"aesimc %%xmm8, %%xmm8\t\\n\" \"aesimc %%xmm7, %%xmm7\t\\n\" \"aesimc %%xmm6, %%xmm6\t\\n\" \"aesimc %%xmm5, %%xmm5\t\\n\" \"aesimc %%xmm4, %%xmm4\t\\n\" \"aesimc %%xmm3, %%xmm3\t\\n\" \"aesimc %%xmm2, %%xmm2\t\\n\" \"aesimc %%xmm1, %%xmm1\t\\n\" \"pxor %%xmm10, %%xmm11\\n\" \"aesdec %%xmm9, %%xmm11\t\\n\" \"aesdec %%xmm8, %%xmm11\t\\n\" \"aesdec %%xmm7, %%xmm11\t\\n\" \"aesdec %%xmm6, %%xmm11\t\\n\" \"aesdec %%xmm5,\t%%xmm11\t\\n\" \"aesdec %%xmm4, %%xmm11\t\\n\" \"aesdec %%xmm3, %%xmm11\t\\n\" \"aesdec %%xmm2, %%xmm11\t\\n\" \"aesdec %%xmm1, %%xmm11\t\\n\" \"aesdeclast %%xmm0, %%xmm11\\n\" \"movdqu %%xmm11, (%12)\t\\n\" : : \"r\"(ctext), \"r\"(round_keys + 160), \"r\"(round_keys + 144), \"r\"(round_keys + 128), \"r\"(round_keys + 112), \"r\"(round_keys + 96), \"r\"(round_keys + 80), \"r\"(round_keys + 64), \"r\"(round_keys + 48), \"r\"(round_keys + 32), \"r\"(round_keys + 16), \"r\"(round_keys), \"r\"(flag) : \"memory\" ); } int main() { uint8_t flag[17]; uint8_t round_keys[] = { 0x48, 0xc1, 0xfd, 0x03, 0xe8, 0x07, 0xfe, 0xff, 0xff, 0x48, 0x85, 0xed, 0x74, 0x20, 0x31, 0xdb, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00, 0x4c, 0x89, 0xea, 0x4c, 0x89, 0xf6, 0x44, 0x89, 0xff, 0x41, 0xff, 0x14, 0xdc, 0x48, 0x83, 0xc3, 0x01, 0x48, 0x39, 0xdd, 0x75, 0xea, 0x48, 0x83, 0xc4, 0x08, 0x5b, 0x5d, 0x41, 0x5c, 0x41, 0x5d, 0x41, 0x5e, 0x41, 0x5f, 0xc3, 0x90, 0x66, 0x2e, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf3, 0xc3, 0x00, 0x00, 0x48, 0x83, 0xec, 0x08, 0x48, 0x83, 0xc4, 0x08, 0xc3, 0x00, 0x00, 0x00, 0x01, 0x00, 0x02, 0x00, 0x25, 0x73, 0x00, 0x68, 0x69, 0x74, 0x63, 0x6f, 0x6e, 0x7b, 0x25, 0x73, 0x7d, 0x0a, 0x00, 0x00, 0x01, 0x1b, 0x03, 0x3b, 0x40, 0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00, 0xbc, 0xfd, 0xff, 0xff, 0x8c, 0x00, 0x00, 0x00, 0xcc, 0xfd, 0xff, 0xff, 0xb4, 0x00, 0x00, 0x00, 0xec, 0xfd, 0xff, 0xff, 0x5c, 0x00, 0x00, 0x00, 0x1c, 0xff, 0xff, 0xff, 0xcc, 0x00, 0x00, 0x00, 0x57, 0xff, 0xff, 0xff, 0xec, 0x00, 0x00, 0x00, 0x6c, 0xff, 0xff, 0xff, 0x0c, 0x01, 0x00, 0x00, 0xdc, 0xff, 0xff, 0xff, 0x54, 0x01, 0x00, 0x00 }; uint8_t ctext[] = { 0xe7, 0x47, 0x04, 0x12, 0x49, 0x6d, 0xcf, 0x47, 0xb0, 0xe9, 0x1b, 0x17, 0x67, 0xfb, 0x46, 0x28}; aes_decrypt(ctext, flag, round_keys); printf(\"hitcon{%s}\\n\", flag); return 0; }{% endraw %} if we execute the previous code, we will get the flag hitcon{code_in_BuildID!}\n",
+    "wordCount" : "1513",
+    "inLanguage": "en",
+    "datePublished": "2017-11-06T00:00:00Z",
+    "dateModified": "2023-07-08T09:03:55+02:00",
+    "author":{
+        "@type": "Person",
+        "name": "ulexec",
+        "url": "//localhost:1313/en/about/"
+        },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "//localhost:1313/en/post/2017-11-06-hitconctf2017-everlasting-imaginative-void/"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Ignacio Sanmillan Research Blog",
+      "description": "",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "//localhost:1313/favicon.ico"
+      }
+    }
+}
+</script><title>Hitcon2017CTF - 家徒四壁~Everlasting Imaginative Void~</title>
+<link rel="stylesheet dns-prefetch preconnect preload prefetch" as="style" href="//localhost:1313/css/style.min.1c3457a9e9a2486add1cbdc04fe13e164fd6f0db073e8f2880b40b20cbb43bda.css" integrity="sha256-HDRXqemiSGrdHL3AT+E+Fk/W8NsHPo8ogLQLIMu0O9o=" crossorigin="anonymous">
+	</head>
+<body id="page">
+	<header id="site-header">
+		<div class="hdr-wrapper section-inner">
+			<div class="hdr-left">
+				<div class="site-branding">
+					<a href="//localhost:1313/">Ignacio Sanmillan Research Blog</a>
+				</div>
+				<nav class="site-nav hide-in-mobile"><a href="//localhost:1313/en/publications/">Publications</a><a href="//localhost:1313/en/post/">Posts</a><a href="//localhost:1313/en/about/">About</a><a href="//localhost:1313/en/projects/">Projects</a><a href="//localhost:1313/en/advisories/">Advisories</a></nav>
+			</div>
+			<div class="hdr-right hdr-icons">
+				<span class="hdr-links hide-in-mobile"><a href="https://joinmastodon.org/" target="_blank" rel="noopener me" title="Mastodon"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" fill="none" stroke="currentColor"
+   viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path
+      d="m 21.474,13.998 c -0.296,1.526 -2.655,3.194 -5.365,3.519 -1.413,0.168 -2.804,0.323 -4.287,0.255 -2.426,-0.111 -4.34,-0.579 -4.34,-0.579 0,0.236 0.015,0.461 0.044,0.672 0.316,2.394 2.373,2.537 4.323,2.604 1.968,0.067 3.721,-0.486 3.721,-0.486 l 0.081,1.779 c 0,0 -1.377,0.739 -3.829,0.875 -1.352,0.075 -3.031,-0.034 -4.987,-0.551 C 2.594,20.963 1.865,16.442 1.752,11.855 1.719,10.493 1.741,9.209 1.741,8.134 1.741,3.443 4.814,2.069 4.814,2.069 6.363,1.356 9.022,1.056 11.787,1.035 h 0.067 c 2.764,0.022 5.426,0.322 6.975,1.033 0,0 3.073,1.375 3.073,6.066 0,0 0.039,3.461 -0.428,5.864" />
+   <path
+      d="M 6.464,13.231 V 7.973 c 0,-1.002 0.549,-2.613 2.613,-2.613 2.064,0 2.741,1.793 2.741,3.484 0,1.692 0,2.23 0,2.23" />
+   <path
+      d="M 17.173,13.231 V 7.973 c 0,-1.002 -0.549,-2.613 -2.613,-2.613 -2.064,0 -2.741,1.793 -2.741,3.484 0,1.692 -0,2.23 -0,2.23" />
+</svg></a><a href="https://twitter.com/" target="_blank" rel="noopener me" title="X"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none"
+   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path class="st0" d="m21.3 21.1 -11.4 -18.2h-7.2l11.4 18.2zm-18.6 0 7.2 -6.6m4.2 -5 7.2 -6.6" />
+</svg></a><a href="https://github.com/1bl4z3r/hermit-V2/tree/staging" target="_blank" rel="noopener me" title="Github"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none"
+   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path
+      d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+   </path>
+</svg></a></span><button id="share-btn" class="hdr-btn" title=""><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-share-2">
+      <circle cx="18" cy="5" r="3"></circle>
+      <circle cx="6" cy="12" r="3"></circle>
+      <circle cx="18" cy="19" r="3"></circle>
+      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+   </svg></button>
+ 
+<div id="share-links" class="animated fast">
+    
+    
+    
+    
+    <ul>
+        <li>
+            <a href="https://twitter.com/intent/tweet?hashtags=hermit2&amp;url=%2f%2flocalhost%3a1313%2fen%2fpost%2f2017-11-06-hitconctf2017-everlasting-imaginative-void%2f&amp;text=Hitcon2017CTF%20-%20%e5%ae%b6%e5%be%92%e5%9b%9b%e5%a3%81~Everlasting%20Imaginative%20Void~" target="_blank" rel="noopener" aria-label="Share on X"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none"
+   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path class="st0" d="m21.3 21.1 -11.4 -18.2h-7.2l11.4 18.2zm-18.6 0 7.2 -6.6m4.2 -5 7.2 -6.6" />
+</svg></a>
+        </li>
+        <li>
+            <a href="https://facebook.com/sharer/sharer.php?u=%2f%2flocalhost%3a1313%2fen%2fpost%2f2017-11-06-hitconctf2017-everlasting-imaginative-void%2f" target="_blank" rel="noopener" aria-label="Share on Facebook"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none"
+   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+</svg></a>
+        </li>
+        <li>
+            <a href="mailto:?subject=Hitcon2017CTF%20-%20%e5%ae%b6%e5%be%92%e5%9b%9b%e5%a3%81~Everlasting%20Imaginative%20Void~&amp;body=%2f%2flocalhost%3a1313%2fen%2fpost%2f2017-11-06-hitconctf2017-everlasting-imaginative-void%2f" target="_self" rel="noopener" aria-label="Share on Email"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none"
+   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+   <polyline points="22,6 12,13 2,6"></polyline>
+</svg></a>
+        </li>
+        <li>
+            <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=%2f%2flocalhost%3a1313%2fen%2fpost%2f2017-11-06-hitconctf2017-everlasting-imaginative-void%2f&amp;source=%2f%2flocalhost%3a1313%2f&amp;title=Hitcon2017CTF%20-%20%e5%ae%b6%e5%be%92%e5%9b%9b%e5%a3%81~Everlasting%20Imaginative%20Void~&amp;summary=Hitcon2017CTF%20-%20%e5%ae%b6%e5%be%92%e5%9b%9b%e5%a3%81~Everlasting%20Imaginative%20Void~%2c%20by%20ulexec%0a%0a%3cnil%3e%0a" target="_blank" rel="noopener" aria-label="Share on LinkedIn"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none"
+   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+   <rect x="2" y="9" width="4" height="12"></rect>
+   <circle cx="4" cy="4" r="2"></circle>
+</svg></a>
+        </li>
+        <li>
+            <a href="#" onclick="linkShare(&#34;Hitcon2017CTF - 家徒四壁~Everlasting Imaginative Void~&#34;,&#34;//localhost:1313/en/post/2017-11-06-hitconctf2017-everlasting-imaginative-void/&#34;,&#34;Hitcon2017CTF - 家徒四壁~Everlasting Imaginative Void~, by ulexec\n\n\u003cnil\u003e\n&#34;); return false;" target="_self" rel="noopener" aria-label="Copy Link"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-copy">
+      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+   </svg></a>
+        </li>
+    </ul>
+</div><button id="menu-btn" class="hdr-btn" title=""><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+   </svg></button>
+			</div>
+		</div>
+	</header>
+	<div id="mobile-menu" class="animated fast">
+		<ul>
+			<li><a href="//localhost:1313/en/publications/">Publications</a></li>
+			<li><a href="//localhost:1313/en/post/">Posts</a></li>
+			<li><a href="//localhost:1313/en/about/">About</a></li>
+			<li><a href="//localhost:1313/en/projects/">Projects</a></li>
+			<li><a href="//localhost:1313/en/advisories/">Advisories</a></li>
+		</ul>
+	</div>
+
+
+	<main class="site-main section-inner thin animated fadeIn faster">
+		<h1>Hitcon2017CTF - 家徒四壁~Everlasting Imaginative Void~</h1>
+		<div class="content">
+			<p>Everlasting Imaginative void was a Hitcon2017&rsquo;s reversing challenge worthing 300 points.
+The challenge description was the following:</p>
+<p><code>Astonishingly impoverished elf</code></p>
+<p>Not much information.
+Executing a <code>file</code> command, we get the following information:</p>
+<p><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-perl" data-lang="perl"><span class="line"><span class="cl"><span class="n">n4x0r</span><span class="nv">@pwn1e</span><span class="o">~</span><span class="nv">$</span> <span class="nv">file</span> <span class="n">void</span><span class="o">-</span><span class="mi">1</span><span class="n">b63cbab5d58da4294c2f97d6b60f568</span> 
+</span></span><span class="line"><span class="cl"><span class="n">void</span><span class="o">-</span><span class="mi">1</span><span class="n">b63cbab5d58da4294c2f97d6b60f568:</span> <span class="n">ELF</span> <span class="mi">64</span><span class="o">-</span><span class="n">bit</span> <span class="n">LSB</span> <span class="n">shared</span> <span class="n">object</span><span class="p">,</span> <span class="n">x86</span><span class="o">-</span><span class="mi">64</span><span class="p">,</span> <span class="n">version</span> <span class="mi">1</span> <span class="p">(</span><span class="n">SYSV</span><span class="p">),</span> <span class="n">dynamically</span> <span class="n">linked</span><span class="p">,</span> <span class="n">interpreter</span> <span class="sr">/lib64/</span><span class="n">ld</span><span class="o">-</span><span class="n">linux</span><span class="o">-</span><span class="n">x86</span><span class="o">-</span><span class="mi">64</span><span class="o">.</span><span class="n">so</span><span class="mf">.2</span><span class="p">,</span> <span class="k">for</span> <span class="n">GNU</span><span class="o">/</span><span class="n">Linux</span> <span class="mf">2.6.32</span><span class="p">,</span> <span class="n">BuildID</span><span class="p">[</span><span class="n">sha1</span><span class="p">]</span><span class="o">=</span><span class="mi">5</span><span class="n">f8a87150720003c217508ffd74883c715ffe7c3</span><span class="p">,</span> <span class="n">stripped</span></span></span></code></pre></div>
+If we execute the file we see the following:</p>
+<p><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">n4x0r</span><span class="err">@</span><span class="n">pwn1e</span><span class="o">~</span><span class="err">$</span> <span class="p">.</span><span class="o">/</span><span class="kt">void</span><span class="o">-</span><span class="mi">1</span><span class="n">b63cbab5d58da4294c2f97d6b60f568</span>
+</span></span><span class="line"><span class="cl"><span class="n">blabla</span>
+</span></span><span class="line"><span class="cl"><span class="n">hitcon</span><span class="p">{</span><span class="n">blabla</span><span class="p">}</span></span></span></code></pre></div>
+Ok, Lets dig inside and see what we can find.
+Surprisingly, the main function of the application was just the following:</p>
+<p><img src="/HitconCTF7/1.png#center" alt=""></p>
+<p>This means that the binary must have tampered control flow.
+In my mind I thought about two potential possibilities:</p>
+<ul>
+<li>
+<p>GOT/PLT hooks</p>
+</li>
+<li>
+<p>Constructor/Destructor pointer injection</p>
+</li>
+</ul>
+<p>Based that the binary is a <code>PIE</code> executable and that was bind using <code>BIND_NOW</code> flags, we can assume that GOT entries have not been tampered, and even if they had they will get overwritten at load time anyways. Regarding PLT hooks, I did a quick look up to the <code>.plt.got</code> section. and all jumps seem correct.</p>
+<p><img src="/HitconCTF7/2.png#center" alt=""></p>
+<p>The reason why there is not pivoting into PLT[0] for each PLT entry in <code>.plt.got</code> is because binary was linked with immediate binding as previously mentioned. Therefore, there is no need to jump back to resolver since all GOT entries will be resolved at load time.</p>
+<p>We can see the binary has been linked with immediate binding by looking at the <code>DYNAMIC</code> segment <code>FLAGS</code> entry:
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="mh">0x000000000000001e</span> <span class="p">(</span><span class="n">FLAGS</span><span class="p">)</span>              <span class="n">BIND_NOW</span></span></span></code></pre></div>
+Therefore, GOT/PLT hooks are discartded at this point.
+The other technique that we have left is the Constructors/Destructors pointer injection.
+This technique is based on injecting an additional pointer to the <code>.init_array</code>, <code>.fini_array</code> sections for constructors and destructors respectively.</p>
+<p><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="p">[</span><span class="n">Nr</span><span class="p">]</span> <span class="n">Name</span>              <span class="n">Type</span>             <span class="n">Address</span>           <span class="n">Offset</span>
+</span></span><span class="line"><span class="cl">       <span class="n">Size</span>              <span class="n">EntSize</span>          <span class="n">Flags</span>  <span class="n">Link</span>  <span class="n">Info</span>  <span class="n">Align</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"> <span class="p">...</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="mi">18</span><span class="p">]</span> <span class="p">.</span><span class="n">init_array</span>       <span class="n">INIT_ARRAY</span>       <span class="mo">0000000000200</span><span class="n">dc8</span>  <span class="mo">00000</span><span class="n">dc8</span>
+</span></span><span class="line"><span class="cl">       <span class="mo">000000000000000</span><span class="mi">8</span>  <span class="mo">000000000000000</span><span class="mi">8</span>  <span class="n">WA</span>       <span class="mi">0</span>     <span class="mi">0</span>     <span class="mi">8</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="mi">19</span><span class="p">]</span> <span class="p">.</span><span class="n">fini_array</span>       <span class="n">FINI_ARRAY</span>       <span class="mo">0000000000200</span><span class="n">dd0</span>  <span class="mo">00000</span><span class="n">dd0</span>
+</span></span><span class="line"><span class="cl">       <span class="mo">000000000000000</span><span class="mi">8</span>  <span class="mo">000000000000000</span><span class="mi">8</span>  <span class="n">WA</span>       <span class="mi">0</span>     <span class="mi">0</span>     <span class="mi">8</span></span></span></code></pre></div>
+We can see that the correspondent sizes of those sections seem to be correct. However, once one gets to know the purpose of sections and segments and the loading process of ELF files, one realizes that sections are complete rubish from an analysis standpoint. Section information can be easily crafted and they may not resemble the reality of the binary&rsquo;s layout. In addition, sections are only needed at compile time, but not at runtime. For runtime we have segments.</p>
+<p>If we take a look at the binary&rsquo;s <code>DYNAMIC</code> segment, it tell us a different story:</p>
+<p><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="mh">0x0000000000000019</span> <span class="p">(</span><span class="n">INIT_ARRAY</span><span class="p">)</span>         <span class="mh">0x200dc8</span>
+</span></span><span class="line"><span class="cl"><span class="mh">0x000000000000001b</span> <span class="p">(</span><span class="n">INIT_ARRAYSZ</span><span class="p">)</span>       <span class="mi">8</span> <span class="p">(</span><span class="n">bytes</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="mh">0x000000000000001a</span> <span class="p">(</span><span class="n">FINI_ARRAY</span><span class="p">)</span>         <span class="mh">0x200dd0</span>
+</span></span><span class="line"><span class="cl"><span class="mh">0x000000000000001c</span> <span class="p">(</span><span class="n">FINI_ARRAYSZ</span><span class="p">)</span>       <span class="mi">16</span> <span class="p">(</span><span class="n">bytes</span><span class="p">)</span></span></span></code></pre></div>
+We can clearly see, that <code>FINI_ARRAYSZ</code> is 1 pointer size bigger than what <code>.fini_array</code> section stated. Therefore, binary has corrupted control flow by destructor pointer injection.</p>
+<p>I must emphasize that IDA and radare2 did not get this right since they prioritised section information over segment information:</p>
+<p><img src="/HitconCTF7/3.png#center" alt=""></p>
+<p>However, with radare2 we can see a pointer between the end of <code>.fini_array</code> and <code>.jcr</code> sections.</p>
+<p><img src="/HitconCTF7/4.png#center" alt="">
+As we can see from the radare2 screen shot, the pointer is initialised as 0. Therefore, most possibly that pointer will be a runtime relocation.</p>
+<p>If we look at the relocations of the binary we see the following:</p>
+<p><img src="/HitconCTF7/5.png#center" alt="">
+The third relocation of type <code>R_X86_64_RELATIVE</code> is the one we are looking for.
+Now lets analyse the injected routine.</p>
+<p>The injected routine is based in the <code>.eh_frame</code> section. This section usually contains <code>dwarf</code> information for stack unwinding at exception handling. This information may contain dwarf bytecode along with dwarf flags. However, it does not normally contain code.
+As we can see in the previous screenshot, the first thing this routine does is a <code>call 0x284</code>. This function pivots inside a crafted <code>.build-id</code> section.</p>
+<p><img src="/HitconCTF7/6.png#center" alt="">
+This section usually holds a SHA1 specific of the binary&rsquo;s build. so we can say that both <code>.eh_frame</code> and <code>.build-id</code> sections have been crafted specifically for this challenge, as a form of code cave to embed code.</p>
+<p>Futhermore, we can see a comparison of the byte at <code>rdi + 0x200715</code> with <code>'!'</code>. In fact, this is the 16th byte of the input retrived with <code>scanf</code> function at <code>main</code>. If this check holds, it jumps back to function <code>0x284 + 5</code> and resumes execution in the <code>.eh_frame</code> routine. Otherwise, will pivot to <code>ld.so</code> and will do further clean up until application termination.</p>
+<p>At this point we can guess that the binaries flag must be <code>16 bytes</code>, and must end with <code>'!'</code>.</p>
+<p>Further down the rabbit hole, we can see how it executes an mprotect systemcall which essentially does the following:
+<code>mprotect(imageBase, 0x1000, PROT_READ|PROT_WRITE|PROT_EXEC)</code></p>
+<p><img src="/HitconCTF7/7.png#center" alt="">
+It gives write permissions to the <code>CODE</code> segment of the main application.
+Moreover, it jumps back to the routine in the <code>.build-id</code> section, to then pivot to the following routine:</p>
+<p><img src="/HitconCTF7/8.png#center" alt="">
+This routine basically copies spreaded bytes to a known memory location to then jump to it.
+After stub if finally written, we end up in the following routine:</p>
+<p><img src="/HitconCTF7/9.png#center" alt="">
+In this routine, 10 rounds of aes encription are performed using the Intel&rsquo;s processors AES instruction set. A nice refresher of these instructions can be found <a href="https://github.com/n4x0r/n4x0r.github.io/raw/master/images/HitconCTF7/Use_of_the_AES_Instruction_Set.pdf">here</a>. At the end of the 10 rounds, the computed ciphertext from our input gets compared against a hardcoded ciphertext. This comparison is done with the instruction <code>ucomisd</code>. If check holds, the program will print <code>Good!</code> string by jumping to the sycall gate previously shown (the mprotect one), changing its arguments so that it executes a write instead of mprotect syscall.</p>
+<p>Something funny about this challenge is that the <code>ucomisd</code> instruction only compares the lower part of xmm registers. That is, the lowest 64 bits. Is quite obvious that the developer made an implementation mistake by using this instruction to compare the encription result. Just for the sake of curiosity, I have researched which instructions should have been used. One solution could have been the following</p>
+<p><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-nasm" data-lang="nasm"><span class="line"><span class="cl"><span class="nf">psubd</span>  <span class="nv">xmm0</span><span class="p">,</span> <span class="nv">xmm1</span>	    
+</span></span><span class="line"><span class="cl"><span class="nf">ptest</span>  <span class="nv">xmm0</span><span class="p">,</span> <span class="nv">xmm0</span>       
+</span></span><span class="line"><span class="cl"><span class="nf">jz</span>     <span class="nv">_same</span>     </span></span></code></pre></div>
+Furthermore, something important to note about this aes routine, is that round-keys are actually hardcoded at addresses pointed by <code>rsi</code> (at the beginning of routine), so round keys can be restored to perform the <code>Inverse Mix Column</code> transformation in order to use them for decription. In order to do this we can use the <code>aesimc</code> instruction (note that aesimc should not be used on the first and last round key). Furthermore, original ciphertext can also be aquired by just getting the result of the <code>xmm0</code> register after <code>aesenclast</code> instruction at the end of the 10 rounds, since it will get compared against the computed ciphertext derived from our input in <code>xmm1</code>.</p>
+<p><img src="/HitconCTF7/10.png#center" alt="">
+Having the inversed key rounds and the original ciphertext, we can reconstruct the decription routine.
+The following code replicates the decription routine:</p>
+<p>{% raw %}
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdint.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">aes_decrypt</span><span class="p">(</span><span class="kt">uint8_t</span> <span class="o">*</span><span class="n">ctext</span><span class="p">,</span> <span class="kt">uint8_t</span> <span class="o">*</span><span class="n">flag</span><span class="p">,</span> <span class="kt">uint8_t</span> <span class="o">*</span><span class="n">round_keys</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">asm</span> <span class="k">volatile</span> <span class="p">(</span>	<span class="s">&#34;movdqu (%0), %%xmm11	</span><span class="se">\n</span><span class="s">&#34;</span> 
+</span></span><span class="line"><span class="cl">   	    		<span class="s">&#34;movdqu (%1), %%xmm10	</span><span class="se">\n</span><span class="s">&#34;</span> 
+</span></span><span class="line"><span class="cl">	    		<span class="s">&#34;movdqu (%2), %%xmm9	</span><span class="se">\n</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">			<span class="s">&#34;movdqu (%3), %%xmm8	</span><span class="se">\n</span><span class="s">&#34;</span> 
+</span></span><span class="line"><span class="cl">			<span class="s">&#34;movdqu (%4), %%xmm7	</span><span class="se">\n</span><span class="s">&#34;</span> 
+</span></span><span class="line"><span class="cl">			<span class="s">&#34;movdqu	(%5), %%xmm6	</span><span class="se">\n</span><span class="s">&#34;</span> 
+</span></span><span class="line"><span class="cl">			<span class="s">&#34;movdqu (%6), %%xmm5	</span><span class="se">\n</span><span class="s">&#34;</span> 
+</span></span><span class="line"><span class="cl">			<span class="s">&#34;movdqu (%7), %%xmm4	</span><span class="se">\n</span><span class="s">&#34;</span> 
+</span></span><span class="line"><span class="cl">			<span class="s">&#34;movdqu (%8), %%xmm3	</span><span class="se">\n</span><span class="s">&#34;</span> 
+</span></span><span class="line"><span class="cl">			<span class="s">&#34;movdqu (%9), %%xmm2	</span><span class="se">\n</span><span class="s">&#34;</span> 
+</span></span><span class="line"><span class="cl">			<span class="s">&#34;movdqu (%10), %%xmm1	</span><span class="se">\n</span><span class="s">&#34;</span> 
+</span></span><span class="line"><span class="cl">			<span class="s">&#34;movdqu (%11), %%xmm0	</span><span class="se">\n</span><span class="s">&#34;</span> 
+</span></span><span class="line"><span class="cl">			
+</span></span><span class="line"><span class="cl">			<span class="s">&#34;aesimc %%xmm9, %%xmm9	</span><span class="se">\n</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">	     		<span class="s">&#34;aesimc %%xmm8, %%xmm8	</span><span class="se">\n</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">	     		<span class="s">&#34;aesimc %%xmm7, %%xmm7	</span><span class="se">\n</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">	     		<span class="s">&#34;aesimc %%xmm6, %%xmm6	</span><span class="se">\n</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">	     		<span class="s">&#34;aesimc %%xmm5, %%xmm5	</span><span class="se">\n</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">	     		<span class="s">&#34;aesimc %%xmm4, %%xmm4	</span><span class="se">\n</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">	     		<span class="s">&#34;aesimc %%xmm3, %%xmm3	</span><span class="se">\n</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">	     		<span class="s">&#34;aesimc %%xmm2, %%xmm2	</span><span class="se">\n</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">	     		<span class="s">&#34;aesimc %%xmm1, %%xmm1	</span><span class="se">\n</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">			
+</span></span><span class="line"><span class="cl">			<span class="s">&#34;pxor 	%%xmm10, %%xmm11</span><span class="se">\n</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">	     		<span class="s">&#34;aesdec %%xmm9, %%xmm11	</span><span class="se">\n</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">	     		<span class="s">&#34;aesdec %%xmm8, %%xmm11	</span><span class="se">\n</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">	     		<span class="s">&#34;aesdec %%xmm7, %%xmm11	</span><span class="se">\n</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">	     		<span class="s">&#34;aesdec %%xmm6, %%xmm11	</span><span class="se">\n</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">	     		<span class="s">&#34;aesdec %%xmm5,	%%xmm11	</span><span class="se">\n</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">	     		<span class="s">&#34;aesdec %%xmm4, %%xmm11	</span><span class="se">\n</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">	    	 	<span class="s">&#34;aesdec %%xmm3, %%xmm11	</span><span class="se">\n</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">	     		<span class="s">&#34;aesdec %%xmm2, %%xmm11	</span><span class="se">\n</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">	     		<span class="s">&#34;aesdec %%xmm1, %%xmm11	</span><span class="se">\n</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">	     		<span class="s">&#34;aesdeclast %%xmm0, %%xmm11</span><span class="se">\n</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">			
+</span></span><span class="line"><span class="cl">			<span class="s">&#34;movdqu %%xmm11, (%12)	</span><span class="se">\n</span><span class="s">&#34;</span>
+</span></span><span class="line"><span class="cl">			
+</span></span><span class="line"><span class="cl">			<span class="o">:</span>
+</span></span><span class="line"><span class="cl">			<span class="o">:</span>  <span class="s">&#34;r&#34;</span><span class="p">(</span><span class="n">ctext</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">			   <span class="s">&#34;r&#34;</span><span class="p">(</span><span class="n">round_keys</span> <span class="o">+</span> <span class="mi">160</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">		       	   <span class="s">&#34;r&#34;</span><span class="p">(</span><span class="n">round_keys</span> <span class="o">+</span> <span class="mi">144</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">			   <span class="s">&#34;r&#34;</span><span class="p">(</span><span class="n">round_keys</span> <span class="o">+</span> <span class="mi">128</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">			   <span class="s">&#34;r&#34;</span><span class="p">(</span><span class="n">round_keys</span> <span class="o">+</span> <span class="mi">112</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">			   <span class="s">&#34;r&#34;</span><span class="p">(</span><span class="n">round_keys</span> <span class="o">+</span> <span class="mi">96</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">			   <span class="s">&#34;r&#34;</span><span class="p">(</span><span class="n">round_keys</span> <span class="o">+</span> <span class="mi">80</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">			   <span class="s">&#34;r&#34;</span><span class="p">(</span><span class="n">round_keys</span> <span class="o">+</span> <span class="mi">64</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">			   <span class="s">&#34;r&#34;</span><span class="p">(</span><span class="n">round_keys</span> <span class="o">+</span> <span class="mi">48</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">			   <span class="s">&#34;r&#34;</span><span class="p">(</span><span class="n">round_keys</span> <span class="o">+</span> <span class="mi">32</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">			   <span class="s">&#34;r&#34;</span><span class="p">(</span><span class="n">round_keys</span> <span class="o">+</span> <span class="mi">16</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">			   <span class="s">&#34;r&#34;</span><span class="p">(</span><span class="n">round_keys</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">			   <span class="s">&#34;r&#34;</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="o">:</span> <span class="s">&#34;memory&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">uint8_t</span> <span class="n">flag</span><span class="p">[</span><span class="mi">17</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">uint8_t</span> <span class="n">round_keys</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span> <span class="mh">0x48</span><span class="p">,</span> <span class="mh">0xc1</span><span class="p">,</span> <span class="mh">0xfd</span><span class="p">,</span> <span class="mh">0x03</span><span class="p">,</span> <span class="mh">0xe8</span><span class="p">,</span> <span class="mh">0x07</span><span class="p">,</span> <span class="mh">0xfe</span><span class="p">,</span> <span class="mh">0xff</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">			  <span class="mh">0xff</span><span class="p">,</span> <span class="mh">0x48</span><span class="p">,</span> <span class="mh">0x85</span><span class="p">,</span> <span class="mh">0xed</span><span class="p">,</span> <span class="mh">0x74</span><span class="p">,</span> <span class="mh">0x20</span><span class="p">,</span> <span class="mh">0x31</span><span class="p">,</span> <span class="mh">0xdb</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">			  <span class="mh">0x0f</span><span class="p">,</span> <span class="mh">0x1f</span><span class="p">,</span> <span class="mh">0x84</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">			  <span class="mh">0x4c</span><span class="p">,</span> <span class="mh">0x89</span><span class="p">,</span> <span class="mh">0xea</span><span class="p">,</span> <span class="mh">0x4c</span><span class="p">,</span> <span class="mh">0x89</span><span class="p">,</span> <span class="mh">0xf6</span><span class="p">,</span> <span class="mh">0x44</span><span class="p">,</span> <span class="mh">0x89</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">			  <span class="mh">0xff</span><span class="p">,</span> <span class="mh">0x41</span><span class="p">,</span> <span class="mh">0xff</span><span class="p">,</span> <span class="mh">0x14</span><span class="p">,</span> <span class="mh">0xdc</span><span class="p">,</span> <span class="mh">0x48</span><span class="p">,</span> <span class="mh">0x83</span><span class="p">,</span> <span class="mh">0xc3</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">			  <span class="mh">0x01</span><span class="p">,</span> <span class="mh">0x48</span><span class="p">,</span> <span class="mh">0x39</span><span class="p">,</span> <span class="mh">0xdd</span><span class="p">,</span> <span class="mh">0x75</span><span class="p">,</span> <span class="mh">0xea</span><span class="p">,</span> <span class="mh">0x48</span><span class="p">,</span> <span class="mh">0x83</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">			  <span class="mh">0xc4</span><span class="p">,</span> <span class="mh">0x08</span><span class="p">,</span> <span class="mh">0x5b</span><span class="p">,</span> <span class="mh">0x5d</span><span class="p">,</span> <span class="mh">0x41</span><span class="p">,</span> <span class="mh">0x5c</span><span class="p">,</span> <span class="mh">0x41</span><span class="p">,</span> <span class="mh">0x5d</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">			  <span class="mh">0x41</span><span class="p">,</span> <span class="mh">0x5e</span><span class="p">,</span> <span class="mh">0x41</span><span class="p">,</span> <span class="mh">0x5f</span><span class="p">,</span> <span class="mh">0xc3</span><span class="p">,</span> <span class="mh">0x90</span><span class="p">,</span> <span class="mh">0x66</span><span class="p">,</span> <span class="mh">0x2e</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">			  <span class="mh">0x0f</span><span class="p">,</span> <span class="mh">0x1f</span><span class="p">,</span> <span class="mh">0x84</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">			  <span class="mh">0xf3</span><span class="p">,</span> <span class="mh">0xc3</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x48</span><span class="p">,</span> <span class="mh">0x83</span><span class="p">,</span> <span class="mh">0xec</span><span class="p">,</span> <span class="mh">0x08</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">			  <span class="mh">0x48</span><span class="p">,</span> <span class="mh">0x83</span><span class="p">,</span> <span class="mh">0xc4</span><span class="p">,</span> <span class="mh">0x08</span><span class="p">,</span> <span class="mh">0xc3</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">			  <span class="mh">0x01</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x02</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x25</span><span class="p">,</span> <span class="mh">0x73</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x68</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">			  <span class="mh">0x69</span><span class="p">,</span> <span class="mh">0x74</span><span class="p">,</span> <span class="mh">0x63</span><span class="p">,</span> <span class="mh">0x6f</span><span class="p">,</span> <span class="mh">0x6e</span><span class="p">,</span> <span class="mh">0x7b</span><span class="p">,</span> <span class="mh">0x25</span><span class="p">,</span> <span class="mh">0x73</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">			  <span class="mh">0x7d</span><span class="p">,</span> <span class="mh">0x0a</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x01</span><span class="p">,</span> <span class="mh">0x1b</span><span class="p">,</span> <span class="mh">0x03</span><span class="p">,</span> <span class="mh">0x3b</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">			  <span class="mh">0x40</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x07</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">			  <span class="mh">0xbc</span><span class="p">,</span> <span class="mh">0xfd</span><span class="p">,</span> <span class="mh">0xff</span><span class="p">,</span> <span class="mh">0xff</span><span class="p">,</span> <span class="mh">0x8c</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">			  <span class="mh">0xcc</span><span class="p">,</span> <span class="mh">0xfd</span><span class="p">,</span> <span class="mh">0xff</span><span class="p">,</span> <span class="mh">0xff</span><span class="p">,</span> <span class="mh">0xb4</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">			  <span class="mh">0xec</span><span class="p">,</span> <span class="mh">0xfd</span><span class="p">,</span> <span class="mh">0xff</span><span class="p">,</span> <span class="mh">0xff</span><span class="p">,</span> <span class="mh">0x5c</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">			  <span class="mh">0x1c</span><span class="p">,</span> <span class="mh">0xff</span><span class="p">,</span> <span class="mh">0xff</span><span class="p">,</span> <span class="mh">0xff</span><span class="p">,</span> <span class="mh">0xcc</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">			  <span class="mh">0x57</span><span class="p">,</span> <span class="mh">0xff</span><span class="p">,</span> <span class="mh">0xff</span><span class="p">,</span> <span class="mh">0xff</span><span class="p">,</span> <span class="mh">0xec</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">			  <span class="mh">0x6c</span><span class="p">,</span> <span class="mh">0xff</span><span class="p">,</span> <span class="mh">0xff</span><span class="p">,</span> <span class="mh">0xff</span><span class="p">,</span> <span class="mh">0x0c</span><span class="p">,</span> <span class="mh">0x01</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">			  <span class="mh">0xdc</span><span class="p">,</span> <span class="mh">0xff</span><span class="p">,</span> <span class="mh">0xff</span><span class="p">,</span> <span class="mh">0xff</span><span class="p">,</span> <span class="mh">0x54</span><span class="p">,</span> <span class="mh">0x01</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x00</span> <span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="kt">uint8_t</span> <span class="n">ctext</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span>     <span class="mh">0xe7</span><span class="p">,</span> <span class="mh">0x47</span><span class="p">,</span> <span class="mh">0x04</span><span class="p">,</span> <span class="mh">0x12</span><span class="p">,</span> <span class="mh">0x49</span><span class="p">,</span> <span class="mh">0x6d</span><span class="p">,</span> <span class="mh">0xcf</span><span class="p">,</span> <span class="mh">0x47</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">	  		  <span class="mh">0xb0</span><span class="p">,</span> <span class="mh">0xe9</span><span class="p">,</span> <span class="mh">0x1b</span><span class="p">,</span> <span class="mh">0x17</span><span class="p">,</span> <span class="mh">0x67</span><span class="p">,</span> <span class="mh">0xfb</span><span class="p">,</span> <span class="mh">0x46</span><span class="p">,</span> <span class="mh">0x28</span><span class="p">};</span>
+</span></span><span class="line"><span class="cl">  <span class="nf">aes_decrypt</span><span class="p">(</span><span class="n">ctext</span><span class="p">,</span> <span class="n">flag</span><span class="p">,</span> <span class="n">round_keys</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;hitcon{%s}</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">flag</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span></span></span></code></pre></div>{% endraw %}
+if we execute the previous code, we will get the flag <code>hitcon{code_in_BuildID!}</code></p>
+
+		</div>
+		
+	</main>
+<footer id="site-footer" class="section-inner thin animated fadeIn faster">
+<p>
+	&copy; 2025 <a href="//localhost:1313/">Ignacio Sanmillan Research Blog</a>
+	&#183; CHANGE ME FOOTER COPYRIGHT&#183; Made with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a>
+	&#183; Theme <a href="https://github.com/1bl4z3r/hermit-V2" target="_blank" rel="noopener">Hermit-V2</a></p></footer>
+<script async src="//localhost:1313/js/bundle.min.c7c384e4d29d192bbac6811ae4660bb01767194a5bea56baca77e8260f93ea16.js" integrity="sha256-x8OE5NKdGSu6xoEa5GYLsBdnGUpb6la6ynfoJg+T6hY=" crossorigin="anonymous"></script><script async src="//localhost:1313/js/link-share.min.24409a4f6e5537d70ffc55ec8f9192208d718678cb8638585342423020b37f39.js" integrity="sha256-JECaT25VN9cP/FXsj5GSII1xhnjLhjhYU0JCMCCzfzk=" crossorigin="anonymous"></script>
+</body>
+</html>

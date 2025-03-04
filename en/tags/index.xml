@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tags on Ignacio Sanmillan Research Blog</title>
+    <link>//localhost:1313/en/tags/</link>
+    <description>Recent content in Tags on Ignacio Sanmillan Research Blog</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <copyright>CHANGE ME</copyright>
+    <lastBuildDate>Sat, 08 Jul 2023 09:03:55 +0200</lastBuildDate>
+    <atom:link href="//localhost:1313/en/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>IPC</title>
+      <link>//localhost:1313/en/tags/ipc/</link>
+      <pubDate>Mon, 28 Nov 2022 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/en/tags/ipc/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>MacOS</title>
+      <link>//localhost:1313/en/tags/macos/</link>
+      <pubDate>Mon, 28 Nov 2022 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/en/tags/macos/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Chrome</title>
+      <link>//localhost:1313/en/tags/chrome/</link>
+      <pubDate>Tue, 22 Feb 2022 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/en/tags/chrome/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Pwn</title>
+      <link>//localhost:1313/en/tags/pwn/</link>
+      <pubDate>Tue, 22 Feb 2022 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/en/tags/pwn/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Ctf</title>
+      <link>//localhost:1313/en/tags/ctf/</link>
+      <pubDate>Thu, 20 May 2021 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/en/tags/ctf/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Malware</title>
+      <link>//localhost:1313/en/tags/malware/</link>
+      <pubDate>Thu, 08 Apr 2021 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/en/tags/malware/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Reversing</title>
+      <link>//localhost:1313/en/tags/reversing/</link>
+      <pubDate>Thu, 08 Apr 2021 00:00:00 +0000</pubDate>
+      <guid>//localhost:1313/en/tags/reversing/</guid>
+      <description></description>
+    </item>
+  </channel>
+</rss>

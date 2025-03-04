@@ -1,33 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-us"
+  dir="ltr">
+
 <head>
-  
-    <title>Hitcon2017CTF - 家徒四壁~Everlasting Imaginative Void~ :: ulexec.github.io</title>
-  
-  <meta http-equiv="content-type" content="text/html; charset=utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Everlasting Imaginative void was a Hitcon2017&amp;rsquo;s reversing challenge worthing 300 points. The challenge description was the following:
+  <meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+
+
+
+<link rel="icon" type="image/ico" href="https://ulexec.github.io//favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://ulexec.github.io//favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://ulexec.github.io//favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="https://ulexec.github.io//android-chrome-192x192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="https://ulexec.github.io//apple-touch-icon.png">
+
+<meta name="description" content=""/>
+
+
+
+<title>
+    
+    Hitcon2017CTF - 家徒四壁~Everlasting Imaginative Void~ | Ignacio Sanmillan
+    
+</title>
+
+<link rel="canonical" href="https://ulexec.github.io/post/2017-11-06-hitconctf2017-everlasting-imaginative-void/"/>
+
+<meta property="og:url" content="https://ulexec.github.io/post/2017-11-06-hitconctf2017-everlasting-imaginative-void/">
+  <meta property="og:site_name" content="Ignacio Sanmillan">
+  <meta property="og:title" content="Hitcon2017CTF - 家徒四壁~Everlasting Imaginative Void~">
+  <meta property="og:description" content="Everlasting Imaginative void was a Hitcon2017’s reversing challenge worthing 300 points. The challenge description was the following:
 Astonishingly impoverished elf
 Not much information. Executing a file command, we get the following information:
 n4x0r@pwn1e~$ file void-1b63cbab5d58da4294c2f97d6b60f568 void-1b63cbab5d58da4294c2f97d6b60f568: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 2.6.32, BuildID[sha1]=5f8a87150720003c217508ffd74883c715ffe7c3, stripped If we execute the file we see the following:
-n4x0r@pwn1e~$ ./void-1b63cbab5d58da4294c2f97d6b60f568 blabla hitcon{blabla} Ok, Lets dig inside and see what we can find." />
-<meta name="keywords" content="" />
-
-  <meta name="robots" content="noodp" />
-
-<link rel="canonical" href="https://ulexec.github.io/post/2017-11-06-hitconctf2017-everlasting-imaginative-void/" />
-
-
-
-
-
-
-  
-  
-  
-  
-  
-  <link rel="stylesheet" href="https://ulexec.github.io/styles.css">
+n4x0r@pwn1e~$ ./void-1b63cbab5d58da4294c2f97d6b60f568 blabla hitcon{blabla} Ok, Lets dig inside and see what we can find. Surprisingly, the main function of the application was just the following:">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2017-11-06T00:00:00+00:00">
+    <meta property="article:modified_time" content="2017-11-06T00:00:00+00:00">
+    <meta property="article:tag" content="Reversing">
+    <meta property="article:tag" content="Ctf">
 
 
 
@@ -35,40 +48,13 @@ n4x0r@pwn1e~$ ./void-1b63cbab5d58da4294c2f97d6b60f568 blabla hitcon{blabla} Ok, 
 
 
 
-  <link rel="shortcut icon" href="https://ulexec.github.io/img/theme-colors/orange.png">
-  <link rel="apple-touch-icon" href="https://ulexec.github.io/img/theme-colors/orange.png">
 
 
 
-<meta name="twitter:card" content="summary" />
 
 
 
-<meta property="og:locale" content="en" />
-<meta property="og:type" content="article" />
-<meta property="og:title" content="Hitcon2017CTF - 家徒四壁~Everlasting Imaginative Void~">
-<meta property="og:description" content="Everlasting Imaginative void was a Hitcon2017&amp;rsquo;s reversing challenge worthing 300 points. The challenge description was the following:
-Astonishingly impoverished elf
-Not much information. Executing a file command, we get the following information:
-n4x0r@pwn1e~$ file void-1b63cbab5d58da4294c2f97d6b60f568 void-1b63cbab5d58da4294c2f97d6b60f568: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 2.6.32, BuildID[sha1]=5f8a87150720003c217508ffd74883c715ffe7c3, stripped If we execute the file we see the following:
-n4x0r@pwn1e~$ ./void-1b63cbab5d58da4294c2f97d6b60f568 blabla hitcon{blabla} Ok, Lets dig inside and see what we can find." />
-<meta property="og:url" content="https://ulexec.github.io/post/2017-11-06-hitconctf2017-everlasting-imaginative-void/" />
-<meta property="og:site_name" content="ulexec.github.io" />
-
-  
-    <meta property="og:image" content="https://ulexec.github.io/img/favicon/orange.png">
-  
-
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="627">
-
-  <meta property="article:section" content="writeup" />
-
-
-  <meta property="article:published_time" content="2017-11-06 00:00:00 &#43;0000 UTC" />
-
-
-
+<link rel="stylesheet" href="/assets/combined.min.4d83d9d131fa58e4a3582b029a9d295c34033e4132d049b0e16fa8d1e9ddfebf.css" media="all">
 
 
 
@@ -79,126 +65,249 @@ n4x0r@pwn1e~$ ./void-1b63cbab5d58da4294c2f97d6b60f568 blabla hitcon{blabla} Ok, 
 
 
 </head>
-<body class="orange">
 
 
-<div class="container center headings--one-size">
 
-  <header class="header">
-  <div class="header__inner">
-    <div class="header__logo">
-      <a href="/post/">
-  <div class="logo">
-    ulexec.github.io
-  </div>
-</a>
 
-    </div>
-    
-      <ul class="menu menu--mobile">
-  <li class="menu__trigger">Menu&nbsp;▾</li>
-  <li>
-    <ul class="menu__dropdown">
-      
-        
-          <li><a href="/post/">Posts</a></li>
-        
-      
-        
-          <li><a href="/publications/">Publications</a></li>
-        
-      
-        
-          <li><a href="/projects/">Projects</a></li>
-        
-      
-        
-          <li><a href="/advisories/">Advisories</a></li>
-        
-      
-        
-          <li><a href="/about/">About</a></li>
-        
-      
-      
-    </ul>
-  </li>
-</ul>
 
-    
-    
-  </div>
-  
-    <nav class="navigation-menu">
-  <ul class="navigation-menu__inner menu--desktop">
-    
-      
-        
-          <li><a href="/post/" >Posts</a></li>
-        
-      
-        
-          <li><a href="/publications/" >Publications</a></li>
-        
-      
-        
-          <li><a href="/projects/" >Projects</a></li>
-        
-      
-        
-          <li><a href="/advisories/" >Advisories</a></li>
-        
-      
-        
-          <li><a href="/about/" >About</a></li>
-        
-      
-      
-    
-  </ul>
-</nav>
 
-  
-</header>
 
+<body class="dark">
 
   <div class="content">
+    <header>
+      
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+$(document).ready(function () {
+    function start() {
+        var originalText = $('.code').text().trim(); 
+        var OGarray = originalText.split(''); 
+        var obfuscatedText;
+        var revealIndex = 0; 
+        var duration = 3000; 
+        var intervalTime = 30; 
+        var delayBeforeStart = 500; 
+        var phase = 1; 
+        var convertedIndices = new Set(); 
+        var interval; 
+
+        
+        function getRandomASCII(len) {
+            let chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&';
+            return Array.from({ length: len }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+        }
+
+        
+        function getRandomHexChar() {
+            let hexChars = '0123456789ABCDEF';
+            return hexChars[Math.floor(Math.random() * hexChars.length)];
+        }
+
+        function generateInitialObfuscation() {
+            obfuscatedText = getRandomASCII(OGarray.length).split('');
+            $('.code').text(obfuscatedText.join(''));
+        }
+
+        function gradualHexConversionStep() {
+            if (convertedIndices.size < OGarray.length) {
+                let index;
+                do {
+                    index = Math.floor(Math.random() * OGarray.length);
+                } while (convertedIndices.has(index));
+
+                obfuscatedText[index] = getRandomHexChar(); 
+                convertedIndices.add(index);
+                $('.code').text(obfuscatedText.join(''));
+            }
+
+            if (convertedIndices.size >= OGarray.length) {
+                clearInterval(interval);
+                setTimeout(() => {
+                    phase = 3;
+                    revealIndex = 0;
+                    interval = setInterval(decryptStep, intervalTime);
+                }, 100);
+            }
+        }
+
+        function decryptStep() {
+            if (revealIndex < OGarray.length) {
+                obfuscatedText[revealIndex] = OGarray[revealIndex]; 
+                $('.code').text(obfuscatedText.join(''));
+                revealIndex++;
+            }
+
+            if (revealIndex >= OGarray.length) {
+                clearInterval(interval);
+                $('.code').text(originalText); 
+            }
+        }
+
+        generateInitialObfuscation();
+
+        setTimeout(() => {
+            interval = setInterval(() => {
+                if (phase === 2) {
+                    gradualHexConversionStep();
+                }
+            }, intervalTime);
+
+            setTimeout(() => {
+                phase = 2;
+            }, 100);
+        }, delayBeforeStart);
+    }
+
+    start();
+});
+
+</script>
+
+<div class="header">
+
     
-<article class="post">
-  <h1 class="post-title">
-    <a href="https://ulexec.github.io/post/2017-11-06-hitconctf2017-everlasting-imaginative-void/">Hitcon2017CTF - 家徒四壁~Everlasting Imaginative Void~</a>
-  </h1>
-  <div class="post-meta"><time class="post-date">2017-11-06</time><span class="post-author">ulexec</span></div>
 
-  
-    <span class="post-tags">
+    <h1 class="header-title">
+        <div  class="code" onload="start()" href="https://ulexec.github.io/">Ignacio Sanmillan</div>
+    </h1>
+
+    <div class="flex">
+        
+
+        
+        
       
-      #<a href="https://ulexec.github.io/tags/reversing/">reversing</a>&nbsp;
+        <p class="small ">
+            <a href="/" >
+                /home
+            </a>
+        </p>
+        
       
-      #<a href="https://ulexec.github.io/tags/ctf/">ctf</a>&nbsp;
+        <p class="small ">
+            <a href="/post" >
+                /posts
+            </a>
+        </p>
+        
       
-    </span>
-  
-  
+        <p class="small ">
+            <a href="/publications" >
+                /publications
+            </a>
+        </p>
+        
+      
+        <p class="small ">
+            <a href="/projects" >
+                /projects
+            </a>
+        </p>
+        
+      
+        <p class="small ">
+            <a href="/advisories" >
+                /advisories
+            </a>
+        </p>
+        
+      
+        <p class="small ">
+            <a href="/about" >
+                /about
+            </a>
+        </p>
+        
+        
+    </div>
+
+    
+
+</div>
+
+    </header>
+
+    <main class="main">
+      
 
 
+
+
+
+
+
+<div >
+
+  <div class="single-intro-container">
+
+    
+
+    <h1 class="single-title">Hitcon2017CTF - 家徒四壁~Everlasting Imaginative Void~</h1>
+    
+
+    
+
+    <p class="single-readtime">
+      
+      
+      
+      <time datetime="2017-11-06T00:00:00&#43;00:00">November 6, 2017</time>
+      
+
+      
+    </p>
+
+  </div>
+
   
 
-  <div class="post-content"><div>
-        <p>Everlasting Imaginative void was a Hitcon2017&rsquo;s reversing challenge worthing 300 points.
+  
+
+  
+
+  
+
+  <div class="single-content">
+    <p>Everlasting Imaginative void was a Hitcon2017&rsquo;s reversing challenge worthing 300 points.
 The challenge description was the following:</p>
 <p><code>Astonishingly impoverished elf</code></p>
 <p>Not much information.
 Executing a <code>file</code> command, we get the following information:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-perl" data-lang="perl"><span style="display:flex;"><span>n4x0r@pwn1e<span style="color:#f92672">~</span>$ file void<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>b63cbab5d58da4294c2f97d6b60f568 
-</span></span><span style="display:flex;"><span>void<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>b63cbab5d58da4294c2f97d6b60f568: ELF <span style="color:#ae81ff">64</span><span style="color:#f92672">-</span>bit LSB shared object, x86<span style="color:#f92672">-</span><span style="color:#ae81ff">64</span>, version <span style="color:#ae81ff">1</span> (SYSV), dynamically linked, interpreter <span style="color:#e6db74">/lib64/</span>ld<span style="color:#f92672">-</span>linux<span style="color:#f92672">-</span>x86<span style="color:#f92672">-</span><span style="color:#ae81ff">64</span><span style="color:#f92672">.</span>so<span style="color:#ae81ff">.2</span>, <span style="color:#66d9ef">for</span> GNU<span style="color:#f92672">/</span>Linux <span style="color:#ae81ff">2.6.32</span>, BuildID[sha1]<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span>f8a87150720003c217508ffd74883c715ffe7c3, stripped</span></span></code></pre></div>
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-perl" data-lang="perl"><span style="display:flex;"><span>n4x0r<span style="color:#8be9fd;font-style:italic">@pwn1e</span><span style="color:#ff79c6">~</span><span style="color:#8be9fd;font-style:italic">$</span> <span style="color:#8be9fd;font-style:italic">file</span> void<span style="color:#ff79c6">-</span><span style="color:#bd93f9">1</span>b63cbab5d58da4294c2f97d6b60f568 
+</span></span><span style="display:flex;"><span>void<span style="color:#ff79c6">-</span><span style="color:#bd93f9">1</span>b63cbab5d58da4294c2f97d6b60f568: ELF <span style="color:#bd93f9">64</span><span style="color:#ff79c6">-</span>bit LSB shared object, x86<span style="color:#ff79c6">-</span><span style="color:#bd93f9">64</span>, version <span style="color:#bd93f9">1</span> (SYSV), dynamically linked, interpreter <span style="color:#f1fa8c">/lib64/</span>ld<span style="color:#ff79c6">-</span>linux<span style="color:#ff79c6">-</span>x86<span style="color:#ff79c6">-</span><span style="color:#bd93f9">64</span><span style="color:#ff79c6">.</span>so<span style="color:#bd93f9">.2</span>, <span style="color:#ff79c6">for</span> GNU<span style="color:#ff79c6">/</span>Linux <span style="color:#bd93f9">2.6.32</span>, BuildID[sha1]<span style="color:#ff79c6">=</span><span style="color:#bd93f9">5</span>f8a87150720003c217508ffd74883c715ffe7c3, stripped</span></span></code></pre></div>
 If we execute the file we see the following:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>n4x0r<span style="color:#960050;background-color:#1e0010">@</span>pwn1e<span style="color:#f92672">~</span><span style="color:#960050;background-color:#1e0010">$</span> .<span style="color:#f92672">/</span><span style="color:#66d9ef">void</span><span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>b63cbab5d58da4294c2f97d6b60f568
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>n4x0r@pwn1e<span style="color:#ff79c6">~</span>$ .<span style="color:#ff79c6">/</span><span style="color:#8be9fd">void</span><span style="color:#ff79c6">-</span><span style="color:#bd93f9">1</span>b63cbab5d58da4294c2f97d6b60f568
 </span></span><span style="display:flex;"><span>blabla
 </span></span><span style="display:flex;"><span>hitcon{blabla}</span></span></code></pre></div>
 Ok, Lets dig inside and see what we can find.
 Surprisingly, the main function of the application was just the following:</p>
-<p><img src="/HitconCTF7/1.png#center" alt=""></p>
+<p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<figure class=" img-center">
+
+    <div>
+        <img loading="lazy" alt="" src="/HitconCTF7/1.png#center" >
+    </div>
+
+    
+</figure>
+</p>
 <p>This means that the binary must have tampered control flow.
 In my mind I thought about two potential possibilities:</p>
 <ul>
@@ -210,193 +319,439 @@ In my mind I thought about two potential possibilities:</p>
 </li>
 </ul>
 <p>Based that the binary is a <code>PIE</code> executable and that was bind using <code>BIND_NOW</code> flags, we can assume that GOT entries have not been tampered, and even if they had they will get overwritten at load time anyways. Regarding PLT hooks, I did a quick look up to the <code>.plt.got</code> section. and all jumps seem correct.</p>
-<p><img src="/HitconCTF7/2.png#center" alt=""></p>
+<p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<figure class=" img-center">
+
+    <div>
+        <img loading="lazy" alt="" src="/HitconCTF7/2.png#center" >
+    </div>
+
+    
+</figure>
+</p>
 <p>The reason why there is not pivoting into PLT[0] for each PLT entry in <code>.plt.got</code> is because binary was linked with immediate binding as previously mentioned. Therefore, there is no need to jump back to resolver since all GOT entries will be resolved at load time.</p>
 <p>We can see the binary has been linked with immediate binding by looking at the <code>DYNAMIC</code> segment <code>FLAGS</code> entry:
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#ae81ff">0x000000000000001e</span> (FLAGS)              BIND_NOW</span></span></code></pre></div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#bd93f9">0x000000000000001e</span> (FLAGS)              BIND_NOW</span></span></code></pre></div>
 Therefore, GOT/PLT hooks are discartded at this point.
 The other technique that we have left is the Constructors/Destructors pointer injection.
 This technique is based on injecting an additional pointer to the <code>.init_array</code>, <code>.fini_array</code> sections for constructors and destructors respectively.</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>[Nr] Name              Type             Address           Offset
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>[Nr] Name              Type             Address           Offset
 </span></span><span style="display:flex;"><span>       Size              EntSize          Flags  Link  Info  Align
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span> ...
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>[<span style="color:#ae81ff">18</span>] .init_array       INIT_ARRAY       <span style="color:#ae81ff">0000000000200</span>dc8  <span style="color:#ae81ff">00000</span>dc8
-</span></span><span style="display:flex;"><span>       <span style="color:#ae81ff">000000000000000</span><span style="color:#ae81ff">8</span>  <span style="color:#ae81ff">000000000000000</span><span style="color:#ae81ff">8</span>  WA       <span style="color:#ae81ff">0</span>     <span style="color:#ae81ff">0</span>     <span style="color:#ae81ff">8</span>
-</span></span><span style="display:flex;"><span>[<span style="color:#ae81ff">19</span>] .fini_array       FINI_ARRAY       <span style="color:#ae81ff">0000000000200</span>dd0  <span style="color:#ae81ff">00000</span>dd0
-</span></span><span style="display:flex;"><span>       <span style="color:#ae81ff">000000000000000</span><span style="color:#ae81ff">8</span>  <span style="color:#ae81ff">000000000000000</span><span style="color:#ae81ff">8</span>  WA       <span style="color:#ae81ff">0</span>     <span style="color:#ae81ff">0</span>     <span style="color:#ae81ff">8</span></span></span></code></pre></div>
+</span></span><span style="display:flex;"><span>[<span style="color:#bd93f9">18</span>] .init_array       INIT_ARRAY       <span style="color:#bd93f9">0000000000200</span>dc8  <span style="color:#bd93f9">00000</span>dc8
+</span></span><span style="display:flex;"><span>       <span style="color:#bd93f9">000000000000000</span><span style="color:#bd93f9">8</span>  <span style="color:#bd93f9">000000000000000</span><span style="color:#bd93f9">8</span>  WA       <span style="color:#bd93f9">0</span>     <span style="color:#bd93f9">0</span>     <span style="color:#bd93f9">8</span>
+</span></span><span style="display:flex;"><span>[<span style="color:#bd93f9">19</span>] .fini_array       FINI_ARRAY       <span style="color:#bd93f9">0000000000200</span>dd0  <span style="color:#bd93f9">00000</span>dd0
+</span></span><span style="display:flex;"><span>       <span style="color:#bd93f9">000000000000000</span><span style="color:#bd93f9">8</span>  <span style="color:#bd93f9">000000000000000</span><span style="color:#bd93f9">8</span>  WA       <span style="color:#bd93f9">0</span>     <span style="color:#bd93f9">0</span>     <span style="color:#bd93f9">8</span></span></span></code></pre></div>
 We can see that the correspondent sizes of those sections seem to be correct. However, once one gets to know the purpose of sections and segments and the loading process of ELF files, one realizes that sections are complete rubish from an analysis standpoint. Section information can be easily crafted and they may not resemble the reality of the binary&rsquo;s layout. In addition, sections are only needed at compile time, but not at runtime. For runtime we have segments.</p>
 <p>If we take a look at the binary&rsquo;s <code>DYNAMIC</code> segment, it tell us a different story:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#ae81ff">0x0000000000000019</span> (INIT_ARRAY)         <span style="color:#ae81ff">0x200dc8</span>
-</span></span><span style="display:flex;"><span><span style="color:#ae81ff">0x000000000000001b</span> (INIT_ARRAYSZ)       <span style="color:#ae81ff">8</span> (bytes)
-</span></span><span style="display:flex;"><span><span style="color:#ae81ff">0x000000000000001a</span> (FINI_ARRAY)         <span style="color:#ae81ff">0x200dd0</span>
-</span></span><span style="display:flex;"><span><span style="color:#ae81ff">0x000000000000001c</span> (FINI_ARRAYSZ)       <span style="color:#ae81ff">16</span> (bytes)</span></span></code></pre></div>
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#bd93f9">0x0000000000000019</span> (INIT_ARRAY)         <span style="color:#bd93f9">0x200dc8</span>
+</span></span><span style="display:flex;"><span><span style="color:#bd93f9">0x000000000000001b</span> (INIT_ARRAYSZ)       <span style="color:#bd93f9">8</span> (bytes)
+</span></span><span style="display:flex;"><span><span style="color:#bd93f9">0x000000000000001a</span> (FINI_ARRAY)         <span style="color:#bd93f9">0x200dd0</span>
+</span></span><span style="display:flex;"><span><span style="color:#bd93f9">0x000000000000001c</span> (FINI_ARRAYSZ)       <span style="color:#bd93f9">16</span> (bytes)</span></span></code></pre></div>
 We can clearly see, that <code>FINI_ARRAYSZ</code> is 1 pointer size bigger than what <code>.fini_array</code> section stated. Therefore, binary has corrupted control flow by destructor pointer injection.</p>
 <p>I must emphasize that IDA and radare2 did not get this right since they prioritised section information over segment information:</p>
-<p><img src="/HitconCTF7/3.png#center" alt=""></p>
+<p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<figure class=" img-center">
+
+    <div>
+        <img loading="lazy" alt="" src="/HitconCTF7/3.png#center" >
+    </div>
+
+    
+</figure>
+</p>
 <p>However, with radare2 we can see a pointer between the end of <code>.fini_array</code> and <code>.jcr</code> sections.</p>
-<p><img src="/HitconCTF7/4.png#center" alt="">
+<p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<figure class=" img-center">
+
+    <div>
+        <img loading="lazy" alt="" src="/HitconCTF7/4.png#center" >
+    </div>
+
+    
+</figure>
+
 As we can see from the radare2 screen shot, the pointer is initialised as 0. Therefore, most possibly that pointer will be a runtime relocation.</p>
 <p>If we look at the relocations of the binary we see the following:</p>
-<p><img src="/HitconCTF7/5.png#center" alt="">
+<p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<figure class=" img-center">
+
+    <div>
+        <img loading="lazy" alt="" src="/HitconCTF7/5.png#center" >
+    </div>
+
+    
+</figure>
+
 The third relocation of type <code>R_X86_64_RELATIVE</code> is the one we are looking for.
 Now lets analyse the injected routine.</p>
 <p>The injected routine is based in the <code>.eh_frame</code> section. This section usually contains <code>dwarf</code> information for stack unwinding at exception handling. This information may contain dwarf bytecode along with dwarf flags. However, it does not normally contain code.
 As we can see in the previous screenshot, the first thing this routine does is a <code>call 0x284</code>. This function pivots inside a crafted <code>.build-id</code> section.</p>
-<p><img src="/HitconCTF7/6.png#center" alt="">
+<p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<figure class=" img-center">
+
+    <div>
+        <img loading="lazy" alt="" src="/HitconCTF7/6.png#center" >
+    </div>
+
+    
+</figure>
+
 This section usually holds a SHA1 specific of the binary&rsquo;s build. so we can say that both <code>.eh_frame</code> and <code>.build-id</code> sections have been crafted specifically for this challenge, as a form of code cave to embed code.</p>
 <p>Futhermore, we can see a comparison of the byte at <code>rdi + 0x200715</code> with <code>'!'</code>. In fact, this is the 16th byte of the input retrived with <code>scanf</code> function at <code>main</code>. If this check holds, it jumps back to function <code>0x284 + 5</code> and resumes execution in the <code>.eh_frame</code> routine. Otherwise, will pivot to <code>ld.so</code> and will do further clean up until application termination.</p>
 <p>At this point we can guess that the binaries flag must be <code>16 bytes</code>, and must end with <code>'!'</code>.</p>
 <p>Further down the rabbit hole, we can see how it executes an mprotect systemcall which essentially does the following:
 <code>mprotect(imageBase, 0x1000, PROT_READ|PROT_WRITE|PROT_EXEC)</code></p>
-<p><img src="/HitconCTF7/7.png#center" alt="">
+<p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<figure class=" img-center">
+
+    <div>
+        <img loading="lazy" alt="" src="/HitconCTF7/7.png#center" >
+    </div>
+
+    
+</figure>
+
 It gives write permissions to the <code>CODE</code> segment of the main application.
 Moreover, it jumps back to the routine in the <code>.build-id</code> section, to then pivot to the following routine:</p>
-<p><img src="/HitconCTF7/8.png#center" alt="">
+<p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<figure class=" img-center">
+
+    <div>
+        <img loading="lazy" alt="" src="/HitconCTF7/8.png#center" >
+    </div>
+
+    
+</figure>
+
 This routine basically copies spreaded bytes to a known memory location to then jump to it.
 After stub if finally written, we end up in the following routine:</p>
-<p><img src="/HitconCTF7/9.png#center" alt="">
+<p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<figure class=" img-center">
+
+    <div>
+        <img loading="lazy" alt="" src="/HitconCTF7/9.png#center" >
+    </div>
+
+    
+</figure>
+
 In this routine, 10 rounds of aes encription are performed using the Intel&rsquo;s processors AES instruction set. A nice refresher of these instructions can be found <a href="https://github.com/n4x0r/n4x0r.github.io/raw/master/images/HitconCTF7/Use_of_the_AES_Instruction_Set.pdf">here</a>. At the end of the 10 rounds, the computed ciphertext from our input gets compared against a hardcoded ciphertext. This comparison is done with the instruction <code>ucomisd</code>. If check holds, the program will print <code>Good!</code> string by jumping to the sycall gate previously shown (the mprotect one), changing its arguments so that it executes a write instead of mprotect syscall.</p>
 <p>Something funny about this challenge is that the <code>ucomisd</code> instruction only compares the lower part of xmm registers. That is, the lowest 64 bits. Is quite obvious that the developer made an implementation mistake by using this instruction to compare the encription result. Just for the sake of curiosity, I have researched which instructions should have been used. One solution could have been the following</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-nasm" data-lang="nasm"><span style="display:flex;"><span><span style="color:#a6e22e">psubd</span>  xmm0, xmm1	    
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">ptest</span>  xmm0, xmm0       
-</span></span><span style="display:flex;"><span><span style="color:#a6e22e">jz</span>     _same     </span></span></code></pre></div>
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-nasm" data-lang="nasm"><span style="display:flex;"><span><span style="color:#50fa7b">psubd</span>  <span style="color:#8be9fd;font-style:italic">xmm0</span>, <span style="color:#8be9fd;font-style:italic">xmm1</span>	    
+</span></span><span style="display:flex;"><span><span style="color:#50fa7b">ptest</span>  <span style="color:#8be9fd;font-style:italic">xmm0</span>, <span style="color:#8be9fd;font-style:italic">xmm0</span>       
+</span></span><span style="display:flex;"><span><span style="color:#50fa7b">jz</span>     <span style="color:#8be9fd;font-style:italic">_same</span>     </span></span></code></pre></div>
 Furthermore, something important to note about this aes routine, is that round-keys are actually hardcoded at addresses pointed by <code>rsi</code> (at the beginning of routine), so round keys can be restored to perform the <code>Inverse Mix Column</code> transformation in order to use them for decription. In order to do this we can use the <code>aesimc</code> instruction (note that aesimc should not be used on the first and last round key). Furthermore, original ciphertext can also be aquired by just getting the result of the <code>xmm0</code> register after <code>aesenclast</code> instruction at the end of the 10 rounds, since it will get compared against the computed ciphertext derived from our input in <code>xmm1</code>.</p>
-<p><img src="/HitconCTF7/10.png#center" alt="">
+<p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<figure class=" img-center">
+
+    <div>
+        <img loading="lazy" alt="" src="/HitconCTF7/10.png#center" >
+    </div>
+
+    
+</figure>
+
 Having the inversed key rounds and the original ciphertext, we can reconstruct the decription routine.
 The following code replicates the decription routine:</p>
 <p>{% raw %}
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdio.h&gt;</span><span style="color:#75715e">
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;string.h&gt;</span><span style="color:#75715e">
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdint.h&gt;</span><span style="color:#75715e">
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdlib.h&gt;</span><span style="color:#75715e">
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">aes_decrypt</span>(<span style="color:#66d9ef">uint8_t</span> <span style="color:#f92672">*</span>ctext, <span style="color:#66d9ef">uint8_t</span> <span style="color:#f92672">*</span>flag, <span style="color:#66d9ef">uint8_t</span> <span style="color:#f92672">*</span>round_keys) {
-</span></span><span style="display:flex;"><span>	<span style="color:#66d9ef">asm</span> <span style="color:#66d9ef">volatile</span> (	<span style="color:#e6db74">&#34;movdqu (%0), %%xmm11	</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span> 
-</span></span><span style="display:flex;"><span>   	    		<span style="color:#e6db74">&#34;movdqu (%1), %%xmm10	</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span> 
-</span></span><span style="display:flex;"><span>	    		<span style="color:#e6db74">&#34;movdqu (%2), %%xmm9	</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>
-</span></span><span style="display:flex;"><span>			<span style="color:#e6db74">&#34;movdqu (%3), %%xmm8	</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span> 
-</span></span><span style="display:flex;"><span>			<span style="color:#e6db74">&#34;movdqu (%4), %%xmm7	</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span> 
-</span></span><span style="display:flex;"><span>			<span style="color:#e6db74">&#34;movdqu	(%5), %%xmm6	</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span> 
-</span></span><span style="display:flex;"><span>			<span style="color:#e6db74">&#34;movdqu (%6), %%xmm5	</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span> 
-</span></span><span style="display:flex;"><span>			<span style="color:#e6db74">&#34;movdqu (%7), %%xmm4	</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span> 
-</span></span><span style="display:flex;"><span>			<span style="color:#e6db74">&#34;movdqu (%8), %%xmm3	</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span> 
-</span></span><span style="display:flex;"><span>			<span style="color:#e6db74">&#34;movdqu (%9), %%xmm2	</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span> 
-</span></span><span style="display:flex;"><span>			<span style="color:#e6db74">&#34;movdqu (%10), %%xmm1	</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span> 
-</span></span><span style="display:flex;"><span>			<span style="color:#e6db74">&#34;movdqu (%11), %%xmm0	</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span> 
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;stdio.h&gt;</span><span style="color:#ff79c6">
+</span></span></span><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;string.h&gt;</span><span style="color:#ff79c6">
+</span></span></span><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;stdint.h&gt;</span><span style="color:#ff79c6">
+</span></span></span><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;stdlib.h&gt;</span><span style="color:#ff79c6">
+</span></span></span><span style="display:flex;"><span><span style="color:#ff79c6"></span>
+</span></span><span style="display:flex;"><span><span style="color:#8be9fd">void</span> <span style="color:#50fa7b">aes_decrypt</span>(<span style="color:#8be9fd">uint8_t</span> <span style="color:#ff79c6">*</span>ctext, <span style="color:#8be9fd">uint8_t</span> <span style="color:#ff79c6">*</span>flag, <span style="color:#8be9fd">uint8_t</span> <span style="color:#ff79c6">*</span>round_keys) {
+</span></span><span style="display:flex;"><span>	<span style="color:#ff79c6">asm</span> <span style="color:#ff79c6">volatile</span> (	<span style="color:#f1fa8c">&#34;movdqu (%0), %%xmm11	</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span> 
+</span></span><span style="display:flex;"><span>   	    		<span style="color:#f1fa8c">&#34;movdqu (%1), %%xmm10	</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span> 
+</span></span><span style="display:flex;"><span>	    		<span style="color:#f1fa8c">&#34;movdqu (%2), %%xmm9	</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#f1fa8c">&#34;movdqu (%3), %%xmm8	</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span> 
+</span></span><span style="display:flex;"><span>			<span style="color:#f1fa8c">&#34;movdqu (%4), %%xmm7	</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span> 
+</span></span><span style="display:flex;"><span>			<span style="color:#f1fa8c">&#34;movdqu	(%5), %%xmm6	</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span> 
+</span></span><span style="display:flex;"><span>			<span style="color:#f1fa8c">&#34;movdqu (%6), %%xmm5	</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span> 
+</span></span><span style="display:flex;"><span>			<span style="color:#f1fa8c">&#34;movdqu (%7), %%xmm4	</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span> 
+</span></span><span style="display:flex;"><span>			<span style="color:#f1fa8c">&#34;movdqu (%8), %%xmm3	</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span> 
+</span></span><span style="display:flex;"><span>			<span style="color:#f1fa8c">&#34;movdqu (%9), %%xmm2	</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span> 
+</span></span><span style="display:flex;"><span>			<span style="color:#f1fa8c">&#34;movdqu (%10), %%xmm1	</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span> 
+</span></span><span style="display:flex;"><span>			<span style="color:#f1fa8c">&#34;movdqu (%11), %%xmm0	</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span> 
 </span></span><span style="display:flex;"><span>			
-</span></span><span style="display:flex;"><span>			<span style="color:#e6db74">&#34;aesimc %%xmm9, %%xmm9	</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>
-</span></span><span style="display:flex;"><span>	     		<span style="color:#e6db74">&#34;aesimc %%xmm8, %%xmm8	</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>
-</span></span><span style="display:flex;"><span>	     		<span style="color:#e6db74">&#34;aesimc %%xmm7, %%xmm7	</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>
-</span></span><span style="display:flex;"><span>	     		<span style="color:#e6db74">&#34;aesimc %%xmm6, %%xmm6	</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>
-</span></span><span style="display:flex;"><span>	     		<span style="color:#e6db74">&#34;aesimc %%xmm5, %%xmm5	</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>
-</span></span><span style="display:flex;"><span>	     		<span style="color:#e6db74">&#34;aesimc %%xmm4, %%xmm4	</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>
-</span></span><span style="display:flex;"><span>	     		<span style="color:#e6db74">&#34;aesimc %%xmm3, %%xmm3	</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>
-</span></span><span style="display:flex;"><span>	     		<span style="color:#e6db74">&#34;aesimc %%xmm2, %%xmm2	</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>
-</span></span><span style="display:flex;"><span>	     		<span style="color:#e6db74">&#34;aesimc %%xmm1, %%xmm1	</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#f1fa8c">&#34;aesimc %%xmm9, %%xmm9	</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span>
+</span></span><span style="display:flex;"><span>	     		<span style="color:#f1fa8c">&#34;aesimc %%xmm8, %%xmm8	</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span>
+</span></span><span style="display:flex;"><span>	     		<span style="color:#f1fa8c">&#34;aesimc %%xmm7, %%xmm7	</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span>
+</span></span><span style="display:flex;"><span>	     		<span style="color:#f1fa8c">&#34;aesimc %%xmm6, %%xmm6	</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span>
+</span></span><span style="display:flex;"><span>	     		<span style="color:#f1fa8c">&#34;aesimc %%xmm5, %%xmm5	</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span>
+</span></span><span style="display:flex;"><span>	     		<span style="color:#f1fa8c">&#34;aesimc %%xmm4, %%xmm4	</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span>
+</span></span><span style="display:flex;"><span>	     		<span style="color:#f1fa8c">&#34;aesimc %%xmm3, %%xmm3	</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span>
+</span></span><span style="display:flex;"><span>	     		<span style="color:#f1fa8c">&#34;aesimc %%xmm2, %%xmm2	</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span>
+</span></span><span style="display:flex;"><span>	     		<span style="color:#f1fa8c">&#34;aesimc %%xmm1, %%xmm1	</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span>
 </span></span><span style="display:flex;"><span>			
-</span></span><span style="display:flex;"><span>			<span style="color:#e6db74">&#34;pxor 	%%xmm10, %%xmm11</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>
-</span></span><span style="display:flex;"><span>	     		<span style="color:#e6db74">&#34;aesdec %%xmm9, %%xmm11	</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>
-</span></span><span style="display:flex;"><span>	     		<span style="color:#e6db74">&#34;aesdec %%xmm8, %%xmm11	</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>
-</span></span><span style="display:flex;"><span>	     		<span style="color:#e6db74">&#34;aesdec %%xmm7, %%xmm11	</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>
-</span></span><span style="display:flex;"><span>	     		<span style="color:#e6db74">&#34;aesdec %%xmm6, %%xmm11	</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>
-</span></span><span style="display:flex;"><span>	     		<span style="color:#e6db74">&#34;aesdec %%xmm5,	%%xmm11	</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>
-</span></span><span style="display:flex;"><span>	     		<span style="color:#e6db74">&#34;aesdec %%xmm4, %%xmm11	</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>
-</span></span><span style="display:flex;"><span>	    	 	<span style="color:#e6db74">&#34;aesdec %%xmm3, %%xmm11	</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>
-</span></span><span style="display:flex;"><span>	     		<span style="color:#e6db74">&#34;aesdec %%xmm2, %%xmm11	</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>
-</span></span><span style="display:flex;"><span>	     		<span style="color:#e6db74">&#34;aesdec %%xmm1, %%xmm11	</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>
-</span></span><span style="display:flex;"><span>	     		<span style="color:#e6db74">&#34;aesdeclast %%xmm0, %%xmm11</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#f1fa8c">&#34;pxor 	%%xmm10, %%xmm11</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span>
+</span></span><span style="display:flex;"><span>	     		<span style="color:#f1fa8c">&#34;aesdec %%xmm9, %%xmm11	</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span>
+</span></span><span style="display:flex;"><span>	     		<span style="color:#f1fa8c">&#34;aesdec %%xmm8, %%xmm11	</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span>
+</span></span><span style="display:flex;"><span>	     		<span style="color:#f1fa8c">&#34;aesdec %%xmm7, %%xmm11	</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span>
+</span></span><span style="display:flex;"><span>	     		<span style="color:#f1fa8c">&#34;aesdec %%xmm6, %%xmm11	</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span>
+</span></span><span style="display:flex;"><span>	     		<span style="color:#f1fa8c">&#34;aesdec %%xmm5,	%%xmm11	</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span>
+</span></span><span style="display:flex;"><span>	     		<span style="color:#f1fa8c">&#34;aesdec %%xmm4, %%xmm11	</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span>
+</span></span><span style="display:flex;"><span>	    	 	<span style="color:#f1fa8c">&#34;aesdec %%xmm3, %%xmm11	</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span>
+</span></span><span style="display:flex;"><span>	     		<span style="color:#f1fa8c">&#34;aesdec %%xmm2, %%xmm11	</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span>
+</span></span><span style="display:flex;"><span>	     		<span style="color:#f1fa8c">&#34;aesdec %%xmm1, %%xmm11	</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span>
+</span></span><span style="display:flex;"><span>	     		<span style="color:#f1fa8c">&#34;aesdeclast %%xmm0, %%xmm11</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span>
 </span></span><span style="display:flex;"><span>			
-</span></span><span style="display:flex;"><span>			<span style="color:#e6db74">&#34;movdqu %%xmm11, (%12)	</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#f1fa8c">&#34;movdqu %%xmm11, (%12)	</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span>
 </span></span><span style="display:flex;"><span>			
-</span></span><span style="display:flex;"><span>			<span style="color:#f92672">:</span>
-</span></span><span style="display:flex;"><span>			<span style="color:#f92672">:</span>  <span style="color:#e6db74">&#34;r&#34;</span>(ctext),
-</span></span><span style="display:flex;"><span>			   <span style="color:#e6db74">&#34;r&#34;</span>(round_keys <span style="color:#f92672">+</span> <span style="color:#ae81ff">160</span>),
-</span></span><span style="display:flex;"><span>		       	   <span style="color:#e6db74">&#34;r&#34;</span>(round_keys <span style="color:#f92672">+</span> <span style="color:#ae81ff">144</span>),
-</span></span><span style="display:flex;"><span>			   <span style="color:#e6db74">&#34;r&#34;</span>(round_keys <span style="color:#f92672">+</span> <span style="color:#ae81ff">128</span>),
-</span></span><span style="display:flex;"><span>			   <span style="color:#e6db74">&#34;r&#34;</span>(round_keys <span style="color:#f92672">+</span> <span style="color:#ae81ff">112</span>),
-</span></span><span style="display:flex;"><span>			   <span style="color:#e6db74">&#34;r&#34;</span>(round_keys <span style="color:#f92672">+</span> <span style="color:#ae81ff">96</span>),
-</span></span><span style="display:flex;"><span>			   <span style="color:#e6db74">&#34;r&#34;</span>(round_keys <span style="color:#f92672">+</span> <span style="color:#ae81ff">80</span>),
-</span></span><span style="display:flex;"><span>			   <span style="color:#e6db74">&#34;r&#34;</span>(round_keys <span style="color:#f92672">+</span> <span style="color:#ae81ff">64</span>),
-</span></span><span style="display:flex;"><span>			   <span style="color:#e6db74">&#34;r&#34;</span>(round_keys <span style="color:#f92672">+</span> <span style="color:#ae81ff">48</span>),
-</span></span><span style="display:flex;"><span>			   <span style="color:#e6db74">&#34;r&#34;</span>(round_keys <span style="color:#f92672">+</span> <span style="color:#ae81ff">32</span>),
-</span></span><span style="display:flex;"><span>			   <span style="color:#e6db74">&#34;r&#34;</span>(round_keys <span style="color:#f92672">+</span> <span style="color:#ae81ff">16</span>),
-</span></span><span style="display:flex;"><span>			   <span style="color:#e6db74">&#34;r&#34;</span>(round_keys),
-</span></span><span style="display:flex;"><span>			   <span style="color:#e6db74">&#34;r&#34;</span>(flag)
-</span></span><span style="display:flex;"><span>			<span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;memory&#34;</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#ff79c6">:</span>
+</span></span><span style="display:flex;"><span>			<span style="color:#ff79c6">:</span>  <span style="color:#f1fa8c">&#34;r&#34;</span>(ctext),
+</span></span><span style="display:flex;"><span>			   <span style="color:#f1fa8c">&#34;r&#34;</span>(round_keys <span style="color:#ff79c6">+</span> <span style="color:#bd93f9">160</span>),
+</span></span><span style="display:flex;"><span>		       	   <span style="color:#f1fa8c">&#34;r&#34;</span>(round_keys <span style="color:#ff79c6">+</span> <span style="color:#bd93f9">144</span>),
+</span></span><span style="display:flex;"><span>			   <span style="color:#f1fa8c">&#34;r&#34;</span>(round_keys <span style="color:#ff79c6">+</span> <span style="color:#bd93f9">128</span>),
+</span></span><span style="display:flex;"><span>			   <span style="color:#f1fa8c">&#34;r&#34;</span>(round_keys <span style="color:#ff79c6">+</span> <span style="color:#bd93f9">112</span>),
+</span></span><span style="display:flex;"><span>			   <span style="color:#f1fa8c">&#34;r&#34;</span>(round_keys <span style="color:#ff79c6">+</span> <span style="color:#bd93f9">96</span>),
+</span></span><span style="display:flex;"><span>			   <span style="color:#f1fa8c">&#34;r&#34;</span>(round_keys <span style="color:#ff79c6">+</span> <span style="color:#bd93f9">80</span>),
+</span></span><span style="display:flex;"><span>			   <span style="color:#f1fa8c">&#34;r&#34;</span>(round_keys <span style="color:#ff79c6">+</span> <span style="color:#bd93f9">64</span>),
+</span></span><span style="display:flex;"><span>			   <span style="color:#f1fa8c">&#34;r&#34;</span>(round_keys <span style="color:#ff79c6">+</span> <span style="color:#bd93f9">48</span>),
+</span></span><span style="display:flex;"><span>			   <span style="color:#f1fa8c">&#34;r&#34;</span>(round_keys <span style="color:#ff79c6">+</span> <span style="color:#bd93f9">32</span>),
+</span></span><span style="display:flex;"><span>			   <span style="color:#f1fa8c">&#34;r&#34;</span>(round_keys <span style="color:#ff79c6">+</span> <span style="color:#bd93f9">16</span>),
+</span></span><span style="display:flex;"><span>			   <span style="color:#f1fa8c">&#34;r&#34;</span>(round_keys),
+</span></span><span style="display:flex;"><span>			   <span style="color:#f1fa8c">&#34;r&#34;</span>(flag)
+</span></span><span style="display:flex;"><span>			<span style="color:#ff79c6">:</span> <span style="color:#f1fa8c">&#34;memory&#34;</span>
 </span></span><span style="display:flex;"><span>	);
 </span></span><span style="display:flex;"><span>}
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>() {
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">uint8_t</span> flag[<span style="color:#ae81ff">17</span>];
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">uint8_t</span> round_keys[] <span style="color:#f92672">=</span> { <span style="color:#ae81ff">0x48</span>, <span style="color:#ae81ff">0xc1</span>, <span style="color:#ae81ff">0xfd</span>, <span style="color:#ae81ff">0x03</span>, <span style="color:#ae81ff">0xe8</span>, <span style="color:#ae81ff">0x07</span>, <span style="color:#ae81ff">0xfe</span>, <span style="color:#ae81ff">0xff</span>, 
-</span></span><span style="display:flex;"><span>			  <span style="color:#ae81ff">0xff</span>, <span style="color:#ae81ff">0x48</span>, <span style="color:#ae81ff">0x85</span>, <span style="color:#ae81ff">0xed</span>, <span style="color:#ae81ff">0x74</span>, <span style="color:#ae81ff">0x20</span>, <span style="color:#ae81ff">0x31</span>, <span style="color:#ae81ff">0xdb</span>, 
-</span></span><span style="display:flex;"><span>			  <span style="color:#ae81ff">0x0f</span>, <span style="color:#ae81ff">0x1f</span>, <span style="color:#ae81ff">0x84</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, 
-</span></span><span style="display:flex;"><span>			  <span style="color:#ae81ff">0x4c</span>, <span style="color:#ae81ff">0x89</span>, <span style="color:#ae81ff">0xea</span>, <span style="color:#ae81ff">0x4c</span>, <span style="color:#ae81ff">0x89</span>, <span style="color:#ae81ff">0xf6</span>, <span style="color:#ae81ff">0x44</span>, <span style="color:#ae81ff">0x89</span>, 
-</span></span><span style="display:flex;"><span>			  <span style="color:#ae81ff">0xff</span>, <span style="color:#ae81ff">0x41</span>, <span style="color:#ae81ff">0xff</span>, <span style="color:#ae81ff">0x14</span>, <span style="color:#ae81ff">0xdc</span>, <span style="color:#ae81ff">0x48</span>, <span style="color:#ae81ff">0x83</span>, <span style="color:#ae81ff">0xc3</span>, 
-</span></span><span style="display:flex;"><span>			  <span style="color:#ae81ff">0x01</span>, <span style="color:#ae81ff">0x48</span>, <span style="color:#ae81ff">0x39</span>, <span style="color:#ae81ff">0xdd</span>, <span style="color:#ae81ff">0x75</span>, <span style="color:#ae81ff">0xea</span>, <span style="color:#ae81ff">0x48</span>, <span style="color:#ae81ff">0x83</span>, 
-</span></span><span style="display:flex;"><span>			  <span style="color:#ae81ff">0xc4</span>, <span style="color:#ae81ff">0x08</span>, <span style="color:#ae81ff">0x5b</span>, <span style="color:#ae81ff">0x5d</span>, <span style="color:#ae81ff">0x41</span>, <span style="color:#ae81ff">0x5c</span>, <span style="color:#ae81ff">0x41</span>, <span style="color:#ae81ff">0x5d</span>, 
-</span></span><span style="display:flex;"><span>			  <span style="color:#ae81ff">0x41</span>, <span style="color:#ae81ff">0x5e</span>, <span style="color:#ae81ff">0x41</span>, <span style="color:#ae81ff">0x5f</span>, <span style="color:#ae81ff">0xc3</span>, <span style="color:#ae81ff">0x90</span>, <span style="color:#ae81ff">0x66</span>, <span style="color:#ae81ff">0x2e</span>, 
-</span></span><span style="display:flex;"><span>			  <span style="color:#ae81ff">0x0f</span>, <span style="color:#ae81ff">0x1f</span>, <span style="color:#ae81ff">0x84</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, 
-</span></span><span style="display:flex;"><span>			  <span style="color:#ae81ff">0xf3</span>, <span style="color:#ae81ff">0xc3</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x48</span>, <span style="color:#ae81ff">0x83</span>, <span style="color:#ae81ff">0xec</span>, <span style="color:#ae81ff">0x08</span>, 
-</span></span><span style="display:flex;"><span>			  <span style="color:#ae81ff">0x48</span>, <span style="color:#ae81ff">0x83</span>, <span style="color:#ae81ff">0xc4</span>, <span style="color:#ae81ff">0x08</span>, <span style="color:#ae81ff">0xc3</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, 
-</span></span><span style="display:flex;"><span>			  <span style="color:#ae81ff">0x01</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x02</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x25</span>, <span style="color:#ae81ff">0x73</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x68</span>, 
-</span></span><span style="display:flex;"><span>			  <span style="color:#ae81ff">0x69</span>, <span style="color:#ae81ff">0x74</span>, <span style="color:#ae81ff">0x63</span>, <span style="color:#ae81ff">0x6f</span>, <span style="color:#ae81ff">0x6e</span>, <span style="color:#ae81ff">0x7b</span>, <span style="color:#ae81ff">0x25</span>, <span style="color:#ae81ff">0x73</span>, 
-</span></span><span style="display:flex;"><span>			  <span style="color:#ae81ff">0x7d</span>, <span style="color:#ae81ff">0x0a</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x01</span>, <span style="color:#ae81ff">0x1b</span>, <span style="color:#ae81ff">0x03</span>, <span style="color:#ae81ff">0x3b</span>, 
-</span></span><span style="display:flex;"><span>			  <span style="color:#ae81ff">0x40</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x07</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, 
-</span></span><span style="display:flex;"><span>			  <span style="color:#ae81ff">0xbc</span>, <span style="color:#ae81ff">0xfd</span>, <span style="color:#ae81ff">0xff</span>, <span style="color:#ae81ff">0xff</span>, <span style="color:#ae81ff">0x8c</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, 
-</span></span><span style="display:flex;"><span>			  <span style="color:#ae81ff">0xcc</span>, <span style="color:#ae81ff">0xfd</span>, <span style="color:#ae81ff">0xff</span>, <span style="color:#ae81ff">0xff</span>, <span style="color:#ae81ff">0xb4</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, 
-</span></span><span style="display:flex;"><span>			  <span style="color:#ae81ff">0xec</span>, <span style="color:#ae81ff">0xfd</span>, <span style="color:#ae81ff">0xff</span>, <span style="color:#ae81ff">0xff</span>, <span style="color:#ae81ff">0x5c</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, 
-</span></span><span style="display:flex;"><span>			  <span style="color:#ae81ff">0x1c</span>, <span style="color:#ae81ff">0xff</span>, <span style="color:#ae81ff">0xff</span>, <span style="color:#ae81ff">0xff</span>, <span style="color:#ae81ff">0xcc</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, 
-</span></span><span style="display:flex;"><span>			  <span style="color:#ae81ff">0x57</span>, <span style="color:#ae81ff">0xff</span>, <span style="color:#ae81ff">0xff</span>, <span style="color:#ae81ff">0xff</span>, <span style="color:#ae81ff">0xec</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, 
-</span></span><span style="display:flex;"><span>			  <span style="color:#ae81ff">0x6c</span>, <span style="color:#ae81ff">0xff</span>, <span style="color:#ae81ff">0xff</span>, <span style="color:#ae81ff">0xff</span>, <span style="color:#ae81ff">0x0c</span>, <span style="color:#ae81ff">0x01</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span>, 
-</span></span><span style="display:flex;"><span>			  <span style="color:#ae81ff">0xdc</span>, <span style="color:#ae81ff">0xff</span>, <span style="color:#ae81ff">0xff</span>, <span style="color:#ae81ff">0xff</span>, <span style="color:#ae81ff">0x54</span>, <span style="color:#ae81ff">0x01</span>, <span style="color:#ae81ff">0x00</span>, <span style="color:#ae81ff">0x00</span> };
+</span></span><span style="display:flex;"><span><span style="color:#8be9fd">int</span> <span style="color:#50fa7b">main</span>() {
+</span></span><span style="display:flex;"><span>  <span style="color:#8be9fd">uint8_t</span> flag[<span style="color:#bd93f9">17</span>];
+</span></span><span style="display:flex;"><span>  <span style="color:#8be9fd">uint8_t</span> round_keys[] <span style="color:#ff79c6">=</span> { <span style="color:#bd93f9">0x48</span>, <span style="color:#bd93f9">0xc1</span>, <span style="color:#bd93f9">0xfd</span>, <span style="color:#bd93f9">0x03</span>, <span style="color:#bd93f9">0xe8</span>, <span style="color:#bd93f9">0x07</span>, <span style="color:#bd93f9">0xfe</span>, <span style="color:#bd93f9">0xff</span>, 
+</span></span><span style="display:flex;"><span>			  <span style="color:#bd93f9">0xff</span>, <span style="color:#bd93f9">0x48</span>, <span style="color:#bd93f9">0x85</span>, <span style="color:#bd93f9">0xed</span>, <span style="color:#bd93f9">0x74</span>, <span style="color:#bd93f9">0x20</span>, <span style="color:#bd93f9">0x31</span>, <span style="color:#bd93f9">0xdb</span>, 
+</span></span><span style="display:flex;"><span>			  <span style="color:#bd93f9">0x0f</span>, <span style="color:#bd93f9">0x1f</span>, <span style="color:#bd93f9">0x84</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x00</span>, 
+</span></span><span style="display:flex;"><span>			  <span style="color:#bd93f9">0x4c</span>, <span style="color:#bd93f9">0x89</span>, <span style="color:#bd93f9">0xea</span>, <span style="color:#bd93f9">0x4c</span>, <span style="color:#bd93f9">0x89</span>, <span style="color:#bd93f9">0xf6</span>, <span style="color:#bd93f9">0x44</span>, <span style="color:#bd93f9">0x89</span>, 
+</span></span><span style="display:flex;"><span>			  <span style="color:#bd93f9">0xff</span>, <span style="color:#bd93f9">0x41</span>, <span style="color:#bd93f9">0xff</span>, <span style="color:#bd93f9">0x14</span>, <span style="color:#bd93f9">0xdc</span>, <span style="color:#bd93f9">0x48</span>, <span style="color:#bd93f9">0x83</span>, <span style="color:#bd93f9">0xc3</span>, 
+</span></span><span style="display:flex;"><span>			  <span style="color:#bd93f9">0x01</span>, <span style="color:#bd93f9">0x48</span>, <span style="color:#bd93f9">0x39</span>, <span style="color:#bd93f9">0xdd</span>, <span style="color:#bd93f9">0x75</span>, <span style="color:#bd93f9">0xea</span>, <span style="color:#bd93f9">0x48</span>, <span style="color:#bd93f9">0x83</span>, 
+</span></span><span style="display:flex;"><span>			  <span style="color:#bd93f9">0xc4</span>, <span style="color:#bd93f9">0x08</span>, <span style="color:#bd93f9">0x5b</span>, <span style="color:#bd93f9">0x5d</span>, <span style="color:#bd93f9">0x41</span>, <span style="color:#bd93f9">0x5c</span>, <span style="color:#bd93f9">0x41</span>, <span style="color:#bd93f9">0x5d</span>, 
+</span></span><span style="display:flex;"><span>			  <span style="color:#bd93f9">0x41</span>, <span style="color:#bd93f9">0x5e</span>, <span style="color:#bd93f9">0x41</span>, <span style="color:#bd93f9">0x5f</span>, <span style="color:#bd93f9">0xc3</span>, <span style="color:#bd93f9">0x90</span>, <span style="color:#bd93f9">0x66</span>, <span style="color:#bd93f9">0x2e</span>, 
+</span></span><span style="display:flex;"><span>			  <span style="color:#bd93f9">0x0f</span>, <span style="color:#bd93f9">0x1f</span>, <span style="color:#bd93f9">0x84</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x00</span>, 
+</span></span><span style="display:flex;"><span>			  <span style="color:#bd93f9">0xf3</span>, <span style="color:#bd93f9">0xc3</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x48</span>, <span style="color:#bd93f9">0x83</span>, <span style="color:#bd93f9">0xec</span>, <span style="color:#bd93f9">0x08</span>, 
+</span></span><span style="display:flex;"><span>			  <span style="color:#bd93f9">0x48</span>, <span style="color:#bd93f9">0x83</span>, <span style="color:#bd93f9">0xc4</span>, <span style="color:#bd93f9">0x08</span>, <span style="color:#bd93f9">0xc3</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x00</span>, 
+</span></span><span style="display:flex;"><span>			  <span style="color:#bd93f9">0x01</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x02</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x25</span>, <span style="color:#bd93f9">0x73</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x68</span>, 
+</span></span><span style="display:flex;"><span>			  <span style="color:#bd93f9">0x69</span>, <span style="color:#bd93f9">0x74</span>, <span style="color:#bd93f9">0x63</span>, <span style="color:#bd93f9">0x6f</span>, <span style="color:#bd93f9">0x6e</span>, <span style="color:#bd93f9">0x7b</span>, <span style="color:#bd93f9">0x25</span>, <span style="color:#bd93f9">0x73</span>, 
+</span></span><span style="display:flex;"><span>			  <span style="color:#bd93f9">0x7d</span>, <span style="color:#bd93f9">0x0a</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x01</span>, <span style="color:#bd93f9">0x1b</span>, <span style="color:#bd93f9">0x03</span>, <span style="color:#bd93f9">0x3b</span>, 
+</span></span><span style="display:flex;"><span>			  <span style="color:#bd93f9">0x40</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x07</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x00</span>, 
+</span></span><span style="display:flex;"><span>			  <span style="color:#bd93f9">0xbc</span>, <span style="color:#bd93f9">0xfd</span>, <span style="color:#bd93f9">0xff</span>, <span style="color:#bd93f9">0xff</span>, <span style="color:#bd93f9">0x8c</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x00</span>, 
+</span></span><span style="display:flex;"><span>			  <span style="color:#bd93f9">0xcc</span>, <span style="color:#bd93f9">0xfd</span>, <span style="color:#bd93f9">0xff</span>, <span style="color:#bd93f9">0xff</span>, <span style="color:#bd93f9">0xb4</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x00</span>, 
+</span></span><span style="display:flex;"><span>			  <span style="color:#bd93f9">0xec</span>, <span style="color:#bd93f9">0xfd</span>, <span style="color:#bd93f9">0xff</span>, <span style="color:#bd93f9">0xff</span>, <span style="color:#bd93f9">0x5c</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x00</span>, 
+</span></span><span style="display:flex;"><span>			  <span style="color:#bd93f9">0x1c</span>, <span style="color:#bd93f9">0xff</span>, <span style="color:#bd93f9">0xff</span>, <span style="color:#bd93f9">0xff</span>, <span style="color:#bd93f9">0xcc</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x00</span>, 
+</span></span><span style="display:flex;"><span>			  <span style="color:#bd93f9">0x57</span>, <span style="color:#bd93f9">0xff</span>, <span style="color:#bd93f9">0xff</span>, <span style="color:#bd93f9">0xff</span>, <span style="color:#bd93f9">0xec</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x00</span>, 
+</span></span><span style="display:flex;"><span>			  <span style="color:#bd93f9">0x6c</span>, <span style="color:#bd93f9">0xff</span>, <span style="color:#bd93f9">0xff</span>, <span style="color:#bd93f9">0xff</span>, <span style="color:#bd93f9">0x0c</span>, <span style="color:#bd93f9">0x01</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x00</span>, 
+</span></span><span style="display:flex;"><span>			  <span style="color:#bd93f9">0xdc</span>, <span style="color:#bd93f9">0xff</span>, <span style="color:#bd93f9">0xff</span>, <span style="color:#bd93f9">0xff</span>, <span style="color:#bd93f9">0x54</span>, <span style="color:#bd93f9">0x01</span>, <span style="color:#bd93f9">0x00</span>, <span style="color:#bd93f9">0x00</span> };
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">uint8_t</span> ctext[] <span style="color:#f92672">=</span> {     <span style="color:#ae81ff">0xe7</span>, <span style="color:#ae81ff">0x47</span>, <span style="color:#ae81ff">0x04</span>, <span style="color:#ae81ff">0x12</span>, <span style="color:#ae81ff">0x49</span>, <span style="color:#ae81ff">0x6d</span>, <span style="color:#ae81ff">0xcf</span>, <span style="color:#ae81ff">0x47</span>, 
-</span></span><span style="display:flex;"><span>	  		  <span style="color:#ae81ff">0xb0</span>, <span style="color:#ae81ff">0xe9</span>, <span style="color:#ae81ff">0x1b</span>, <span style="color:#ae81ff">0x17</span>, <span style="color:#ae81ff">0x67</span>, <span style="color:#ae81ff">0xfb</span>, <span style="color:#ae81ff">0x46</span>, <span style="color:#ae81ff">0x28</span>};
-</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">aes_decrypt</span>(ctext, flag, round_keys);
-</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;hitcon{%s}</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, flag);
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>  <span style="color:#8be9fd">uint8_t</span> ctext[] <span style="color:#ff79c6">=</span> {     <span style="color:#bd93f9">0xe7</span>, <span style="color:#bd93f9">0x47</span>, <span style="color:#bd93f9">0x04</span>, <span style="color:#bd93f9">0x12</span>, <span style="color:#bd93f9">0x49</span>, <span style="color:#bd93f9">0x6d</span>, <span style="color:#bd93f9">0xcf</span>, <span style="color:#bd93f9">0x47</span>, 
+</span></span><span style="display:flex;"><span>	  		  <span style="color:#bd93f9">0xb0</span>, <span style="color:#bd93f9">0xe9</span>, <span style="color:#bd93f9">0x1b</span>, <span style="color:#bd93f9">0x17</span>, <span style="color:#bd93f9">0x67</span>, <span style="color:#bd93f9">0xfb</span>, <span style="color:#bd93f9">0x46</span>, <span style="color:#bd93f9">0x28</span>};
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">aes_decrypt</span>(ctext, flag, round_keys);
+</span></span><span style="display:flex;"><span>  <span style="color:#50fa7b">printf</span>(<span style="color:#f1fa8c">&#34;hitcon{%s}</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#34;</span>, flag);
+</span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">return</span> <span style="color:#bd93f9">0</span>;
 </span></span><span style="display:flex;"><span>}</span></span></code></pre></div>{% endraw %}
 if we execute the previous code, we will get the flag <code>hitcon{code_in_BuildID!}</code></p>
 
-      </div></div>
-
-  
-
-  
     
-
-  
-</article>
-
   </div>
 
   
-    <footer class="footer">
-  <div class="footer__inner">
-    
-      <div class="copyright copyright--user">
-        <span>Ignacio Sanmillan</span>
-    
-      </div>
-  </div>
-</footer>
-
-
-
-
-
-
-<script type="text/javascript" src="/bundle.min.js"></script>
-
-
-
-
 
   
+
+  
+  
+
+<div class="single-pagination">
+    <hr />
+
+    <div class="flex">
+
+        <div class="single-pagination-prev">
+            
+            <div class="single-pagination-container-prev">
+                <div class="single-pagination-text">←</div>
+                <div class="single-pagination-text">
+                    <a href="/post/2017-02-11-codegatectf2017-angrybird/">
+                        CodeGateCTF - Angrybird
+                    </a>
+                </div>
+            </div>
+            
+        </div>
+
+        <div class="single-pagination-next">
+            
+            <div class="single-pagination-container-next">
+                <div class="single-pagination-text">
+                    <a href="/post/2017-11-17-unpacking_a_linux_tsunami_sample/">
+                        Dissecting the Internals of custom Linux Binary Packers
+                    </a>
+                </div>
+                <div class="single-pagination-text">→</div>
+            </div>
+            
+        </div>
+
+    </div>
+
+    <hr />
 </div>
 
+
+
+  
+
+  
+
+  
+  <div class="back-to-top">
+    <a href="#top">
+      back to top
+    </a>
+  </div>
+  
+
+</div>
+
+
+    </main>
+  </div>
+
+  <footer>
+    
+
+  </footer>
+
+  
+
 </body>
+
+<script src="/js/theme-switch.js"></script>
+<script defer src="/js/copy-code.js"></script>
 </html>

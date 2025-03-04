@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge"><meta name="robots" content="index, follow"><meta name="author" content="ulexec">
+<meta name="description" content="">
+<link rel="author" type="text/plain" href="/humans.txt">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="msapplication-TileImage" content="/mstile-144x144.png">
+<meta name="theme-color" content="#ffff">
+<meta name="msapplication-TileColor" content="#ffff">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#ffff">
+
+  <meta itemprop="name" content="Dissecting the Internals of custom Linux Binary Packers">
+  <meta itemprop="description" content="Overview In this writeup we’re going to unpack a Tsunami malware sample packed with a modified version of UPX. Hashes of this specific sample are the following:
+SHA256: f22ffc07e0cc907f00fd6a4ecee09fe8411225badb2289c1bffa867a2a3bd863 SHA1: 76584c9a22835353186e753903ee0a853663bd83 MD5: 171edd284f6a19c6ed3fe010b79c94af In VirusTotal the malware is identified as a Tsunami Variant for the most part:">
+  <meta itemprop="datePublished" content="2017-11-17T00:00:00+00:00">
+  <meta itemprop="dateModified" content="2023-07-08T09:03:55+02:00">
+  <meta itemprop="wordCount" content="2149">
+  <meta itemprop="keywords" content="Reversing,Malware"><meta property="og:url" content="//localhost:1313/en/post/2017-11-17-unpacking_a_linux_tsunami_sample/">
+  <meta property="og:site_name" content="Ignacio Sanmillan Research Blog">
+  <meta property="og:title" content="Dissecting the Internals of custom Linux Binary Packers">
+  <meta property="og:description" content="Overview In this writeup we’re going to unpack a Tsunami malware sample packed with a modified version of UPX. Hashes of this specific sample are the following:
+SHA256: f22ffc07e0cc907f00fd6a4ecee09fe8411225badb2289c1bffa867a2a3bd863 SHA1: 76584c9a22835353186e753903ee0a853663bd83 MD5: 171edd284f6a19c6ed3fe010b79c94af In VirusTotal the malware is identified as a Tsunami Variant for the most part:">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2017-11-17T00:00:00+00:00">
+    <meta property="article:modified_time" content="2023-07-08T09:03:55+02:00">
+    <meta property="article:tag" content="Reversing">
+    <meta property="article:tag" content="Malware">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Dissecting the Internals of custom Linux Binary Packers">
+  <meta name="twitter:description" content="Overview In this writeup we’re going to unpack a Tsunami malware sample packed with a modified version of UPX. Hashes of this specific sample are the following:
+SHA256: f22ffc07e0cc907f00fd6a4ecee09fe8411225badb2289c1bffa867a2a3bd863 SHA1: 76584c9a22835353186e753903ee0a853663bd83 MD5: 171edd284f6a19c6ed3fe010b79c94af In VirusTotal the malware is identified as a Tsunami Variant for the most part:">
+
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Dissecting the Internals of custom Linux Binary Packers",
+    "name": "Dissecting the Internals of custom Linux Binary Packers",
+    "description": "Overview In this writeup we\u0026rsquo;re going to unpack a Tsunami malware sample packed with a modified version of UPX. Hashes of this specific sample are the following:\nSHA256: f22ffc07e0cc907f00fd6a4ecee09fe8411225badb2289c1bffa867a2a3bd863 SHA1: 76584c9a22835353186e753903ee0a853663bd83 MD5: 171edd284f6a19c6ed3fe010b79c94af In VirusTotal the malware is identified as a Tsunami Variant for the most part:\n",
+    "keywords": ["reversing", "malware"],
+    "articleBody": "Overview In this writeup we’re going to unpack a Tsunami malware sample packed with a modified version of UPX. Hashes of this specific sample are the following:\nSHA256: f22ffc07e0cc907f00fd6a4ecee09fe8411225badb2289c1bffa867a2a3bd863 SHA1: 76584c9a22835353186e753903ee0a853663bd83 MD5: 171edd284f6a19c6ed3fe010b79c94af In VirusTotal the malware is identified as a Tsunami Variant for the most part:\nIs common in Linux systems to encounter packed malware with UPX. I then tried to see if I could find the UPX magic in the file.\n[0x00c8da20]\u003e / UPX Searching 3 bytes from 0x00000000 to 0xffffffffffffffff: 55 50 58 Searching 3 bytes in [0xc01000-0xc8e1c2] hits: 1 0x00c8ddaa hit0_0 .@M{UPX!u\u003eRBuvkk. [0x00c8da20]\u003e s hit0_0 -2 [0x00c8dda8]\u003e pd 1 0x00c8dda8 ~ 81f955505821 CMP ECX, 0x21585055 [0x00c8dda8]\u003e ? 0x21585055~[6] \"UPX!\" [0x00c8dda8]\u003e This is quite interesting because if we try to use the automated unpacking feature of UPX we get an error:\nupx -d f22ffc07e0cc907f00fd6a4ecee09fe8411225badb2289c1bffa867a2a3bd863 Ultimate Packer for eXecutables Copyright (C) 1996 - 2017 UPX 3.94 Markus Oberhumer, Laszlo Molnar \u0026 John Reiser May 12th 2017 File size Ratio Format Name -------------------- ------ ----------- ----------- upx: f22ffc07e0cc907f00fd6a4ecee09fe8411225badb2289c1bffa867a2a3bd863: NotPackedException: not packed by UPX Unpacked 0 files. Threfore, we may be dealing with a custom packer based on a modified version of UPX. We will statically analyse the sample first, then we will continue our analysis with some dynamic analysis. At the end a brief summary of the sample will be discussed. Let’s start with static analysis.\nStatic Analysis If we open the binary with IDA PRO we can confirm that the sample is indeed packed:\nThere are only 3 identifiable functions. Second and third functions seem straight forward. One allocates a RWX page sized chunk, and the latter executes a write syscall and then exits.\nThe entry point of the application looks certainly more messier, and by first glance we can assume that it will have a decryptor/decoder functionality.\nThe first thing that the entrypoint does is calling 0x00C8DC28, which itself redirects execution to allocate_rwx_page and stores the return address (start+5) in ebp.\nNote the stub of data on 0x00C8DC31, we will come back to it later. Execution then falls into allocate_rwx_page function, which as said before just allocates a memory page with RXW permissions. This buffer will be allocated at 0x00C8F000. If the allocation fails, then execution will branch into the write_message_and_exit funtion, in which the string 'nandemo wa shiranai wa yo,' gets printed to stderr. On the other hand, if allocation of RWX chunk is sucessfull, execution will pivot back to start+5.\nAfter allocating RWX memory, the malware will then proceed to copy and decode a given stub inside it. After a while analysing the code, I got to the conclusion that function start+5 (entrypoint+5) is the routine the malware uses to decode and copy packer stub. At this point I coudn’t do much progress just by static analysis. Therefore, I fired up the debugger ready to do some dynamic analysis.\nDynamic Analysis Now that we have identified what routine the malware uses to decode and copy packer stub, It will be straight forward to trace the malware’s first stage, that is to decode some stub inside the RWX chunk by decoding the data block previosly shown. We will try to follow along execution flow until the destination chunk (chunk 0x00c8f000) of the decoded stub to remain with our analysis. One way this could be achieved would be by setting a hardware breakpoint on execution at the RXW chunk. However, we want to find the cleanest possible way to withness the execution transition into the chunk in order to not overlook details about the first malware’s pivoting endeavour.\nOn the entrypoint routine, after the function pivot_to_allocate_rwx_pg we can clearly see that the register context is being saved with a pusha instruction. Furthermore, two pointers are loaded into the esi and edi registers. Those pointers are the stub source address to be decoded, and the destination buffer address to transfer the decoded stub.\nFurther down start we can see the set of instructions in charge of copying data from stub to the destination buffer:\nNevertheless, There are specific bytes that get processed differently. Some of the stub bytes have a many to one relationship with decoded bytes, so that multiple decoded bytes get derived from a single stub byte. Based on this we can assume that the decoding algorithm must be some sort of deflate implementation.\nWe can see that decoding will stop when second argument stub_size + first argument stub_base == current stub pointer at esi. If this condition is true, the function simply returns.\nIf we put a breakpoint on this retn instruction and then resume the application we will get control of execution back when decoding is over.\nUpon decoding finalization, decoding routine does not pivot directly to the RWX chunk at 0x00c8f000, but it returns first to allocate_rwx_page+49 to then unwind the stack and return to the RWX chunk.\nWhen execution reaches the 0x00C8F000 chunk, we see the following routine:\nThe main purpose of this routine is to retrieve the ELF Auxiliar vector from the stack and copy it into a local stack buffer. The retrieved struture of the Auxiliar vector looks as follows:\nOnce Auxiliar vector is retrived from stack then call_read_link function gets called. This function looks as follows:\nIn this function a series of statistics are retrieved from the current file such as the location of the embedded Elf file in the first PT_LOAD segment along with 2 more flags used for decoding. Furthermore, the address of the page-aligned end of the first PT_LOAD segment is computed and a stack buffer is reserved in order to store decoded stub. After collecting these fields this function proceeds with stage1 of the decoding process and calls init_decoding_stage function. This function looks as follows:\nThis routine is the entry point of what would be the stub decoding stage. the first part of this function calls set_for_decoding function . This function gets called with the previously reserved stack buffer dedicated for storing decoded stub and two stub flags as arguments. Function set_for_decoding looks as follows:\nBased on the flags passed to this function it will copy different values of the stub into a prepared buffer. We see that when stub buffer is ready the decoding function will get called (start+5). If we step into the decoding function we see that the values in esi and edi registers have changed in comparison with the earlier call to this function:\nIf we continue until our previously saved breakpoint at retn instruction we can identify an ELF header and a program header table within the destination buffer after decoding.\nOnce the ELF header and the Program header table of embedded file get decded, execution continues after the call to set_for_decoding in the init_decoding_stage function.\nNow that the program header table of embedded executable is decoded the malware is able to parse some of its fields in order to figure out where to load in memory its correspondent segments for sucesfull unpacking. Furthermore, the malware updates it’s own Auxiliar vector with statistics of the embedded file in order to reuse that same structure on the loading process of the embedded executable. Malware updates AT_PHNUM , AT_PHENT and AT_PHDR fields of the Auxiliar vector at this point but it will be updating more fields in the remaining decoding process. After updating the Auxiliar vector, malware calls ux_exec function. This function is sort of an execve userland implementation which is in charge of loading the embedded executable segments and pivot execution to the OEP without interaction with the kernel. This function looks as follows:\nUx_exec function first scans all segments in decoded proram header table in order to find the CODE segment( the first PT_LOAD segment). Once CODE segment has been found, a mmap system call gets invoked via mmap_gate function, passing the segment’s p_vaddr value along with its page aligned p_memsz field as arguments. UponCODE segment allocation execution flow enters a loop in which every PT_LOAD segments existent in the program header table gets scanned to be decoded. For every PT_LOAD segment that is not the CODE segment, this loop will call mmap_gate function again in order to map the segment.\nFor every existent PT_LOAD segment, a call to set_for_decoding is made. We already cover this function previously. Therefore, I will try to avoid redundancy and I will not explain this routine again. After the set_fo_decoding call, our breakpoint in the decoding routine gets triggered once again and this time seems to be decoding into the base address of the embedded binary:\nOnce our retn breakpoint gets triggered, the destination buffer seems partially decoded:\nThe segments get decoded in rounds, the following screenshot is the second round of the CODE segment’s decoding, so we can have an idea how the decoding looks like:\nUpon segment decoding completion, a mprotect system call is invoked in order to enforce the original segment’s attributes. This is due to the fact that when container chunk was allocated by mmap syscall it must had wrtie permissions in order to write the decoded stub into the chunk. The code also checks if current segment base + size exceeds the end of the DATA segment. If that is the case, a chunk will be mmapped after the DATA segment, and a brk syscall will be invoked. The brk system call will initialise a series of pointers that would make the mmap chunk at the end of the data segment being initialised as the HEAP segment. brk systemcall does not actually allocate any memory, just initialises program break, start_brk and end_data. However, at this very point there is no HEAP segment since initially program break = start_brk. Nevertheless, in future malloc calls the program break address will increase and the HEAP segment (space between start_brk and program break) will fall within the mmapped chunk at the end of the DATA segment.\nAfter ux_exec function is done loading all segments of embedded executable, control flow returns back to init_decoding_stage after the call to ux_exec. There is just one more thing remaining to do before pivoting to OEP, check for a PT_INTERP segment. If this segment exists then the embedded executable is a dynamically linked executable, and the RTLD must be mapped. The RTLD will be opened, read and then a call to ux_exec will be done again in order to map the shared object’s segments into the right location within the virtual address space.\nSo far we covered all steps the packer does for decoding and loading the embedded executable. A brief overview of the packer’s functionality is the following:\nAt this point we know that the file is fully loaded into its respective virtual address. If we check the mappings we see the following:\nIn order to retrieve the embedded executable we can use the following IDA script to dump the embedded file succesfully:\nimport struct class Elf32Phdr: def __init__(self, bytes): (self.p_type, self.p_offset, self.p_vaddr, self.p_paddr, self.p_filesz, self.p_memsz, self.p_flags, self.p_align, ) = struct.unpack(\"8I\", bytes[:0x20]) class ElfEhdr: def __init__(self, bytes): (self.e_type, self.e_machine, self.e_version, self.e_entry, self.e_phoff, self.e_shoff, self.e_flags, self.e_ehsize, self.e_phentsize, self.e_phnum, self.e_shentsize, self.e_shnum, self.e_shstrndx) = struct.unpack(\"2H5I6H\", bytes[16:52]) def __str__(self): return struct.pack(\"2H5I6H\", self.e_type, self.e_machine, self.e_version, self.e_entry, self.e_phoff, self.e_shoff, self.e_flags, self.e_ehsize, self.e_phentsize, self.e_phnum, self.e_shentsize, self.e_shnum, self.e_shstrndx) def dumpElf(image_base): file = open(\"/Users/n4x0r/Desktop/dumped.elf\", 'wb') bytes = GetManyBytes(image_base, 0x100) ehdr = ElfEhdr(bytes) phoff = ehdr.e_phoff phnum = ehdr.e_phnum phdrtbl = bytes[phoff:] ehdr.e_shoff = 0 ehdr.e_shnum = 0 ehdr.e_shstrndx = 0 for n in range(phnum): phdr = Elf32Phdr(phdrtbl[:0x20]) if phdr.p_type == 1: poffs = phdr.p_offset psize = phdr.p_filesz paddr = phdr.p_vaddr phdata = GetManyBytes(paddr, psize) file.seek(poffs) file.write(phdata) phdrtbl = phdrtbl[0x20:] file.seek(0) file.write(bytes[:16] + str(ehdr)) file.close() print \"[+] Elf Dumped\" Once on disk we see that the dumped file is a 1.3M statically linked binary:\nELF Header: Magic: 7f 45 4c 46 01 01 01 03 00 00 00 00 00 00 00 00 Class: ELF32 Data: 2's complement, little endian Version: 1 (current) OS/ABI: UNIX - GNU ABI Version: 0 Type: EXEC (Executable file) Machine: Intel 80386 Version: 0x1 Entry point address: 0x8048d86 Start of program headers: 52 (bytes into file) Start of section headers: 0 (bytes into file) Flags: 0x0 Size of this header: 52 (bytes) Size of program headers: 32 (bytes) Number of program headers: 6 Size of section headers: 40 (bytes) Number of section headers: 0 Section header string table index: 0 Program Headers: Type Offset VirtAddr PhysAddr FileSiz MemSiz Flg Align LOAD 0x000000 0x08048000 0x08048000 0x14ba2e 0x14ba2e R E 0x1000 LOAD 0x14bea4 0x08194ea4 0x08194ea4 0x02374 0x06460 RW 0x1000 NOTE 0x0000f4 0x080480f4 0x080480f4 0x00044 0x00044 R 0x4 TLS 0x14bea4 0x08194ea4 0x08194ea4 0x00014 0x00038 R 0x4 GNU_STACK 0x000000 0x00000000 0x00000000 0x00000 0x00000 RW 0x10 GNU_RELRO 0x14bea4 0x08194ea4 0x08194ea4 0x0115c 0x0115c R 0x1 Tracing until decoding of Elf header and program header table. Set hardware breapoint on execution at entry-point address in the Elf header. Profit. In the next write up I will cover the analysis process of the unpacked file. Thanks for reading and I hope you learned something useful from this post!.\nn4x0r.\n",
+    "wordCount" : "2149",
+    "inLanguage": "en",
+    "datePublished": "2017-11-17T00:00:00Z",
+    "dateModified": "2023-07-08T09:03:55+02:00",
+    "author":{
+        "@type": "Person",
+        "name": "ulexec",
+        "url": "//localhost:1313/en/about/"
+        },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "//localhost:1313/en/post/2017-11-17-unpacking_a_linux_tsunami_sample/"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Ignacio Sanmillan Research Blog",
+      "description": "",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "//localhost:1313/favicon.ico"
+      }
+    }
+}
+</script><title>Dissecting the Internals of custom Linux Binary Packers</title>
+<link rel="stylesheet dns-prefetch preconnect preload prefetch" as="style" href="//localhost:1313/css/style.min.1c3457a9e9a2486add1cbdc04fe13e164fd6f0db073e8f2880b40b20cbb43bda.css" integrity="sha256-HDRXqemiSGrdHL3AT+E+Fk/W8NsHPo8ogLQLIMu0O9o=" crossorigin="anonymous">
+	</head>
+<body id="page">
+	<header id="site-header">
+		<div class="hdr-wrapper section-inner">
+			<div class="hdr-left">
+				<div class="site-branding">
+					<a href="//localhost:1313/">Ignacio Sanmillan Research Blog</a>
+				</div>
+				<nav class="site-nav hide-in-mobile"><a href="//localhost:1313/en/publications/">Publications</a><a href="//localhost:1313/en/post/">Posts</a><a href="//localhost:1313/en/about/">About</a><a href="//localhost:1313/en/projects/">Projects</a><a href="//localhost:1313/en/advisories/">Advisories</a></nav>
+			</div>
+			<div class="hdr-right hdr-icons">
+				<button id="toc-btn" class="hdr-btn desktop-only-ib" title=""><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-list">
+      <line x1="8" y1="6" x2="21" y2="6"></line>
+      <line x1="8" y1="12" x2="21" y2="12"></line>
+      <line x1="8" y1="18" x2="21" y2="18"></line>
+      <line x1="3" y1="6" x2="3" y2="6"></line>
+      <line x1="3" y1="12" x2="3" y2="12"></line>
+      <line x1="3" y1="18" x2="3" y2="18"></line>
+   </svg></button><span class="hdr-links hide-in-mobile"><a href="https://joinmastodon.org/" target="_blank" rel="noopener me" title="Mastodon"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" fill="none" stroke="currentColor"
+   viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path
+      d="m 21.474,13.998 c -0.296,1.526 -2.655,3.194 -5.365,3.519 -1.413,0.168 -2.804,0.323 -4.287,0.255 -2.426,-0.111 -4.34,-0.579 -4.34,-0.579 0,0.236 0.015,0.461 0.044,0.672 0.316,2.394 2.373,2.537 4.323,2.604 1.968,0.067 3.721,-0.486 3.721,-0.486 l 0.081,1.779 c 0,0 -1.377,0.739 -3.829,0.875 -1.352,0.075 -3.031,-0.034 -4.987,-0.551 C 2.594,20.963 1.865,16.442 1.752,11.855 1.719,10.493 1.741,9.209 1.741,8.134 1.741,3.443 4.814,2.069 4.814,2.069 6.363,1.356 9.022,1.056 11.787,1.035 h 0.067 c 2.764,0.022 5.426,0.322 6.975,1.033 0,0 3.073,1.375 3.073,6.066 0,0 0.039,3.461 -0.428,5.864" />
+   <path
+      d="M 6.464,13.231 V 7.973 c 0,-1.002 0.549,-2.613 2.613,-2.613 2.064,0 2.741,1.793 2.741,3.484 0,1.692 0,2.23 0,2.23" />
+   <path
+      d="M 17.173,13.231 V 7.973 c 0,-1.002 -0.549,-2.613 -2.613,-2.613 -2.064,0 -2.741,1.793 -2.741,3.484 0,1.692 -0,2.23 -0,2.23" />
+</svg></a><a href="https://twitter.com/" target="_blank" rel="noopener me" title="X"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none"
+   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path class="st0" d="m21.3 21.1 -11.4 -18.2h-7.2l11.4 18.2zm-18.6 0 7.2 -6.6m4.2 -5 7.2 -6.6" />
+</svg></a><a href="https://github.com/1bl4z3r/hermit-V2/tree/staging" target="_blank" rel="noopener me" title="Github"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none"
+   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path
+      d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+   </path>
+</svg></a></span><button id="share-btn" class="hdr-btn" title=""><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-share-2">
+      <circle cx="18" cy="5" r="3"></circle>
+      <circle cx="6" cy="12" r="3"></circle>
+      <circle cx="18" cy="19" r="3"></circle>
+      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+   </svg></button>
+ 
+<div id="share-links" class="animated fast">
+    
+    
+    
+    
+    <ul>
+        <li>
+            <a href="https://twitter.com/intent/tweet?hashtags=hermit2&amp;url=%2f%2flocalhost%3a1313%2fen%2fpost%2f2017-11-17-unpacking_a_linux_tsunami_sample%2f&amp;text=Dissecting%20the%20Internals%20of%20custom%20Linux%20Binary%20Packers" target="_blank" rel="noopener" aria-label="Share on X"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none"
+   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path class="st0" d="m21.3 21.1 -11.4 -18.2h-7.2l11.4 18.2zm-18.6 0 7.2 -6.6m4.2 -5 7.2 -6.6" />
+</svg></a>
+        </li>
+        <li>
+            <a href="https://facebook.com/sharer/sharer.php?u=%2f%2flocalhost%3a1313%2fen%2fpost%2f2017-11-17-unpacking_a_linux_tsunami_sample%2f" target="_blank" rel="noopener" aria-label="Share on Facebook"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none"
+   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+</svg></a>
+        </li>
+        <li>
+            <a href="mailto:?subject=Dissecting%20the%20Internals%20of%20custom%20Linux%20Binary%20Packers&amp;body=%2f%2flocalhost%3a1313%2fen%2fpost%2f2017-11-17-unpacking_a_linux_tsunami_sample%2f" target="_self" rel="noopener" aria-label="Share on Email"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none"
+   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+   <polyline points="22,6 12,13 2,6"></polyline>
+</svg></a>
+        </li>
+        <li>
+            <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=%2f%2flocalhost%3a1313%2fen%2fpost%2f2017-11-17-unpacking_a_linux_tsunami_sample%2f&amp;source=%2f%2flocalhost%3a1313%2f&amp;title=Dissecting%20the%20Internals%20of%20custom%20Linux%20Binary%20Packers&amp;summary=Dissecting%20the%20Internals%20of%20custom%20Linux%20Binary%20Packers%2c%20by%20ulexec%0a%0a%3cnil%3e%0a" target="_blank" rel="noopener" aria-label="Share on LinkedIn"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none"
+   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+   <rect x="2" y="9" width="4" height="12"></rect>
+   <circle cx="4" cy="4" r="2"></circle>
+</svg></a>
+        </li>
+        <li>
+            <a href="#" onclick="linkShare(&#34;Dissecting the Internals of custom Linux Binary Packers&#34;,&#34;//localhost:1313/en/post/2017-11-17-unpacking_a_linux_tsunami_sample/&#34;,&#34;Dissecting the Internals of custom Linux Binary Packers, by ulexec\n\n\u003cnil\u003e\n&#34;); return false;" target="_self" rel="noopener" aria-label="Copy Link"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-copy">
+      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+   </svg></a>
+        </li>
+    </ul>
+</div><button id="menu-btn" class="hdr-btn" title=""><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+   </svg></button>
+			</div>
+		</div>
+	</header>
+	<div id="mobile-menu" class="animated fast">
+		<ul>
+			<li><a href="//localhost:1313/en/publications/">Publications</a></li>
+			<li><a href="//localhost:1313/en/post/">Posts</a></li>
+			<li><a href="//localhost:1313/en/about/">About</a></li>
+			<li><a href="//localhost:1313/en/projects/">Projects</a></li>
+			<li><a href="//localhost:1313/en/advisories/">Advisories</a></li>
+		</ul>
+	</div>
+
+
+	<main class="site-main section-inner thin animated fadeIn faster">
+		<h1>Dissecting the Internals of custom Linux Binary Packers</h1>
+		<div class="content">
+			<h2 id="overview">Overview<a href="#overview" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path>
+      <line x1="8" y1="12" x2="16" y2="12"></line>
+   </svg></a></h2>
+<p>In this writeup we&rsquo;re going to unpack a Tsunami malware sample packed with a modified version of <code>UPX</code>. Hashes of this specific sample are the following:</p>
+<p><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="nl">SHA256</span><span class="p">:</span> <span class="n">f22ffc07e0cc907f00fd6a4ecee09fe8411225badb2289c1bffa867a2a3bd863</span>
+</span></span><span class="line"><span class="cl">  <span class="nl">SHA1</span><span class="p">:</span> <span class="mi">76584</span><span class="n">c9a22835353186e753903ee0a853663bd83</span>
+</span></span><span class="line"><span class="cl">   <span class="nl">MD5</span><span class="p">:</span> <span class="mi">171</span><span class="n">edd284f6a19c6ed3fe010b79c94af</span></span></span></code></pre></div>
+In VirusTotal the malware is identified as a Tsunami Variant for the most part:</p>
+<p><img src="/Tsunami/1.png#center" alt=""></p>
+<!-- raw HTML omitted -->
+<p>Is common in Linux systems to encounter packed malware with UPX. I then tried to see if I could find the <code>UPX</code> magic in the file.</p>
+<p><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="p">[</span><span class="mh">0x00c8da20</span><span class="p">]</span><span class="o">&gt;</span> <span class="o">/</span> <span class="n">UPX</span>
+</span></span><span class="line"><span class="cl"><span class="n">Searching</span> <span class="mi">3</span> <span class="n">bytes</span> <span class="n">from</span> <span class="mh">0x00000000</span> <span class="n">to</span> <span class="mh">0xffffffffffffffff</span><span class="o">:</span> <span class="mi">55</span> <span class="mi">50</span> <span class="mi">58</span> 
+</span></span><span class="line"><span class="cl"><span class="n">Searching</span> <span class="mi">3</span> <span class="n">bytes</span> <span class="n">in</span> <span class="p">[</span><span class="mh">0xc01000</span><span class="o">-</span><span class="mh">0xc8e1c2</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="nl">hits</span><span class="p">:</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl"><span class="mh">0x00c8ddaa</span> <span class="n">hit0_0</span> <span class="p">.</span><span class="err">@</span><span class="n">M</span><span class="p">{</span><span class="n">UPX</span><span class="o">!</span><span class="n">u</span><span class="o">&gt;</span><span class="n">RBuvkk</span><span class="p">.</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="mh">0x00c8da20</span><span class="p">]</span><span class="o">&gt;</span> <span class="n">s</span> <span class="n">hit0_0</span> <span class="o">-</span><span class="mi">2</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="mh">0x00c8dda8</span><span class="p">]</span><span class="o">&gt;</span> <span class="n">pd</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">            <span class="mh">0x00c8dda8</span>  <span class="o">~</span>   <span class="mf">81f</span><span class="mi">955505821</span>   <span class="n">CMP</span> <span class="n">ECX</span><span class="p">,</span> <span class="mh">0x21585055</span>
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="mh">0x00c8dda8</span><span class="p">]</span><span class="o">&gt;</span> <span class="o">?</span> <span class="mh">0x21585055</span><span class="o">~</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="s">&#34;UPX!&#34;</span> 
+</span></span><span class="line"><span class="cl"><span class="p">[</span><span class="mh">0x00c8dda8</span><span class="p">]</span><span class="o">&gt;</span> 
+</span></span></code></pre></div>This is quite interesting because if we try to use the automated unpacking feature of <code>UPX</code> we get an error:</p>
+<p><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">upx</span> <span class="o">-</span><span class="n">d</span> <span class="n">f22ffc07e0cc907f00fd6a4ecee09fe8411225badb2289c1bffa867a2a3bd863</span>
+</span></span><span class="line"><span class="cl">                       <span class="n">Ultimate</span> <span class="n">Packer</span> <span class="k">for</span> <span class="n">eXecutables</span>
+</span></span><span class="line"><span class="cl">                          <span class="nf">Copyright</span> <span class="p">(</span><span class="n">C</span><span class="p">)</span> <span class="mi">1996</span> <span class="o">-</span> <span class="mi">2017</span>
+</span></span><span class="line"><span class="cl"><span class="n">UPX</span> <span class="mf">3.94</span>        <span class="n">Markus</span> <span class="n">Oberhumer</span><span class="p">,</span> <span class="n">Laszlo</span> <span class="n">Molnar</span> <span class="o">&amp;</span> <span class="n">John</span> <span class="n">Reiser</span>   <span class="n">May</span> <span class="mi">12</span><span class="n">th</span> <span class="mi">2017</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">File</span> <span class="n">size</span>         <span class="n">Ratio</span>      <span class="n">Format</span>      <span class="n">Name</span>
+</span></span><span class="line"><span class="cl">   <span class="o">--------------------</span>   <span class="o">------</span>   <span class="o">-----------</span>   <span class="o">-----------</span>
+</span></span><span class="line"><span class="cl"><span class="nl">upx</span><span class="p">:</span> <span class="nl">f22ffc07e0cc907f00fd6a4ecee09fe8411225badb2289c1bffa867a2a3bd863</span><span class="p">:</span> 
+</span></span><span class="line"><span class="cl"><span class="nl">NotPackedException</span><span class="p">:</span> <span class="n">not</span> <span class="n">packed</span> <span class="n">by</span> <span class="n">UPX</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">Unpacked</span> <span class="mi">0</span> <span class="n">files</span><span class="p">.</span></span></span></code></pre></div>
+Threfore, we may be dealing with a custom packer based on a modified version of <code>UPX</code>.
+We will statically analyse the sample first, then we will continue our analysis with some dynamic analysis. At the end a brief summary of the sample will be discussed. Let&rsquo;s start with static analysis.</p>
+<!-- raw HTML omitted -->
+<h2 id="static-analysis">Static Analysis<a href="#static-analysis" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path>
+      <line x1="8" y1="12" x2="16" y2="12"></line>
+   </svg></a></h2>
+<!-- raw HTML omitted -->
+<p>If we open the binary with <code>IDA PRO</code> we can confirm that the sample is indeed packed:</p>
+<!-- raw HTML omitted -->
+<p><img src="/Tsunami/2.png#center" alt=""></p>
+<!-- raw HTML omitted -->
+<p><img src="/Tsunami/3.png#center" alt=""></p>
+<!-- raw HTML omitted -->
+<p>There are only 3 identifiable functions. Second and third functions seem straight forward. One allocates a <code>RWX</code> page sized chunk, and the latter executes a write syscall and then exits.</p>
+<!-- raw HTML omitted -->
+<p><img src="/Tsunami/5.png#center" alt=""></p>
+<!-- raw HTML omitted -->
+<p><img src="/Tsunami/4.png#center" alt=""></p>
+<!-- raw HTML omitted -->
+<p>The entry point of the application looks certainly more messier, and by first glance we can assume that it will have a decryptor/decoder functionality.</p>
+<!-- raw HTML omitted -->
+<p><img src="/Tsunami/6.png#center" alt=""></p>
+<!-- raw HTML omitted -->
+<p>The first thing that the entrypoint does is calling <code>0x00C8DC28</code>, which itself redirects execution to <code>allocate_rwx_page</code> and stores the return address (<code>start+5</code>) in ebp.</p>
+<!-- raw HTML omitted -->
+<p><img src="/Tsunami/7.png#center" alt=""></p>
+<!-- raw HTML omitted -->
+<p><img src="/Tsunami/8.png#center" alt=""></p>
+<!-- raw HTML omitted -->
+<p>Note the stub of data on <code>0x00C8DC31</code>, we will come back to it later.
+Execution then falls into <code>allocate_rwx_page</code> function, which as said before just allocates a memory page with <code>RXW</code> permissions. This buffer will be allocated at <code>0x00C8F000</code>. If the allocation fails, then execution will branch into the <code>write_message_and_exit</code> funtion, in which the string <code>'nandemo wa shiranai wa yo,'</code> gets printed to <code>stderr</code>. On the other hand, if allocation of RWX chunk is sucessfull, execution will pivot back to <code>start+5</code>.</p>
+<p>After allocating RWX memory, the malware will then proceed to copy and decode a given stub inside it. After a while analysing the code, I got to the conclusion that function <code>start+5</code> (entrypoint+5) is the routine the malware uses to decode and copy packer stub. At this point I coudn&rsquo;t do much progress just by static analysis. Therefore, I fired up the debugger ready to do some dynamic analysis.</p>
+<!-- raw HTML omitted -->
+<h2 id="dynamic-analysis">Dynamic Analysis<a href="#dynamic-analysis" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path>
+      <line x1="8" y1="12" x2="16" y2="12"></line>
+   </svg></a></h2>
+<!-- raw HTML omitted -->
+<p>Now that we have identified what routine the malware uses to decode and copy packer stub, It will be straight forward to trace the malware&rsquo;s first stage, that is to decode some stub inside the RWX chunk by decoding the data block previosly shown. We will try to follow along execution flow until the destination chunk (chunk <code>0x00c8f000</code>) of the decoded stub to remain with our analysis. One way this could be achieved would be by setting a hardware breakpoint on execution at the <code>RXW</code> chunk. However, we want to find the cleanest possible way to withness the execution transition into the chunk in order to not overlook details about the first malware&rsquo;s pivoting endeavour.</p>
+<p>On the entrypoint routine, after the function <code>pivot_to_allocate_rwx_pg</code> we can clearly see that the register context is being saved with a <code>pusha</code> instruction. Furthermore, two pointers are loaded into the <code>esi</code> and <code>edi</code> registers. Those pointers are the stub source address to be decoded, and the destination buffer address to transfer the decoded stub.</p>
+<!-- raw HTML omitted -->
+<p><img src="/Tsunami/10.png#center" alt=""></p>
+<!-- raw HTML omitted -->
+<p>Further down <code>start</code> we can see the set of instructions in charge of copying data from stub to the destination buffer:</p>
+<!-- raw HTML omitted -->
+<p><img src="/Tsunami/15.png#center" alt=""></p>
+<!-- raw HTML omitted -->
+<p>Nevertheless, There are specific bytes that get processed differently. Some of the stub bytes have a many to one relationship with decoded bytes, so that multiple decoded bytes get derived from a single stub byte. Based on this we can assume that the decoding algorithm must be some sort of deflate implementation.</p>
+<!-- raw HTML omitted -->
+<p><img src="/Tsunami/16.png#center" alt=""></p>
+<!-- raw HTML omitted -->
+<p>We can see that decoding will stop when second argument <code>stub_size</code> + first argument <code>stub_base</code> == current stub pointer at <code>esi</code>. If this condition is true, the function simply returns.</p>
+<!-- raw HTML omitted -->
+<p><img src="/Tsunami/11.png#center" alt=""></p>
+<!-- raw HTML omitted -->
+<p>If we put a breakpoint on this <code>retn</code> instruction and then resume the application we will get control of execution back when decoding is over.</p>
+<!-- raw HTML omitted -->
+<p><img src="/Tsunami/12.png#center" alt=""></p>
+<!-- raw HTML omitted -->
+<p>Upon decoding finalization, decoding routine does not pivot directly to the RWX chunk at <code>0x00c8f000</code>, but it returns first to <code>allocate_rwx_page+49</code> to then unwind the stack and return to the RWX chunk.</p>
+<!-- raw HTML omitted -->
+<p><img src="/Tsunami/13.png#center" alt=""></p>
+<!-- raw HTML omitted -->
+<p>When execution reaches the <code>0x00C8F000</code> chunk, we see the following routine:</p>
+<!-- raw HTML omitted -->
+<p><img src="/Tsunami/14.png#center" alt=""></p>
+<!-- raw HTML omitted -->
+<p>The main purpose of this routine is to retrieve the <code>ELF Auxiliar vector</code> from the stack and copy it into a local stack buffer. The retrieved struture of the Auxiliar vector looks as follows:</p>
+<!-- raw HTML omitted -->
+<p><img src="/Tsunami/17.png#center" alt=""></p>
+<!-- raw HTML omitted -->
+<p>Once Auxiliar vector is retrived from stack then <code>call_read_link</code> function gets called. This function looks as follows:</p>
+<!-- raw HTML omitted -->
+<p><img src="/Tsunami/18.png#center" alt=""></p>
+<!-- raw HTML omitted -->
+<p>In this function a series of statistics are retrieved from the current file such as the location of the embedded <code>Elf</code> file in the first <code>PT_LOAD</code> segment along with 2 more flags used for decoding. Furthermore, the address of the page-aligned end of the first <code>PT_LOAD</code> segment is computed and a stack buffer is reserved in order to store decoded stub. After collecting these fields this function proceeds with <code>stage1</code> of the decoding process and calls <code>init_decoding_stage</code> function. This function looks as follows:</p>
+<!-- raw HTML omitted -->
+<p><img src="/Tsunami/19.jpg/#center" alt=""></p>
+<!-- raw HTML omitted -->
+<p>This routine is the entry point of what would be the stub decoding stage. the first part of this function calls <code>set_for_decoding</code> function . This function gets called with the previously reserved stack buffer dedicated for storing decoded stub and two stub flags as arguments. Function <code>set_for_decoding</code> looks as follows:</p>
+<!-- raw HTML omitted -->
+<p><img src="/Tsunami/20.jpg/#center" alt=""></p>
+<!-- raw HTML omitted -->
+<p>Based on the flags passed to this function it will copy different values of the stub into a prepared buffer. We see that when stub buffer is ready the decoding function will get called (<code>start+5</code>).
+If we step into the decoding function we see that the values in <code>esi</code> and <code>edi</code> registers have changed in comparison with the earlier call to this function:</p>
+<!-- raw HTML omitted -->
+<p><img src="/Tsunami/21.png#center" alt=""></p>
+<!-- raw HTML omitted -->
+<p>If we continue until our previously saved breakpoint at <code>retn</code> instruction we can identify an ELF header and a program header table within the destination buffer after decoding.</p>
+<!-- raw HTML omitted -->
+<p><img src="/Tsunami/22.png#center" alt=""></p>
+<!-- raw HTML omitted -->
+<p>Once the ELF header and the Program header table of embedded file get decded, execution continues after the call to <code>set_for_decoding</code> in the <code>init_decoding_stage</code> function.</p>
+<!-- raw HTML omitted -->
+<p><img src="/Tsunami/23.png#center" alt=""></p>
+<!-- raw HTML omitted -->
+<p>Now that the program header table of embedded executable is decoded the malware is able to parse some of its fields in order to figure out where to load in memory its correspondent segments for sucesfull unpacking. Furthermore, the malware updates it&rsquo;s own <code>Auxiliar vector</code> with statistics of the embedded file in order to reuse that same structure on the loading process of the embedded executable. Malware updates <code>AT_PHNUM</code> , <code>AT_PHENT</code> and <code>AT_PHDR</code> fields of the <code>Auxiliar vector</code> at this point but it will be updating more fields in the remaining decoding process. After updating the Auxiliar vector, malware calls <code>ux_exec</code> function. This function is sort of an <code>execve</code> userland implementation which is in charge of loading the embedded executable segments and pivot execution to the <code>OEP</code> without interaction with the kernel. This function looks as follows:</p>
+<!-- raw HTML omitted -->
+<p><img src="/Tsunami/24.jpg/#center" alt=""></p>
+<!-- raw HTML omitted -->
+<p><code>Ux_exec</code> function first scans all segments in decoded proram header table in order to find the <code>CODE</code> segment( the first <code>PT_LOAD</code> segment). Once <code>CODE</code> segment has been found, a mmap system call gets invoked via <code>mmap_gate</code> function, passing the segment&rsquo;s <code>p_vaddr</code> value along with its page aligned <code>p_memsz</code> field as arguments. Upon<code>CODE</code> segment allocation execution flow enters a loop in which every <code>PT_LOAD</code> segments existent in the program header table gets scanned to be decoded. For every <code>PT_LOAD</code> segment that is not the <code>CODE</code> segment, this loop will call <code>mmap_gate</code> function again in order to map the segment.</p>
+<p>For every existent <code>PT_LOAD</code> segment, a call to <code>set_for_decoding</code> is made. We already cover this function previously. Therefore, I will try to avoid redundancy and I will not explain this routine again. After the <code>set_fo_decoding</code> call, our breakpoint in the decoding routine gets triggered once again and this time seems to be decoding into the base address of the embedded binary:</p>
+<!-- raw HTML omitted -->
+<p><img src="/Tsunami/25.png#center" alt=""></p>
+<!-- raw HTML omitted -->
+<p>Once our <code>retn</code> breakpoint gets triggered, the destination buffer seems partially decoded:</p>
+<!-- raw HTML omitted -->
+<p><img src="/Tsunami/26.png#center" alt=""></p>
+<!-- raw HTML omitted -->
+<p>The segments get decoded in rounds, the following screenshot is the second round of the <code>CODE</code> segment&rsquo;s decoding, so we can have an idea how the decoding looks like:</p>
+<!-- raw HTML omitted -->
+<p><img src="/Tsunami/27.png#center" alt=""></p>
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<p><img src="/Tsunami/28.png#center" alt=""></p>
+<!-- raw HTML omitted -->
+<p>Upon segment decoding completion, a <code>mprotect</code> system call is invoked in order to enforce the original segment&rsquo;s attributes. This is due to the fact that when container chunk was allocated by <code>mmap</code> syscall it must had wrtie permissions in order to write the decoded stub into the chunk.
+The code also checks if current segment base + size exceeds the end of the <code>DATA</code> segment. If that is the case, a chunk will be mmapped after the <code>DATA</code> segment, and a <code>brk</code> syscall will be invoked. The <code>brk</code> system call will initialise a series of pointers that would make the mmap chunk at the end of the data segment being initialised as the <code>HEAP</code> segment. <code>brk</code> systemcall does not actually allocate any memory, just initialises <code>program break</code>, <code>start_brk</code> and <code>end_data</code>. However, at this very point there is no <code>HEAP</code> segment since initially program break = start_brk. Nevertheless, in future malloc calls the program break address will increase and the <code>HEAP</code> segment (space between start_brk and program break) will fall within the mmapped chunk at the end of the <code>DATA</code> segment.</p>
+<!-- raw HTML omitted -->
+<p><img src="/Tsunami/29.png#center" alt=""></p>
+<!-- raw HTML omitted -->
+<p>After <code>ux_exec</code> function is done loading all segments of embedded executable, control flow returns back to <code>init_decoding_stage</code> after the call to <code>ux_exec</code>. There is just one more thing remaining to do before pivoting to OEP, check for a <code>PT_INTERP</code> segment. If this segment exists then the embedded executable is a dynamically linked executable, and the <code>RTLD</code> must be mapped. The <code>RTLD</code> will be opened, read and then a call to <code>ux_exec</code> will be done again in order to map the shared object&rsquo;s segments into the right location within the virtual address space.</p>
+<!-- raw HTML omitted -->
+<p><img src="/Tsunami/30.png#center" alt=""></p>
+<!-- raw HTML omitted -->
+<p>So far we covered all steps the packer does for decoding and loading the embedded executable. A brief overview of the packer&rsquo;s functionality is the following:</p>
+<!-- raw HTML omitted -->
+<p><img src="/Tsunami/prev.png#center" alt=""></p>
+<!-- raw HTML omitted -->
+<p>At this point we know that the file is fully loaded into its respective virtual address. If we check the mappings we see the following:</p>
+<!-- raw HTML omitted -->
+<p><img src="/Tsunami/31.png#center" alt=""></p>
+<!-- raw HTML omitted -->
+<p>In order to retrieve the embedded executable we can use the following IDA script to dump the embedded file succesfully:</p>
+<p><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">struct</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">Elf32Phdr</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p_type</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">p_offset</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">p_vaddr</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">p_paddr</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">p_filesz</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">p_memsz</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">p_flags</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="bp">self</span><span class="o">.</span><span class="n">p_align</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="p">)</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&#34;8I&#34;</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">[:</span><span class="mh">0x20</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">ElfEhdr</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">         <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">e_type</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="bp">self</span><span class="o">.</span><span class="n">e_machine</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="bp">self</span><span class="o">.</span><span class="n">e_version</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="bp">self</span><span class="o">.</span><span class="n">e_entry</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="bp">self</span><span class="o">.</span><span class="n">e_phoff</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="bp">self</span><span class="o">.</span><span class="n">e_shoff</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="bp">self</span><span class="o">.</span><span class="n">e_flags</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="bp">self</span><span class="o">.</span><span class="n">e_ehsize</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="bp">self</span><span class="o">.</span><span class="n">e_phentsize</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="bp">self</span><span class="o">.</span><span class="n">e_phnum</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="bp">self</span><span class="o">.</span><span class="n">e_shentsize</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="bp">self</span><span class="o">.</span><span class="n">e_shnum</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="bp">self</span><span class="o">.</span><span class="n">e_shstrndx</span><span class="p">)</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&#34;2H5I6H&#34;</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">[</span><span class="mi">16</span><span class="p">:</span><span class="mi">52</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">     
+</span></span><span class="line"><span class="cl">    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">         <span class="k">return</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&#34;2H5I6H&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="bp">self</span><span class="o">.</span><span class="n">e_type</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="bp">self</span><span class="o">.</span><span class="n">e_machine</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="bp">self</span><span class="o">.</span><span class="n">e_version</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="bp">self</span><span class="o">.</span><span class="n">e_entry</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="bp">self</span><span class="o">.</span><span class="n">e_phoff</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="bp">self</span><span class="o">.</span><span class="n">e_shoff</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="bp">self</span><span class="o">.</span><span class="n">e_flags</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="bp">self</span><span class="o">.</span><span class="n">e_ehsize</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="bp">self</span><span class="o">.</span><span class="n">e_phentsize</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="bp">self</span><span class="o">.</span><span class="n">e_phnum</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="bp">self</span><span class="o">.</span><span class="n">e_shentsize</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="bp">self</span><span class="o">.</span><span class="n">e_shnum</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">         <span class="bp">self</span><span class="o">.</span><span class="n">e_shstrndx</span><span class="p">)</span> 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">dumpElf</span><span class="p">(</span><span class="n">image_base</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&#34;/Users/n4x0r/Desktop/dumped.elf&#34;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">bytes</span> <span class="o">=</span> <span class="n">GetManyBytes</span><span class="p">(</span><span class="n">image_base</span><span class="p">,</span> <span class="mh">0x100</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="n">ehdr</span>  <span class="o">=</span> <span class="n">ElfEhdr</span><span class="p">(</span><span class="nb">bytes</span><span class="p">)</span> 
+</span></span><span class="line"><span class="cl">    <span class="n">phoff</span> <span class="o">=</span> <span class="n">ehdr</span><span class="o">.</span><span class="n">e_phoff</span>
+</span></span><span class="line"><span class="cl">    <span class="n">phnum</span> <span class="o">=</span> <span class="n">ehdr</span><span class="o">.</span><span class="n">e_phnum</span>
+</span></span><span class="line"><span class="cl">    <span class="n">phdrtbl</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">[</span><span class="n">phoff</span><span class="p">:]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">ehdr</span><span class="o">.</span><span class="n">e_shoff</span> <span class="o">=</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ehdr</span><span class="o">.</span><span class="n">e_shnum</span> <span class="o">=</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">    <span class="n">ehdr</span><span class="o">.</span><span class="n">e_shstrndx</span> <span class="o">=</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">phnum</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">        <span class="n">phdr</span> <span class="o">=</span> <span class="n">Elf32Phdr</span><span class="p">(</span><span class="n">phdrtbl</span><span class="p">[:</span><span class="mh">0x20</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">phdr</span><span class="o">.</span><span class="n">p_type</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">poffs</span> <span class="o">=</span> <span class="n">phdr</span><span class="o">.</span><span class="n">p_offset</span>
+</span></span><span class="line"><span class="cl">            <span class="n">psize</span> <span class="o">=</span> <span class="n">phdr</span><span class="o">.</span><span class="n">p_filesz</span>
+</span></span><span class="line"><span class="cl">            <span class="n">paddr</span> <span class="o">=</span> <span class="n">phdr</span><span class="o">.</span><span class="n">p_vaddr</span>
+</span></span><span class="line"><span class="cl">            <span class="n">phdata</span> <span class="o">=</span> <span class="n">GetManyBytes</span><span class="p">(</span><span class="n">paddr</span><span class="p">,</span> <span class="n">psize</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">poffs</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">phdata</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">phdrtbl</span> <span class="o">=</span> <span class="n">phdrtbl</span><span class="p">[</span><span class="mh">0x20</span><span class="p">:]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">bytes</span><span class="p">[:</span><span class="mi">16</span><span class="p">]</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ehdr</span><span class="p">))</span>   
+</span></span><span class="line"><span class="cl">    <span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span> <span class="s2">&#34;[+] Elf Dumped&#34;</span></span></span></code></pre></div>
+Once on disk we see that the dumped file is a 1.3M statically linked binary:</p>
+<p><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">ELF</span> <span class="nl">Header</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="nl">Magic</span><span class="p">:</span>   <span class="mf">7f</span> <span class="mi">45</span> <span class="mi">4</span><span class="n">c</span> <span class="mi">46</span> <span class="mo">01</span> <span class="mo">01</span> <span class="mo">01</span> <span class="mo">03</span> <span class="mo">00</span> <span class="mo">00</span> <span class="mo">00</span> <span class="mo">00</span> <span class="mo">00</span> <span class="mo">00</span> <span class="mo">00</span> <span class="mo">00</span> 
+</span></span><span class="line"><span class="cl">  <span class="nl">Class</span><span class="p">:</span>                             <span class="n">ELF32</span>
+</span></span><span class="line"><span class="cl">  <span class="nl">Data</span><span class="p">:</span>                              <span class="mi">2</span><span class="err">&#39;</span><span class="n">s</span> <span class="n">complement</span><span class="p">,</span> <span class="n">little</span> <span class="n">endian</span>
+</span></span><span class="line"><span class="cl">  <span class="nl">Version</span><span class="p">:</span>                           <span class="mi">1</span> <span class="p">(</span><span class="n">current</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">OS</span><span class="o">/</span><span class="nl">ABI</span><span class="p">:</span>                            <span class="n">UNIX</span> <span class="o">-</span> <span class="n">GNU</span>
+</span></span><span class="line"><span class="cl">  <span class="n">ABI</span> <span class="nl">Version</span><span class="p">:</span>                       <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">  <span class="nl">Type</span><span class="p">:</span>                              <span class="nf">EXEC</span> <span class="p">(</span><span class="n">Executable</span> <span class="n">file</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="nl">Machine</span><span class="p">:</span>                           <span class="n">Intel</span> <span class="mi">80386</span>
+</span></span><span class="line"><span class="cl">  <span class="nl">Version</span><span class="p">:</span>                           <span class="mh">0x1</span>
+</span></span><span class="line"><span class="cl">  <span class="n">Entry</span> <span class="n">point</span> <span class="nl">address</span><span class="p">:</span>               <span class="mh">0x8048d86</span>
+</span></span><span class="line"><span class="cl">  <span class="n">Start</span> <span class="n">of</span> <span class="n">program</span> <span class="nl">headers</span><span class="p">:</span>          <span class="mi">52</span> <span class="p">(</span><span class="n">bytes</span> <span class="n">into</span> <span class="n">file</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">Start</span> <span class="n">of</span> <span class="n">section</span> <span class="nl">headers</span><span class="p">:</span>          <span class="mi">0</span> <span class="p">(</span><span class="n">bytes</span> <span class="n">into</span> <span class="n">file</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="nl">Flags</span><span class="p">:</span>                             <span class="mh">0x0</span>
+</span></span><span class="line"><span class="cl">  <span class="n">Size</span> <span class="n">of</span> <span class="n">this</span> <span class="nl">header</span><span class="p">:</span>               <span class="mi">52</span> <span class="p">(</span><span class="n">bytes</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">Size</span> <span class="n">of</span> <span class="n">program</span> <span class="nl">headers</span><span class="p">:</span>           <span class="mi">32</span> <span class="p">(</span><span class="n">bytes</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">Number</span> <span class="n">of</span> <span class="n">program</span> <span class="nl">headers</span><span class="p">:</span>         <span class="mi">6</span>
+</span></span><span class="line"><span class="cl">  <span class="n">Size</span> <span class="n">of</span> <span class="n">section</span> <span class="nl">headers</span><span class="p">:</span>           <span class="mi">40</span> <span class="p">(</span><span class="n">bytes</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">Number</span> <span class="n">of</span> <span class="n">section</span> <span class="nl">headers</span><span class="p">:</span>         <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">  <span class="n">Section</span> <span class="n">header</span> <span class="n">string</span> <span class="n">table</span> <span class="nl">index</span><span class="p">:</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">Program</span> <span class="nl">Headers</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">Type</span>           <span class="n">Offset</span>   <span class="n">VirtAddr</span>   <span class="n">PhysAddr</span>   <span class="n">FileSiz</span> <span class="n">MemSiz</span>  <span class="n">Flg</span> <span class="n">Align</span>
+</span></span><span class="line"><span class="cl">  <span class="n">LOAD</span>           <span class="mh">0x000000</span> <span class="mh">0x08048000</span> <span class="mh">0x08048000</span> <span class="mh">0x14ba2e</span> <span class="mh">0x14ba2e</span> <span class="n">R</span> <span class="n">E</span> <span class="mh">0x1000</span>
+</span></span><span class="line"><span class="cl">  <span class="n">LOAD</span>           <span class="mh">0x14bea4</span> <span class="mh">0x08194ea4</span> <span class="mh">0x08194ea4</span> <span class="mh">0x02374</span> <span class="mh">0x06460</span> <span class="n">RW</span>  <span class="mh">0x1000</span>
+</span></span><span class="line"><span class="cl">  <span class="n">NOTE</span>           <span class="mh">0x0000f4</span> <span class="mh">0x080480f4</span> <span class="mh">0x080480f4</span> <span class="mh">0x00044</span> <span class="mh">0x00044</span> <span class="n">R</span>   <span class="mh">0x4</span>
+</span></span><span class="line"><span class="cl">  <span class="n">TLS</span>            <span class="mh">0x14bea4</span> <span class="mh">0x08194ea4</span> <span class="mh">0x08194ea4</span> <span class="mh">0x00014</span> <span class="mh">0x00038</span> <span class="n">R</span>   <span class="mh">0x4</span>
+</span></span><span class="line"><span class="cl">  <span class="n">GNU_STACK</span>      <span class="mh">0x000000</span> <span class="mh">0x00000000</span> <span class="mh">0x00000000</span> <span class="mh">0x00000</span> <span class="mh">0x00000</span> <span class="n">RW</span>  <span class="mh">0x10</span>
+</span></span><span class="line"><span class="cl">  <span class="n">GNU_RELRO</span>      <span class="mh">0x14bea4</span> <span class="mh">0x08194ea4</span> <span class="mh">0x08194ea4</span> <span class="mh">0x0115c</span> <span class="mh">0x0115c</span> <span class="n">R</span>   <span class="mh">0x1</span></span></span></code></pre></div>
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted --></p>
+<!-- raw HTML omitted -->
+<ul>
+<li>Tracing until decoding of Elf header and program header table.</li>
+<li>Set hardware breapoint on execution at entry-point address in the Elf header.</li>
+<li>Profit.</li>
+</ul>
+<!-- raw HTML omitted -->
+<p>In the next write up I will cover the analysis process of the unpacked file.
+Thanks for reading and I hope you learned something useful from this post!.</p>
+<p>n4x0r.</p>
+
+		</div>
+		
+	</main>
+<footer id="site-footer" class="section-inner thin animated fadeIn faster">
+<p>
+	&copy; 2025 <a href="//localhost:1313/">Ignacio Sanmillan Research Blog</a>
+	&#183; CHANGE ME FOOTER COPYRIGHT&#183; Made with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a>
+	&#183; Theme <a href="https://github.com/1bl4z3r/hermit-V2" target="_blank" rel="noopener">Hermit-V2</a></p></footer>
+<script async src="//localhost:1313/js/bundle.min.c7c384e4d29d192bbac6811ae4660bb01767194a5bea56baca77e8260f93ea16.js" integrity="sha256-x8OE5NKdGSu6xoEa5GYLsBdnGUpb6la6ynfoJg+T6hY=" crossorigin="anonymous"></script><script async src="//localhost:1313/js/link-share.min.24409a4f6e5537d70ffc55ec8f9192208d718678cb8638585342423020b37f39.js" integrity="sha256-JECaT25VN9cP/FXsj5GSII1xhnjLhjhYU0JCMCCzfzk=" crossorigin="anonymous"></script>
+</body>
+</html>

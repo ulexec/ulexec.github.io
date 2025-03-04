@@ -1,32 +1,45 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-us"
+  dir="ltr">
+
 <head>
-  
-    <title>AlexCTF - PackedMovement :: ulexec.github.io</title>
-  
-  <meta http-equiv="content-type" content="text/html; charset=utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="PackedMovement was the last Reverse Engineering challenge on AlexCTF 2017. The puntuation of this challnege was of 350 points.
+  <meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+
+
+
+<link rel="icon" type="image/ico" href="https://ulexec.github.io//favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://ulexec.github.io//favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://ulexec.github.io//favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="https://ulexec.github.io//android-chrome-192x192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="https://ulexec.github.io//apple-touch-icon.png">
+
+<meta name="description" content=""/>
+
+
+
+<title>
+    
+    AlexCTF - PackedMovement | Ignacio Sanmillan
+    
+</title>
+
+<link rel="canonical" href="https://ulexec.github.io/post/2017-02-10-alexctf-packedmovement/"/>
+
+<meta property="og:url" content="https://ulexec.github.io/post/2017-02-10-alexctf-packedmovement/">
+  <meta property="og:site_name" content="Ignacio Sanmillan">
+  <meta property="og:title" content="AlexCTF - PackedMovement">
+  <meta property="og:description" content="PackedMovement was the last Reverse Engineering challenge on AlexCTF 2017. The puntuation of this challnege was of 350 points.
 The only hint given to this challenge was its name. You will see why later on in this writeup.
 The retrieved binary is called move. if we run the file command over it we find the following:
-move: ELF 32-bit LSB executable, Intel 80386, version 1 (GNU/Linux), statically linked, stripped Even more interesting is when we see the binaries segments with readelf -l move" />
-<meta name="keywords" content="" />
-
-  <meta name="robots" content="noodp" />
-
-<link rel="canonical" href="https://ulexec.github.io/post/2017-02-10-alexctf-packedmovement/" />
-
-
-
-
-
-
-  
-  
-  
-  
-  
-  <link rel="stylesheet" href="https://ulexec.github.io/styles.css">
+move: ELF 32-bit LSB executable, Intel 80386, version 1 (GNU/Linux), statically linked, stripped Even more interesting is when we see the binaries segments with readelf -l move">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2017-02-10T00:00:00+00:00">
+    <meta property="article:modified_time" content="2017-02-10T00:00:00+00:00">
+    <meta property="article:tag" content="Reversing">
+    <meta property="article:tag" content="Ctf">
 
 
 
@@ -34,39 +47,13 @@ move: ELF 32-bit LSB executable, Intel 80386, version 1 (GNU/Linux), statically 
 
 
 
-  <link rel="shortcut icon" href="https://ulexec.github.io/img/theme-colors/orange.png">
-  <link rel="apple-touch-icon" href="https://ulexec.github.io/img/theme-colors/orange.png">
 
 
 
-<meta name="twitter:card" content="summary" />
 
 
 
-<meta property="og:locale" content="en" />
-<meta property="og:type" content="article" />
-<meta property="og:title" content="AlexCTF - PackedMovement">
-<meta property="og:description" content="PackedMovement was the last Reverse Engineering challenge on AlexCTF 2017. The puntuation of this challnege was of 350 points.
-The only hint given to this challenge was its name. You will see why later on in this writeup.
-The retrieved binary is called move. if we run the file command over it we find the following:
-move: ELF 32-bit LSB executable, Intel 80386, version 1 (GNU/Linux), statically linked, stripped Even more interesting is when we see the binaries segments with readelf -l move" />
-<meta property="og:url" content="https://ulexec.github.io/post/2017-02-10-alexctf-packedmovement/" />
-<meta property="og:site_name" content="ulexec.github.io" />
-
-  
-    <meta property="og:image" content="https://ulexec.github.io/img/favicon/orange.png">
-  
-
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="627">
-
-  <meta property="article:section" content="writeup" />
-
-
-  <meta property="article:published_time" content="2017-02-10 00:00:00 &#43;0000 UTC" />
-
-
-
+<link rel="stylesheet" href="/assets/combined.min.4d83d9d131fa58e4a3582b029a9d295c34033e4132d049b0e16fa8d1e9ddfebf.css" media="all">
 
 
 
@@ -77,120 +64,220 @@ move: ELF 32-bit LSB executable, Intel 80386, version 1 (GNU/Linux), statically 
 
 
 </head>
-<body class="orange">
 
 
-<div class="container center headings--one-size">
 
-  <header class="header">
-  <div class="header__inner">
-    <div class="header__logo">
-      <a href="/post/">
-  <div class="logo">
-    ulexec.github.io
-  </div>
-</a>
 
-    </div>
-    
-      <ul class="menu menu--mobile">
-  <li class="menu__trigger">Menu&nbsp;▾</li>
-  <li>
-    <ul class="menu__dropdown">
-      
-        
-          <li><a href="/post/">Posts</a></li>
-        
-      
-        
-          <li><a href="/publications/">Publications</a></li>
-        
-      
-        
-          <li><a href="/projects/">Projects</a></li>
-        
-      
-        
-          <li><a href="/advisories/">Advisories</a></li>
-        
-      
-        
-          <li><a href="/about/">About</a></li>
-        
-      
-      
-    </ul>
-  </li>
-</ul>
 
-    
-    
-  </div>
-  
-    <nav class="navigation-menu">
-  <ul class="navigation-menu__inner menu--desktop">
-    
-      
-        
-          <li><a href="/post/" >Posts</a></li>
-        
-      
-        
-          <li><a href="/publications/" >Publications</a></li>
-        
-      
-        
-          <li><a href="/projects/" >Projects</a></li>
-        
-      
-        
-          <li><a href="/advisories/" >Advisories</a></li>
-        
-      
-        
-          <li><a href="/about/" >About</a></li>
-        
-      
-      
-    
-  </ul>
-</nav>
 
-  
-</header>
 
+<body class="dark">
 
   <div class="content">
+    <header>
+      
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+$(document).ready(function () {
+    function start() {
+        var originalText = $('.code').text().trim(); 
+        var OGarray = originalText.split(''); 
+        var obfuscatedText;
+        var revealIndex = 0; 
+        var duration = 3000; 
+        var intervalTime = 30; 
+        var delayBeforeStart = 500; 
+        var phase = 1; 
+        var convertedIndices = new Set(); 
+        var interval; 
+
+        
+        function getRandomASCII(len) {
+            let chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&';
+            return Array.from({ length: len }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+        }
+
+        
+        function getRandomHexChar() {
+            let hexChars = '0123456789ABCDEF';
+            return hexChars[Math.floor(Math.random() * hexChars.length)];
+        }
+
+        function generateInitialObfuscation() {
+            obfuscatedText = getRandomASCII(OGarray.length).split('');
+            $('.code').text(obfuscatedText.join(''));
+        }
+
+        function gradualHexConversionStep() {
+            if (convertedIndices.size < OGarray.length) {
+                let index;
+                do {
+                    index = Math.floor(Math.random() * OGarray.length);
+                } while (convertedIndices.has(index));
+
+                obfuscatedText[index] = getRandomHexChar(); 
+                convertedIndices.add(index);
+                $('.code').text(obfuscatedText.join(''));
+            }
+
+            if (convertedIndices.size >= OGarray.length) {
+                clearInterval(interval);
+                setTimeout(() => {
+                    phase = 3;
+                    revealIndex = 0;
+                    interval = setInterval(decryptStep, intervalTime);
+                }, 100);
+            }
+        }
+
+        function decryptStep() {
+            if (revealIndex < OGarray.length) {
+                obfuscatedText[revealIndex] = OGarray[revealIndex]; 
+                $('.code').text(obfuscatedText.join(''));
+                revealIndex++;
+            }
+
+            if (revealIndex >= OGarray.length) {
+                clearInterval(interval);
+                $('.code').text(originalText); 
+            }
+        }
+
+        generateInitialObfuscation();
+
+        setTimeout(() => {
+            interval = setInterval(() => {
+                if (phase === 2) {
+                    gradualHexConversionStep();
+                }
+            }, intervalTime);
+
+            setTimeout(() => {
+                phase = 2;
+            }, 100);
+        }, delayBeforeStart);
+    }
+
+    start();
+});
+
+</script>
+
+<div class="header">
+
     
-<article class="post">
-  <h1 class="post-title">
-    <a href="https://ulexec.github.io/post/2017-02-10-alexctf-packedmovement/">AlexCTF - PackedMovement</a>
-  </h1>
-  <div class="post-meta"><time class="post-date">2017-02-10</time><span class="post-author">ulexec</span></div>
 
-  
-    <span class="post-tags">
+    <h1 class="header-title">
+        <div  class="code" onload="start()" href="https://ulexec.github.io/">Ignacio Sanmillan</div>
+    </h1>
+
+    <div class="flex">
+        
+
+        
+        
       
-      #<a href="https://ulexec.github.io/tags/reversing/">reversing</a>&nbsp;
+        <p class="small ">
+            <a href="/" >
+                /home
+            </a>
+        </p>
+        
       
-      #<a href="https://ulexec.github.io/tags/ctf/">ctf</a>&nbsp;
+        <p class="small ">
+            <a href="/post" >
+                /posts
+            </a>
+        </p>
+        
       
-    </span>
-  
-  
+        <p class="small ">
+            <a href="/publications" >
+                /publications
+            </a>
+        </p>
+        
+      
+        <p class="small ">
+            <a href="/projects" >
+                /projects
+            </a>
+        </p>
+        
+      
+        <p class="small ">
+            <a href="/advisories" >
+                /advisories
+            </a>
+        </p>
+        
+      
+        <p class="small ">
+            <a href="/about" >
+                /about
+            </a>
+        </p>
+        
+        
+    </div>
+
+    
+
+</div>
+
+    </header>
+
+    <main class="main">
+      
 
 
+
+
+
+
+
+<div >
+
+  <div class="single-intro-container">
+
+    
+
+    <h1 class="single-title">AlexCTF - PackedMovement</h1>
+    
+
+    
+
+    <p class="single-readtime">
+      
+      
+      
+      <time datetime="2017-02-10T00:00:00&#43;00:00">February 10, 2017</time>
+      
+
+      
+    </p>
+
+  </div>
+
   
 
-  <div class="post-content"><div>
-        <p><code>PackedMovement</code> was the last Reverse Engineering challenge on <code>AlexCTF 2017</code>. The puntuation of this challnege was of <code>350</code> points.</p>
+  
+
+  
+
+  
+
+  <div class="single-content">
+    <p><code>PackedMovement</code> was the last Reverse Engineering challenge on <code>AlexCTF 2017</code>. The puntuation of this challnege was of <code>350</code> points.</p>
 <p>The only hint given to this challenge was its name. You will see why later on in this writeup.</p>
 <p>The retrieved binary is called <code>move</code>. if we run the <code>file</code> command over it we find the following:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>move: ELF 32-bit LSB executable, Intel 80386, version <span style="color:#ae81ff">1</span> <span style="color:#f92672">(</span>GNU/Linux<span style="color:#f92672">)</span>, statically linked, stripped</span></span></code></pre></div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>move: ELF 32-bit LSB executable, Intel 80386, version <span style="color:#bd93f9">1</span> <span style="color:#ff79c6">(</span>GNU/Linux<span style="color:#ff79c6">)</span>, statically linked, stripped</span></span></code></pre></div>
 <p>Even more interesting is when we see the binaries segments with <code>readelf -l move</code></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Elf file type is EXEC <span style="color:#f92672">(</span>Executable file<span style="color:#f92672">)</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Elf file <span style="color:#8be9fd;font-style:italic">type</span> is EXEC <span style="color:#ff79c6">(</span>Executable file<span style="color:#ff79c6">)</span>
 </span></span><span style="display:flex;"><span>Entry point 0xd906d0
-</span></span><span style="display:flex;"><span>There are <span style="color:#ae81ff">2</span> program headers, starting at offset <span style="color:#ae81ff">52</span>
+</span></span><span style="display:flex;"><span>There are <span style="color:#bd93f9">2</span> program headers, starting at offset <span style="color:#bd93f9">52</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>Program Headers:
 </span></span><span style="display:flex;"><span>  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
@@ -198,26 +285,49 @@ move: ELF 32-bit LSB executable, Intel 80386, version 1 (GNU/Linux), statically 
 </span></span><span style="display:flex;"><span>  LOAD           0x000300 0x0880b300 0x0880b300 0x00000 0x00000 RW  0x1000</span></span></code></pre></div>
 <p>The fact that the binary only contains two <code>LOAD</code> segments suggest us that the binary is possibly packed.</p>
 <p>Lets check the entry point of the binary and see how the first couple of instructions look:</p>
-<p><img src="/AlextCTF7/1.png#center" alt=""></p>
+<p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<figure class=" img-center">
+
+    <div>
+        <img loading="lazy" alt="" src="/AlextCTF7/1.png#center" >
+    </div>
+
+    
+</figure>
+</p>
 <p>Several packers use the instruction <code>pusha</code> in order to save the registry contents before running the decompression routine. One famous packer that uses this instruction is the <code>UPX</code> packer.</p>
 <p>If we run the <code>strings move | grep UPX</code> command we will confirm this binary has been packed with <code>UPX</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>9vUPX!
-</span></span><span style="display:flex;"><span>$Info: This file is packed with the UPX executable packer http://upx.sf.net $
-</span></span><span style="display:flex;"><span>$Id: UPX 3.91 Copyright <span style="color:#f92672">(</span>C<span style="color:#f92672">)</span> 1996-2013 the UPX Team. All Rights Reserved. $
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>9vUPX!
+</span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">$Info</span>: This file is packed with the UPX executable packer http://upx.sf.net $
+</span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">$Id</span>: UPX 3.91 Copyright <span style="color:#ff79c6">(</span>C<span style="color:#ff79c6">)</span> 1996-2013 the UPX Team. All Rights Reserved. $
 </span></span><span style="display:flex;"><span>UPX!u
 </span></span><span style="display:flex;"><span>UPX!
 </span></span><span style="display:flex;"><span>UPX!</span></span></code></pre></div>
 <p>Fortunately, <code>UPX</code> also contains a flag for decompression. If we run the <code>upx -d move -o dem</code> command it will decompress the <code>move</code> binary and save a copy of the decompressed binary into disk with the name <code>dem</code></p>
 <p>If we run <code>readelf -l dem</code> command to see <code>dem's</code> segments we see the following:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Elf file type is EXEC <span style="color:#f92672">(</span>Executable file<span style="color:#f92672">)</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Elf file <span style="color:#8be9fd;font-style:italic">type</span> is EXEC <span style="color:#ff79c6">(</span>Executable file<span style="color:#ff79c6">)</span>
 </span></span><span style="display:flex;"><span>Entry point 0x804829c
-</span></span><span style="display:flex;"><span>There are <span style="color:#ae81ff">6</span> program headers, starting at offset <span style="color:#ae81ff">52</span>
+</span></span><span style="display:flex;"><span>There are <span style="color:#bd93f9">6</span> program headers, starting at offset <span style="color:#bd93f9">52</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>Program Headers:
 </span></span><span style="display:flex;"><span>  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
 </span></span><span style="display:flex;"><span>  PHDR           0x000034 0x08048034 0x08048034 0x000c0 0x000c0 R E 0x4
 </span></span><span style="display:flex;"><span>  INTERP         0x0000f4 0x080480f4 0x080480f4 0x00013 0x00013 R   0x1
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">[</span>Requesting program interpreter: /lib/ld-linux.so.2<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#ff79c6">[</span>Requesting program interpreter: /lib/ld-linux.so.2<span style="color:#ff79c6">]</span>
 </span></span><span style="display:flex;"><span>  LOAD           0x000000 0x08048000 0x08048000 0x18b3c 0x18b3c R E 0x1000
 </span></span><span style="display:flex;"><span>  LOAD           0x018f58 0x08061f58 0x08061f58 0x5a93a4 0x7a93a8 RW  0x1000
 </span></span><span style="display:flex;"><span>  DYNAMIC        0x018f58 0x08061f58 0x08061f58 0x000a8 0x000a8 RW  0x4
@@ -225,25 +335,117 @@ move: ELF 32-bit LSB executable, Intel 80386, version 1 (GNU/Linux), statically 
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span> Section to Segment mapping:
 </span></span><span style="display:flex;"><span>  Segment Sections...
-</span></span><span style="display:flex;"><span>   <span style="color:#ae81ff">00</span>     
-</span></span><span style="display:flex;"><span>   <span style="color:#ae81ff">01</span>     .interp 
-</span></span><span style="display:flex;"><span>   <span style="color:#ae81ff">02</span>     .interp .hash .dynsym .dynstr .gnu.version .gnu.version_r .rel.plt .plt .text 
-</span></span><span style="display:flex;"><span>   <span style="color:#ae81ff">03</span>     .dynamic .got.plt .data .bss 
-</span></span><span style="display:flex;"><span>   <span style="color:#ae81ff">04</span>     .dynamic 
-</span></span><span style="display:flex;"><span>   <span style="color:#ae81ff">05</span>     .dynamic </span></span></code></pre></div>
+</span></span><span style="display:flex;"><span>   <span style="color:#bd93f9">00</span>     
+</span></span><span style="display:flex;"><span>   <span style="color:#bd93f9">01</span>     .interp 
+</span></span><span style="display:flex;"><span>   <span style="color:#bd93f9">02</span>     .interp .hash .dynsym .dynstr .gnu.version .gnu.version_r .rel.plt .plt .text 
+</span></span><span style="display:flex;"><span>   <span style="color:#bd93f9">03</span>     .dynamic .got.plt .data .bss 
+</span></span><span style="display:flex;"><span>   <span style="color:#bd93f9">04</span>     .dynamic 
+</span></span><span style="display:flex;"><span>   <span style="color:#bd93f9">05</span>     .dynamic </span></span></code></pre></div>
 <p>This looks more like what we are looking for. Now that we have a decompressed file is a good chance to see what the binary on execution looks like. When we execute the file we see the following:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Guess a flag: AAAAAAA
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Guess a flag: AAAAAAA
 </span></span><span style="display:flex;"><span>Wrong Flag!</span></span></code></pre></div>
 Easy enough. Lets see how the binary looks like. When we open the <code>dem</code> binary in <code>IDA</code> we see the following:</p>
-<p><img src="/AlextCTF7/2.png#center" alt=""></p>
+<p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<figure class=" img-center">
+
+    <div>
+        <img loading="lazy" alt="" src="/AlextCTF7/2.png#center" >
+    </div>
+
+    
+</figure>
+</p>
 <p>The binary looks like its obfuscated with <a href="https://github.com/xoreaxeaxeax/movfuscator">movfuscator</a></p>
 <p>There is a tool called <a href="https://github.com/kirschju/demovfuscator">demovfuscator</a> however this tool still under development. All I could achieve with it was to replace a chunk of mov instructions with an equivalent <code>lea</code> instruction. However <code>demovfuscator</code> can geneate flow-graphs of the actuall execution flow of the executable.</p>
 <p>This is an example of one of them:</p>
-<p><img src="/AlextCTF7/cfg.png#center" alt=""></p>
+<p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<figure class=" img-center">
+
+    <div>
+        <img loading="lazy" alt="" src="/AlextCTF7/cfg.png#center" >
+    </div>
+
+    
+</figure>
+</p>
 <p>As we can see, the binary seems to have an if else behavior.</p>
 <p>Addiditonally, the binary itself seem to be a stack based virtual machine. One can assure this is true just by looking the name of some of its global variables:</p>
-<p><img src="/AlextCTF7/3.png#center" alt=""></p>
-<p><img src="/AlextCTF7/4.png#center" alt=""></p>
+<p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<figure class=" img-center">
+
+    <div>
+        <img loading="lazy" alt="" src="/AlextCTF7/3.png#center" >
+    </div>
+
+    
+</figure>
+</p>
+<p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<figure class=" img-center">
+
+    <div>
+        <img loading="lazy" alt="" src="/AlextCTF7/4.png#center" >
+    </div>
+
+    
+</figure>
+</p>
 <p>This being said I had to make a choice on the stategy I was going to follow to solve this challenge. I had two different options</p>
 <ul>
 <li>
@@ -257,121 +459,183 @@ Easy enough. Lets see how the binary looks like. When we open the <code>dem</cod
 <p>After I made this decission I started to do some dynamic analysis.
 At the beginning I felt like I was looking throuh glass. My assumptions about how the binary actually work would change every 5 intructions. However, at one point I saw the light.</p>
 <p>This point was at address <code>0x080493DB</code></p>
-<p><img src="/AlextCTF7/5.png#center" alt=""></p>
+<p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<figure class=" img-center">
+
+    <div>
+        <img loading="lazy" alt="" src="/AlextCTF7/5.png#center" >
+    </div>
+
+    
+</figure>
+</p>
 <p>At that instruction I saw what it could be an initial idea of how the binary validates each byte of the flag. It will store the particular byte of the flag into <code>R2</code> virtual register and our input byte will be stored into the <code>R3</code> virtual register.
 Both of these registers will then be loaded into the <code>ALU</code> module of the machine. A series of operations will be done and the result of them will be stored into the <code>rax</code> register which will then be checked wether this result is 0 by a <code>test eax, eax</code> instruction. If Z flag not set when this instruction is executed, the binary will be redirected so that it finish execution. Otherwise it will proceed and compare the next byte of the flag with our input string.</p>
 <p>Something somewhat curious about this whole procedure is that the flag byte is always loaded into the <code>R2</code> virtual register. If we could see all the instructions in which some value is being loaded into <code>R2</code>, we may be able to see all the bytes our input string is being compared against.</p>
 <p>Running the following <code>IDA python</code> sript will help us find exactly that:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> idc <span style="color:#f92672">import</span> <span style="color:#f92672">*</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> idaapi <span style="color:#f92672">import</span> <span style="color:#f92672">*</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff79c6">from</span> idc <span style="color:#ff79c6">import</span> <span style="color:#ff79c6">*</span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">from</span> idaapi <span style="color:#ff79c6">import</span> <span style="color:#ff79c6">*</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>main <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>
+</span></span><span style="display:flex;"><span>main <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">None</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> func <span style="color:#f92672">in</span> Functions():
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> GetFunctionName(func) <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;main&#34;</span>:
-</span></span><span style="display:flex;"><span>        main <span style="color:#f92672">=</span> func
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">for</span> func <span style="color:#ff79c6">in</span> Functions():
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">if</span> GetFunctionName(func) <span style="color:#ff79c6">==</span> <span style="color:#f1fa8c">&#34;main&#34;</span>:
+</span></span><span style="display:flex;"><span>        main <span style="color:#ff79c6">=</span> func
 </span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>code <span style="color:#f92672">=</span> list(FuncItems(main))
+</span></span><span style="display:flex;"><span>code <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">list</span>(FuncItems(main))
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> line <span style="color:#f92672">in</span> code:
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> GetOpnd(line,<span style="color:#ae81ff">0</span>) <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;R2&#39;</span>:
-</span></span><span style="display:flex;"><span>            print hex(line), <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\t</span><span style="color:#e6db74">&#34;</span>, GetDisasm(line)</span></span></code></pre></div>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">for</span> line <span style="color:#ff79c6">in</span> code:
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">if</span> GetOpnd(line,<span style="color:#bd93f9">0</span>) <span style="color:#ff79c6">==</span> <span style="color:#f1fa8c">&#39;R2&#39;</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#8be9fd;font-style:italic">print</span> <span style="color:#8be9fd;font-style:italic">hex</span>(line), <span style="color:#f1fa8c">&#34;</span><span style="color:#f1fa8c">\t</span><span style="color:#f1fa8c">&#34;</span>, GetDisasm(line)</span></span></code></pre></div>
 <p>Make sure to extend the end of the main function down to the end of the <code>_text</code> section. This is because <code>IDA</code> fails on analyzing the entire main function. That address is <code>0x08060B38</code>.</p>
 <p>The result of this script is the following:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-nasm" data-lang="nasm"><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x80493dbL</span> 	mov     R2, <span style="color:#ae81ff">41h</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x8049ddeL</span> 	mov     R2, <span style="color:#ae81ff">4Ch</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x804a7e1L</span> 	mov     R2, <span style="color:#ae81ff">45h</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x804b1e4L</span> 	mov     R2, <span style="color:#ae81ff">58h</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x804bb9cL</span> 	mov     R2, <span style="color:#ae81ff">43h</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x804c59fL</span> 	mov     R2, <span style="color:#ae81ff">54h</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x804cfa2L</span> 	mov     R2, <span style="color:#ae81ff">46h</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x804d9a5L</span> 	mov     R2, <span style="color:#ae81ff">7Bh</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x804e357L</span> 	mov     R2, <span style="color:#ae81ff">4Dh</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x804ed5aL</span> 	mov     R2, <span style="color:#ae81ff">30h</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x804f75dL</span> 	mov     R2, <span style="color:#ae81ff">56h</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x8050160L</span> 	mov     R2, <span style="color:#ae81ff">66h</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x8050b0cL</span> 	mov     R2, <span style="color:#ae81ff">75h</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x805150fL</span> 	mov     R2, <span style="color:#ae81ff">73h</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x8051f12L</span> 	mov     R2, <span style="color:#ae81ff">63h</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x8052915L</span> 	mov     R2, <span style="color:#ae81ff">34h</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x80532bbL</span> 	mov     R2, <span style="color:#ae81ff">74h</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x8053cbeL</span> 	mov     R2, <span style="color:#ae81ff">30h</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x80546c1L</span> 	mov     R2, <span style="color:#ae81ff">72h</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x80550c4L</span> 	mov     R2, <span style="color:#ae81ff">5Fh</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x8055a64L</span> 	mov     R2, <span style="color:#ae81ff">77h</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x8056467L</span> 	mov     R2, <span style="color:#ae81ff">30h</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x8056e6aL</span> 	mov     R2, <span style="color:#ae81ff">72h</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x805786dL</span> 	mov     R2, <span style="color:#ae81ff">6Bh</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x8058207L</span> 	mov     R2, <span style="color:#ae81ff">35h</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x8058c0aL</span> 	mov     R2, <span style="color:#ae81ff">5Fh</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x805960dL</span> 	mov     R2, <span style="color:#ae81ff">6Ch</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x805a010L</span> 	mov     R2, <span style="color:#ae81ff">31h</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x805a9a4L</span> 	mov     R2, <span style="color:#ae81ff">6Bh</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x805b3a7L</span> 	mov     R2, <span style="color:#ae81ff">65h</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x805bdaaL</span> 	mov     R2, <span style="color:#ae81ff">5Fh</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x805c7adL</span> 	mov     R2, <span style="color:#ae81ff">6Dh</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x805d13bL</span> 	mov     R2, <span style="color:#ae81ff">34h</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x805db3eL</span> 	mov     R2, <span style="color:#ae81ff">67h</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x805e541L</span> 	mov     R2, <span style="color:#ae81ff">31h</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x805ef44L</span> 	mov     R2, <span style="color:#ae81ff">63h</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">0</span><span style="color:#a6e22e">x805f8ccL</span> 	mov     R2, <span style="color:#ae81ff">7Dh</span></span></span></code></pre></div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-nasm" data-lang="nasm"><span style="display:flex;"><span>0<span style="color:#50fa7b">x80493dbL</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">41h</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x8049ddeL</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">4Ch</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x804a7e1L</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">45h</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x804b1e4L</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">58h</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x804bb9cL</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">43h</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x804c59fL</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">54h</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x804cfa2L</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">46h</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x804d9a5L</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">7Bh</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x804e357L</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">4Dh</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x804ed5aL</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">30h</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x804f75dL</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">56h</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x8050160L</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">66h</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x8050b0cL</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">75h</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x805150fL</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">73h</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x8051f12L</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">63h</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x8052915L</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">34h</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x80532bbL</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">74h</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x8053cbeL</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">30h</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x80546c1L</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">72h</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x80550c4L</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">5Fh</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x8055a64L</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">77h</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x8056467L</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">30h</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x8056e6aL</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">72h</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x805786dL</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">6Bh</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x8058207L</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">35h</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x8058c0aL</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">5Fh</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x805960dL</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">6Ch</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x805a010L</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">31h</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x805a9a4L</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">6Bh</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x805b3a7L</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">65h</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x805bdaaL</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">5Fh</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x805c7adL</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">6Dh</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x805d13bL</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">34h</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x805db3eL</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">67h</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x805e541L</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">31h</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x805ef44L</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">63h</span>
+</span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x805f8ccL</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">7Dh</span></span></span></code></pre></div>
 <p>If we modify the script above to print the characters that are been stored into <code>R2</code> we should get the flag.</p>
 <p>final script is:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> idc <span style="color:#f92672">import</span> <span style="color:#f92672">*</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> idaapi <span style="color:#f92672">import</span> <span style="color:#f92672">*</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff79c6">from</span> idc <span style="color:#ff79c6">import</span> <span style="color:#ff79c6">*</span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">from</span> idaapi <span style="color:#ff79c6">import</span> <span style="color:#ff79c6">*</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>flag <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>
-</span></span><span style="display:flex;"><span>main <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>
+</span></span><span style="display:flex;"><span>flag <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#39;&#39;</span>
+</span></span><span style="display:flex;"><span>main <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">None</span>
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> func <span style="color:#f92672">in</span> Functions():
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> GetFunctionName(func) <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;main&#34;</span>:
-</span></span><span style="display:flex;"><span>        main <span style="color:#f92672">=</span> func
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">for</span> func <span style="color:#ff79c6">in</span> Functions():
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">if</span> GetFunctionName(func) <span style="color:#ff79c6">==</span> <span style="color:#f1fa8c">&#34;main&#34;</span>:
+</span></span><span style="display:flex;"><span>        main <span style="color:#ff79c6">=</span> func
 </span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>code <span style="color:#f92672">=</span> list(FuncItems(main))
+</span></span><span style="display:flex;"><span>code <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">list</span>(FuncItems(main))
 </span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> line <span style="color:#f92672">in</span> code:
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> GetOpnd(line,<span style="color:#ae81ff">0</span>) <span style="color:#f92672">==</span> <span style="color:#e6db74">&#39;R2&#39;</span>:
-</span></span><span style="display:flex;"><span>            flag <span style="color:#f92672">+=</span> chr(int(GetOpnd(line, <span style="color:#ae81ff">1</span>)[:<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>], <span style="color:#ae81ff">16</span>))
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">for</span> line <span style="color:#ff79c6">in</span> code:
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">if</span> GetOpnd(line,<span style="color:#bd93f9">0</span>) <span style="color:#ff79c6">==</span> <span style="color:#f1fa8c">&#39;R2&#39;</span>:
+</span></span><span style="display:flex;"><span>            flag <span style="color:#ff79c6">+=</span> <span style="color:#8be9fd;font-style:italic">chr</span>(<span style="color:#8be9fd;font-style:italic">int</span>(GetOpnd(line, <span style="color:#bd93f9">1</span>)[:<span style="color:#ff79c6">-</span><span style="color:#bd93f9">1</span>], <span style="color:#bd93f9">16</span>))
 </span></span><span style="display:flex;"><span>            
-</span></span><span style="display:flex;"><span>print <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n\n</span><span style="color:#e6db74">&#34;</span>, flag</span></span></code></pre></div>
+</span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">print</span> <span style="color:#f1fa8c">&#34;</span><span style="color:#f1fa8c">\n\n</span><span style="color:#f1fa8c">&#34;</span>, flag</span></span></code></pre></div>
 <p>By Executing the previous script we will get the flag :<code>ALEXCTF{M0Vfusc4t0r_w0rk5_l1ke_m4g1c}</code></p>
 
-      </div></div>
-
-  
-
-  
     
-
-  
-</article>
-
   </div>
 
   
-    <footer class="footer">
-  <div class="footer__inner">
-    
-      <div class="copyright copyright--user">
-        <span>Ignacio Sanmillan</span>
-    
-      </div>
-  </div>
-</footer>
-
-
-
-
-
-
-<script type="text/javascript" src="/bundle.min.js"></script>
-
-
-
-
 
   
+
+  
+  
+
+<div class="single-pagination">
+    <hr />
+
+    <div class="flex">
+
+        <div class="single-pagination-prev">
+            
+            <div class="single-pagination-container-prev">
+                <div class="single-pagination-text">←</div>
+                <div class="single-pagination-text">
+                    <a href="/post/2016-12-19-sharifctf2016-nanomites/">
+                        SharifCTF7 - Nanomites
+                    </a>
+                </div>
+            </div>
+            
+        </div>
+
+        <div class="single-pagination-next">
+            
+            <div class="single-pagination-container-next">
+                <div class="single-pagination-text">
+                    <a href="/post/2017-02-11-codegatectf2017-angrybird/">
+                        CodeGateCTF - Angrybird
+                    </a>
+                </div>
+                <div class="single-pagination-text">→</div>
+            </div>
+            
+        </div>
+
+    </div>
+
+    <hr />
 </div>
 
+
+
+  
+
+  
+
+  
+  <div class="back-to-top">
+    <a href="#top">
+      back to top
+    </a>
+  </div>
+  
+
+</div>
+
+
+    </main>
+  </div>
+
+  <footer>
+    
+
+  </footer>
+
+  
+
 </body>
+
+<script src="/js/theme-switch.js"></script>
+<script defer src="/js/copy-code.js"></script>
 </html>

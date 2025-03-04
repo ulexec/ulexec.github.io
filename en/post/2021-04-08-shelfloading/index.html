@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge"><meta name="robots" content="index, follow"><meta name="author" content="ulexec">
+<meta name="description" content="">
+<link rel="author" type="text/plain" href="/humans.txt">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="msapplication-TileImage" content="/mstile-144x144.png">
+<meta name="theme-color" content="#ffff">
+<meta name="msapplication-TileColor" content="#ffff">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#ffff">
+
+  <meta itemprop="name" content="SHELF Loading">
+  <meta itemprop="description" content="SHELF Loading is a new type of ELF binary reflective loading that my colleague @Anonymous_ and I first documented on April 21st 2021. This new ELF reflective loading methodology enables the capability to generate compiler-based artifacts with properties that resemble those of shellcode. These compiler-based artifacts are ultimately a Hybrid ELF file between conventional static and PIE binaries. Had the pleasure to publish this research at Tmp0ut, a Linux VX zine. This was Volume #1, and its first release and their official site can be found at tmpout.sh.">
+  <meta itemprop="datePublished" content="2021-04-08T00:00:00+00:00">
+  <meta itemprop="dateModified" content="2023-07-08T09:03:55+02:00">
+  <meta itemprop="wordCount" content="3661">
+  <meta itemprop="keywords" content="Reversing,Malware"><meta property="og:url" content="//localhost:1313/en/post/2021-04-08-shelfloading/">
+  <meta property="og:site_name" content="Ignacio Sanmillan Research Blog">
+  <meta property="og:title" content="SHELF Loading">
+  <meta property="og:description" content="SHELF Loading is a new type of ELF binary reflective loading that my colleague @Anonymous_ and I first documented on April 21st 2021. This new ELF reflective loading methodology enables the capability to generate compiler-based artifacts with properties that resemble those of shellcode. These compiler-based artifacts are ultimately a Hybrid ELF file between conventional static and PIE binaries. Had the pleasure to publish this research at Tmp0ut, a Linux VX zine. This was Volume #1, and its first release and their official site can be found at tmpout.sh.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="post">
+    <meta property="article:published_time" content="2021-04-08T00:00:00+00:00">
+    <meta property="article:modified_time" content="2023-07-08T09:03:55+02:00">
+    <meta property="article:tag" content="Reversing">
+    <meta property="article:tag" content="Malware">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="SHELF Loading">
+  <meta name="twitter:description" content="SHELF Loading is a new type of ELF binary reflective loading that my colleague @Anonymous_ and I first documented on April 21st 2021. This new ELF reflective loading methodology enables the capability to generate compiler-based artifacts with properties that resemble those of shellcode. These compiler-based artifacts are ultimately a Hybrid ELF file between conventional static and PIE binaries. Had the pleasure to publish this research at Tmp0ut, a Linux VX zine. This was Volume #1, and its first release and their official site can be found at tmpout.sh.">
+
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "SHELF Loading",
+    "name": "SHELF Loading",
+    "description": "SHELF Loading is a new type of ELF binary reflective loading that my colleague @Anonymous_ and I first documented on April 21st 2021. This new ELF reflective loading methodology enables the capability to generate compiler-based artifacts with properties that resemble those of shellcode. These compiler-based artifacts are ultimately a Hybrid ELF file between conventional static and PIE binaries. Had the pleasure to publish this research at Tmp0ut, a Linux VX zine. This was Volume #1, and its first release and their official site can be found at tmpout.sh.\n",
+    "keywords": ["reversing", "malware"],
+    "articleBody": "SHELF Loading is a new type of ELF binary reflective loading that my colleague @Anonymous_ and I first documented on April 21st 2021. This new ELF reflective loading methodology enables the capability to generate compiler-based artifacts with properties that resemble those of shellcode. These compiler-based artifacts are ultimately a Hybrid ELF file between conventional static and PIE binaries. Had the pleasure to publish this research at Tmp0ut, a Linux VX zine. This was Volume #1, and its first release and their official site can be found at tmpout.sh.\nMake sure to check other of the great articles published on this first volume if ELF mangling/golfing/fuckery is for you :)\nIntroduction Over the last several years there have been several enhancements in Linux offensive tooling in terms of sophistication and complexity. Linux malware has become increasingly more popular, given the higher number of public reports documenting Linux threats. These include government-backed Linux implants such as APT28’s VPNFilter, Drovorub or Winnti wide range of Linux Malware.\nHowever, this increase in popularity does not seem to have had much of an impact in the totality of the sophistication of the current Linux threat landscape just yet. It’s a fairly young ecosystem, where cybercriminals have not been able to identify reliable targets for monetization apart from Cryptocurrency Mining, DDoS, and more recently, Ransomware operations.\nIn today’s Linux threat landscape, even the smallest refinement or introduction of complexity often results in AV evasion, and therefore Linux malware authors do not tend to invest unnecessary resources to sophisticate their implants. There are various reasons why this phenomenon occurs, and it is subject to ambiguity. The Linux ecosystem, in contrast to other popular spheres such as Windows and MacOS, is more dynamic and diverse, stemming from the many flavors of ELF files for different architectures, the fact that ELF binaries can be valid in many different forms, and that the visibility of Linux threats is often quite poor.\nDue to these issues, AV vendors face a completely different set of challenges detecting these threats. Often times this disproportionate detection failure of simple/unsophisticated threats leaves an implicit impression that Linux malware is by nature not complex. This statement couldn’t be further from the truth, and those familiar with the ELF file format know that there is quite a lot of room for innovation with ELF files that other file formats are not able to provide due to their lack of flexibility, even if we have not seen it abused as much over the years.\nIn this article we are going to discuss a technique that achieves an uncommon functionality of file formats, which generically converts full executables to shellcode in a way that demonstrates, yet again, another example that ELF binaries can be manipulated to achieve offensive innovation that is hard or impossible to replicate in other file formats.\nA Primer On ELF Reflective Loading In order to understand the technique, we must first give a contextual background on previously known ELF techniques upon which this one is based, with a comparison of the benefits and tradeoffs.\nMost ELF packers, or any application implementing any form of ELF binary loading, are primarily based on what’s known as User-Land-Exec.\nUser-Land-Exec is a method first documented by @thegrugq, in which an ELF binary can be loaded without using any of the execve family of system calls, and hence its name.\nFor the sake of simplicity, the steps to implement an ordinary User-Land-Exec with support of ET_EXEC and ET_DYN ELF binaries is illustrated in the following diagram, showcasing an implementation of the UPX packer for ELF binaries:\nAs we can observe, this technique has the following requirements (by @thegrugq):\nClean out the address space If the binary is dynamically linked, load the dynamic linker. Load the binary. Initialize the stack. Determine the entry point (i.e. the dynamic linker or the main executable). Transfer execution to the entry point. On a more technical level, we come up with the following requirements:\nSetup the stack of the embedded executable with its correspondent Auxiliary Vector. Parse PHDR’s and identify if there is a PT_INTERP segment, denoting that the file is a dynamically linked executable. LOAD interpreter if PT_INTERP is present. LOAD target embedded executable. Pivot to mapped e_entry of target executable or interpreter accordingly, depending if the target executable is a dynamically linked binary. For a more in-depth explanation, we suggest reading @thegrugq’s comprehensive paper on the matter [9].\nOne of the capabilities of conventional User-Land-Exec are the evasion of an execve footprint as previously mentioned, in contrast with other techniques such as memfd_create/execveat, which are also widely used to load end execute a target ELF file. Since the loader maps and loads the target executable, the embedded executable has the flexibility of having a non-conventional structure. This has the side benefit of being useful for evasion and anti-forensics purposes.\nOn the other hand, since there are a lot of critical artifacts involved in the loading process, it can be easy to recognize by reverse-engineers, as well as being somewhat fragile due to the fact that the technique is heavily dependent on these components. For this reason, writing User-Land-Exec based loaders have been somewhat tedious. As more features get added to the ELF file format, this technique has been inclined to mature over time and thereby increasing its complexity.\nThe new technique that we will be covering in this paper relies on implementing a generic User-Land-Exec loader with a reduced set of constraints supporting a hybrid PIE and statically linked ELF binaries that to our knowledge have yet to be reported.\nWe believe this technique represents a drastic improvement of previous versions of User-Land-Exec loaders, since based on the lack of technical implementation constraints and the nature of this new hybrid static/PIE ELF flavor, the extent of capabilities it can provide is wider and more evasive than with previous User-Land-Exec variants.\nInternals Of Static PIE Executable Generation Background In July of 2017 H. J. Lu patched a bug entry in GCC bugzilla named ‘Support creating static PIE’. This patch mentioned the implementation of a statically based PIE in his branch at glibc hjl/pie/static, in which Lu documented that by supplying –static and –pie flags to the linker along with PIE versions of crt*.o as input, static PIE ELF executables could be generated. It is important to note, that at the time of this patch, generation of fully statically linked PIE binaries was not possible.[1]\nIn August, Lu submitted a second patch[2] to the GCC driver, for adding the –static flag to support static PIE files that he was able to demonstrate in his previous patch. The patch was accepted in trunk[3], and this feature was released in GCC v8.\nMoreover, in December of 2017 a commit was made in glibc[4] adding the option –enable-static-pie. This patch made it possible to embed the needed parts of ld.so to produce standalone static PIE executables.\nThe major change in glibc to allow static PIE was the addition of the function _dl_relocate_static_pie which gets called by __libc_start_main. This function is used to locate the run-time load address, read the dynamic segment, and perform dynamic relocations before initialization, then transfer control flow of execution to the subject application.\nIn order to know which flags and compilation/linking stages were needed in order to generate static PIE executables, we passed the flag –static-pie –v to GCC. However, we soon realized by doing this that the linker generated a plethora of flags and calls to internal wrappers. As an example, the linking phase is handled by the tool /usr/lib/gcc/x86_64-linux-gnu/9/collect2 and GCC itself is wrapped by /usr/lib/gcc/x86_64-linux-gnu/9/cc1. Nevertheless, we managed to remove the irrelevant flags and we ended up with the following steps:\nThese steps are in fact the same provided by Lu, supplying the linker with input files compiled with –fpie, and –static, -pie, -z text, --no-dynamic-linker. In particular, the most relevant artifacts for static PIE creation are rcrt1.o, libc.a, and our own supplied input file, test.o. The rcrt1.o object contains the _start code which has the code required to correctly load the application before executing its entry point by calling the correspondent libc startup code contained in __libc_start_main:\nAs previously mentioned, __libc_start_main will call the new added function _dl_relocate_static_pie (defined at elf/dl-reloc-static-pie.c file of glibc source). The primary steps performed by this function are commented in the source:\nWith the help of these features, GCC is capable of generating static executables which can be loaded at any arbitrary address.\nWe can observe that _dl_relocate_static_pie will handle the needed dynamic relocations. One noticeable difference of rcrt1.o from conventional crt1.o is that all contained code is position independent. Inspecting what the generated binaries look like we see the following:\nAt first glance they seem to be common dynamically linked PIE executables, based on the ET_DYN executable type retrieved from the ELF header. However, upon closer examination of the segments, we will observe the nonexistent PT_INTERP segment usually denoting the path to the interpreter in dynamically linked executables and the existence of a PT_TLS segment, usually contained only in statically linked executables.\nIf we check what the dynamic linker identifies the subject executable as, we will see it identifies the file type correctly:\nIn order to load this file, all we would need to do is map all the PT_LOAD segments to memory, set up the process stack with the correspondent Auxiliary Vector entries, and then pivot to the mapped executable’s entry point. We do not need to be concerned about mapping the RTLD since we don’t have any external dependencies or link time address restrictions.\nAs we can observe, we have four loadable segments commonly seen in SCOP ELF binaries. However, for the sake of easier deployment, it will be crucial if we could merge all those segments into one as is usually done with ELF disk injection into a foreign executable. We can do just this by using the –N linker flag to merge data and text within a single segment.\nNon-compatibility of GCC’s -N and static-pie flags If we pass –static-pie and –N flags together to GCC we see that it generates the following executable:\nThe first thing we noticed about the type of generated ELF when using –static-pie alone was that it had a type of ET_DYN, and now together with –N it results in an ET_EXEC.\nIn addition, if we take a closer look at the segment’s virtual addresses, we see that the generated binary is not a Position Independent Executable. This is due to the fact that the virtual addresses appear to be absolute addresses and not relative ones. To understand why our program is not being linked as expected, we inspected the linker script that was being used.\nAs we are using the ld linker from binutils, we took a look on how ld selected the linker script; this is done in the ld/ldmain.c code at line 345:\nThe ldfile_open_default_command_file is in fact an indirect call to an architecture independent function generated at compile time that contains a set of internal linker scripts to be selected depending upon the flags passed to ld. Because we are using the x86_64 architecture, the generated source will be ld/elf_x86_64.c, and the function which is called to select the script is gldelf_x86_64_get_script, which is simply a set of if-else-if statements to select the internal linker script. The –N option sets the config.text_read_only variable to false, which forces the selection function to use an internal script which does not produce PIC as can be seen below:\nThis way of selecting the default script makes the –static-pie and –N flags non-compatible, because the forced test of selecting the script based on –N is parsed before –static-pie.\nCircumvention via custom Linker Script The incompatibility between –N, -static, and –pie flags led us to a dead end, and we were forced to think of different ways to overcome this barrier. What we attempted was to provide a custom script to drive the linker. As we essentially needed to merge the behavior of two separate linker scripts, our approach was to choose one of the scripts and adapt it to generate the desired outcome with features of the remaining script.\nWe chose the default script of –static-pie over the one used with –N because in our case it was easier to modify as opposed to changing the –N default script to support PIE generation.\nTo accomplish this goal, we would need to change the definition of the segments, which are controlled by the PHDRS [5] field in the linker script. If the command is not used the linker will provide program headers generated by default – However, if we neglect this in the linker script, the linker will not create any additional program headers and will strictly follow the guidelines defined in the subject linker script.\nTaking into account the details discussed above, we added a PHDRS command to the default linker script, starting with all the original segments which are created by default when using –static-pie:\nAfter this we need to know how each section maps to each segment – and for this we can use readelf as shown below:\nWith knowledge of the mappings, we just needed to change the section output definition in the linker script which adds the appropriate segment name at the end of each function definition, as shown in the following example:\nHere, the .tdata and .tbss sections are being assigned to the segments that get mapped in the same order that we saw in the output of the readelf –l command. Eventually, we ended up having a working script precisely changing all mapped sections which were mapped in data to the text segment:\nIf we compile our subject test file with this linker script, we see the following generated executable:\nWe now have a static-pie with just one loadable segment. The same approach can be repeated to remove other irrelevant segments, keeping only critical segments necessary for the execution of the binary. As an example, the following is a static-pie executable instance with minimal program headers needed to run:\nThe following is the final output of our desired ELF structure – having only one PT_LOAD segment generated by a linker script with the PHDRS command configured as in the screenshot below:\nSHELF Loading This generated ELF flavor gives us some interesting capabilities that other ELF types are not able to provide. For the sake of simplicity, we have labelled this type of ELF binary as SHELF, and we will be referencing it throughout the rest of this paper. The following is an updated diagram of the loading stages needed for SHELF loading:\nAs we can see in the diagram above, the process of loading SHELF files is highly reduced in complexity compared to conventional ELF loading schemes.\nTo illustrate the reduced set of constraints to load these types of files, a snippet of a minimalistic SHELF User-Land-Exec approach is as follows:\nBy using this approach, a subject SHELF file would look as follows in memory and on disk:\nAs we can observe, the ELF header and Program Headers are missing from the process image. This is a feature that this flavor of ELF enables us to implement and is discussed in the following section.\nAnti-Forensic Capabilities This new approach to User-Land-Exec has also two optional stages useful for anti-forensic purposes. Since the dl_relocate_static_pie function will obtain all of the required fields for relocation from the Auxiliary Vector, this leaves us room to play with how the subject SHELF file structure may look in memory and on disk.\nRemoving the ELF header will directly impact reconstruction capabilities, because most Linux-based scanners will scan process memory for existing ELF images by first identifying ELF headers. The ELF header will be parsed and will contain further information on where to locate the Program Header Table and consequently the rest of the mapped artifacts of the file.\nRemoval of the ELF header is trivial since this artifact is not really needed by the loader – all required information in the subject file will be retrieved from the Auxiliary Vector as previously mentioned.\nAn additional artifact that can be hidden is the Program Header Table. This is a slightly different case when compared with the ELF Header. The Auxiliary Vector needs to locate the Program Header Table in order for the RTLD to successfully load the file by applying the needed runtime relocations. Regardless, there are many approaches to obfuscating the PHT. The simplest approach is to remove the original Program Header Table location, and relocate it somewhere in the file that is only known by the Auxiliary Vector.\nWe can precompute the location of each of the Auxiliary Vector entries and define each entry as a macro in an include file, tailoring our loader to every subject SHELF file at compile-time. The following is an example of how these macros can be generated:\nAs we can observe, we have parsed the subject SHELF file for its e_entry and e_phnum fields, creating corresponding macros to hold those values. We also have to choose a random base image to load the file. Finally, we locate the PHT and convert it to an array, then remove it from its original location. Applying these modifications allows us to completely remove the ELF header and change the default location of the subject SHELF file PHT both on disk and in memory(!)\nWithout successful retrieval of the Program Header Table, reconstruction capabilities may be strictly limited and further heuristics will have to be applied for successful process image reconstruction.\nAn additional approach to make the reconstruction of the Program Header Table much harder is by instrumenting the way glibc implements the resolution of the Auxiliary Vector fields.\nObscuring SHELF features by PT_TLS patching Even after modifying the default location of the Program Header Table by choosing a new arbitrary location when crafting the Auxiliary Vector, the Program Header Table would still reside in memory and could be found with some effort. To obscure ourselves even further we can cover how the startup code reads the Auxiliary Vector fields.\nThe code that does this is in elf/dl_support.c in the function _dl_aux_init. In abstract, the code iterates over all the auxv_t entries, and each of these entries initialize internal variables from glibc:\nThe only reason the Auxiliary Vector is required is to initialize internal _dl_* variables. Knowing this, we can bypass the creation of the Auxiliary Vector entirely and do the same job that _dl_aux_init would do before passing control of execution to the subject SHELF file.\nThe only entries which are critical are AT_PHDR, AT_PHNUM, and AT_RANDOM. Therefore, we only need to patch the respective _dl_* variables that depend on these fields. As an example of how to retrieve these values, we can use the following one-liner to generate an include file with precomputed macros holding the offset to every dl_* variable:\nWith the offset to these variables located, we only need to patch them in the same way the original startup code would do so using the Auxiliary Vector. As a way to illustrate this technique, the following code will initialize the addresses of the Program Headers to new_address, and the number of program headers to the correct number:\nAt this point we have a working program without supplying the Auxiliary Vector. Because the subject binary is statically linked, and the code that will load the SHELF file is our loader, we can neglect every other segment in the Auxiliary Vector’s AT_PHDR and AT_PHNUM or dl_phdr and dl_phnum respectively. There is an exception, which is the PT_TLS segment which is the interface in which Thread Local Storage is implemented in the ELF file format.\nThe following code which resides in csu/libc-tls.c on function __libc_setup_tls show the type of information that gets retrieved from the PT_TLS segment:\nIn the code snippet above, we can see that TLS initialization relies on the presence of the PT_TLS segment. We have several approaches that can obfuscate this artifact, such as patching the __libc_setup_tls function to just return and then initialize the TLS with our own code. Here, we’ll choose to implement a quick patch to glibc instead as a PoC.\nTo avoid the need of the PT_TLS Program Header we have added a global variable to hold the values from PT_TLS and set the values inside __libc_setup_tls, reading from our global variable instead of the subject SHELF file Program Header Table. With this small change we finally strip all the program headers:\nUsing the following script to generate _phdr.h:\nWe can apply our patches in the following way after including _phdr.h:\nApplying the methodology shown above, we gain a high level of evasiveness by loading and executing our SHELF file without an ELF header, Program Header Table, and Auxiliary Vector – just as shellcode gets loaded. The following diagram illustrates how straightforward the loading process of SHELF files is:\nConclusion We have covered the internals of Reflective Loading of ELF files, explaining previous implementations of User-Land-Exec, along with its benefits and drawbacks. We then explained the latest patches in the GCC code base that implemented support for static-pie binaries, discussing our desired outcome, and the approaches we followed to achieve the generation of static-pie ELF files with one single PT_LOAD segment. Finally, we discussed the anti-forensic features that SHELF loading can provide, which we think to be a considerable enhancement when compared with previous versions of ELF Reflective Loading.\nWe think this could be the next generation of ELF Reflective Loading, and it may benefit readers to understand the extent of offensive capabilities that the ELF file format can provide. If you would like access to the source code, contact @sblip or @ulexec.\nReferences [1] (support static pie) https://gcc.gnu.org/bugzilla/show_bug.cgi?id=81498 [2] (first patch gcc) https://gcc.gnu.org/ml/gcc-patches/2017-08/msg00638.html [3] (gcc patch) https://gcc.gnu.org/viewcvs/gcc?view=revision\u0026revision=252034 [4] (glibc –enable-static-pie) https://sourceware.org/git/?p=glibc.git;a=commit; h=9d7a3741c9e59eba87fb3ca6b9f979befce07826 [5] (ldscript doc) https://sourceware.org/binutils/docs/ld/PHDRS.html#PHDRS [6] https://sourceware.org/binutils/docs/ld/ Output-Section-Phdr.html#Output-Section-Phdr [7] https://www.akkadia.org/drepper/tls.pdf [8] (why ld doesn’t allow -static -pie -N) https://sourceware.org/git /gitweb.cgi?p=binutils-gdb.git;a=blob;f=ld/ldmain.c; h=c4af10f4e9121949b1b66df6428e95e66ce3eed4;hb=HEAD#l345 [9] (grugq ul_exec paper) https://grugq.github.io/docs/ul_exec.txt [10] (ELF UPX internals) https://ulexec.github.io/ulexec.github.io/article /2017/11/17/UnPacking_a_Linux_Tsunami_Sample.html ",
+    "wordCount" : "3661",
+    "inLanguage": "en",
+    "datePublished": "2021-04-08T00:00:00Z",
+    "dateModified": "2023-07-08T09:03:55+02:00",
+    "author":{
+        "@type": "Person",
+        "name": "ulexec",
+        "url": "//localhost:1313/en/about/"
+        },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "//localhost:1313/en/post/2021-04-08-shelfloading/"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Ignacio Sanmillan Research Blog",
+      "description": "",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "//localhost:1313/favicon.ico"
+      }
+    }
+}
+</script><title>SHELF Loading</title>
+<link rel="stylesheet dns-prefetch preconnect preload prefetch" as="style" href="//localhost:1313/css/style.min.1c3457a9e9a2486add1cbdc04fe13e164fd6f0db073e8f2880b40b20cbb43bda.css" integrity="sha256-HDRXqemiSGrdHL3AT+E+Fk/W8NsHPo8ogLQLIMu0O9o=" crossorigin="anonymous">
+	</head>
+<body id="page">
+	<header id="site-header">
+		<div class="hdr-wrapper section-inner">
+			<div class="hdr-left">
+				<div class="site-branding">
+					<a href="//localhost:1313/">Ignacio Sanmillan Research Blog</a>
+				</div>
+				<nav class="site-nav hide-in-mobile"><a href="//localhost:1313/en/publications/">Publications</a><a href="//localhost:1313/en/post/">Posts</a><a href="//localhost:1313/en/about/">About</a><a href="//localhost:1313/en/projects/">Projects</a><a href="//localhost:1313/en/advisories/">Advisories</a></nav>
+			</div>
+			<div class="hdr-right hdr-icons">
+				<span class="hdr-links hide-in-mobile"><a href="https://joinmastodon.org/" target="_blank" rel="noopener me" title="Mastodon"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" fill="none" stroke="currentColor"
+   viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path
+      d="m 21.474,13.998 c -0.296,1.526 -2.655,3.194 -5.365,3.519 -1.413,0.168 -2.804,0.323 -4.287,0.255 -2.426,-0.111 -4.34,-0.579 -4.34,-0.579 0,0.236 0.015,0.461 0.044,0.672 0.316,2.394 2.373,2.537 4.323,2.604 1.968,0.067 3.721,-0.486 3.721,-0.486 l 0.081,1.779 c 0,0 -1.377,0.739 -3.829,0.875 -1.352,0.075 -3.031,-0.034 -4.987,-0.551 C 2.594,20.963 1.865,16.442 1.752,11.855 1.719,10.493 1.741,9.209 1.741,8.134 1.741,3.443 4.814,2.069 4.814,2.069 6.363,1.356 9.022,1.056 11.787,1.035 h 0.067 c 2.764,0.022 5.426,0.322 6.975,1.033 0,0 3.073,1.375 3.073,6.066 0,0 0.039,3.461 -0.428,5.864" />
+   <path
+      d="M 6.464,13.231 V 7.973 c 0,-1.002 0.549,-2.613 2.613,-2.613 2.064,0 2.741,1.793 2.741,3.484 0,1.692 0,2.23 0,2.23" />
+   <path
+      d="M 17.173,13.231 V 7.973 c 0,-1.002 -0.549,-2.613 -2.613,-2.613 -2.064,0 -2.741,1.793 -2.741,3.484 0,1.692 -0,2.23 -0,2.23" />
+</svg></a><a href="https://twitter.com/" target="_blank" rel="noopener me" title="X"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none"
+   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path class="st0" d="m21.3 21.1 -11.4 -18.2h-7.2l11.4 18.2zm-18.6 0 7.2 -6.6m4.2 -5 7.2 -6.6" />
+</svg></a><a href="https://github.com/1bl4z3r/hermit-V2/tree/staging" target="_blank" rel="noopener me" title="Github"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none"
+   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path
+      d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
+   </path>
+</svg></a></span><button id="share-btn" class="hdr-btn" title=""><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-share-2">
+      <circle cx="18" cy="5" r="3"></circle>
+      <circle cx="6" cy="12" r="3"></circle>
+      <circle cx="18" cy="19" r="3"></circle>
+      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+   </svg></button>
+ 
+<div id="share-links" class="animated fast">
+    
+    
+    
+    
+    <ul>
+        <li>
+            <a href="https://twitter.com/intent/tweet?hashtags=hermit2&amp;url=%2f%2flocalhost%3a1313%2fen%2fpost%2f2021-04-08-shelfloading%2f&amp;text=SHELF%20Loading" target="_blank" rel="noopener" aria-label="Share on X"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none"
+   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path class="st0" d="m21.3 21.1 -11.4 -18.2h-7.2l11.4 18.2zm-18.6 0 7.2 -6.6m4.2 -5 7.2 -6.6" />
+</svg></a>
+        </li>
+        <li>
+            <a href="https://facebook.com/sharer/sharer.php?u=%2f%2flocalhost%3a1313%2fen%2fpost%2f2021-04-08-shelfloading%2f" target="_blank" rel="noopener" aria-label="Share on Facebook"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none"
+   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+</svg></a>
+        </li>
+        <li>
+            <a href="mailto:?subject=SHELF%20Loading&amp;body=%2f%2flocalhost%3a1313%2fen%2fpost%2f2021-04-08-shelfloading%2f" target="_self" rel="noopener" aria-label="Share on Email"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none"
+   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+   <polyline points="22,6 12,13 2,6"></polyline>
+</svg></a>
+        </li>
+        <li>
+            <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=%2f%2flocalhost%3a1313%2fen%2fpost%2f2021-04-08-shelfloading%2f&amp;source=%2f%2flocalhost%3a1313%2f&amp;title=SHELF%20Loading&amp;summary=SHELF%20Loading%2c%20by%20ulexec%0a%0a%3cnil%3e%0a" target="_blank" rel="noopener" aria-label="Share on LinkedIn"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none"
+   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+   <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+   <rect x="2" y="9" width="4" height="12"></rect>
+   <circle cx="4" cy="4" r="2"></circle>
+</svg></a>
+        </li>
+        <li>
+            <a href="#" onclick="linkShare(&#34;SHELF Loading&#34;,&#34;//localhost:1313/en/post/2021-04-08-shelfloading/&#34;,&#34;SHELF Loading, by ulexec\n\n\u003cnil\u003e\n&#34;); return false;" target="_self" rel="noopener" aria-label="Copy Link"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-copy">
+      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+   </svg></a>
+        </li>
+    </ul>
+</div><button id="menu-btn" class="hdr-btn" title=""><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+   </svg></button>
+			</div>
+		</div>
+	</header>
+	<div id="mobile-menu" class="animated fast">
+		<ul>
+			<li><a href="//localhost:1313/en/publications/">Publications</a></li>
+			<li><a href="//localhost:1313/en/post/">Posts</a></li>
+			<li><a href="//localhost:1313/en/about/">About</a></li>
+			<li><a href="//localhost:1313/en/projects/">Projects</a></li>
+			<li><a href="//localhost:1313/en/advisories/">Advisories</a></li>
+		</ul>
+	</div>
+
+
+	<main class="site-main section-inner thin animated fadeIn faster">
+		<h1>SHELF Loading</h1>
+		<div class="content">
+			<p>SHELF Loading is a new type of ELF binary reflective loading that my colleague @Anonymous_ and I first documented on April 21st 2021.
+This new <code>ELF reflective loading</code> methodology enables the capability to generate compiler-based artifacts with properties that resemble those of <code>shellcode</code>.
+These compiler-based artifacts are ultimately a <code>Hybrid ELF</code> file between conventional static and PIE binaries.
+Had the pleasure to publish this research at <strong>Tmp0ut</strong>, a Linux VX zine. This was Volume #1, and its first release and their official site can be found at <a href="http://tmpout.sh">tmpout.sh</a>.</p>
+<p>Make sure to check other of the great articles published on this first volume if ELF mangling/golfing/fuckery is for you :)</p>
+<h2 id="introduction">Introduction<a href="#introduction" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path>
+      <line x1="8" y1="12" x2="16" y2="12"></line>
+   </svg></a></h2>
+<p>Over the last several years there have been several enhancements in Linux
+offensive tooling in terms of sophistication and complexity. Linux malware has
+become increasingly more popular, given the higher number of public reports
+documenting Linux threats. These include government-backed Linux implants such
+as APT28&rsquo;s VPNFilter, Drovorub or Winnti wide range of Linux Malware.</p>
+<p>However, this increase in popularity does not seem to have had much of an impact
+in the totality of the sophistication of the current Linux threat landscape just
+yet. It&rsquo;s a fairly young ecosystem, where cybercriminals have not been able to
+identify reliable targets for monetization apart from Cryptocurrency Mining,
+DDoS, and more recently, Ransomware operations.</p>
+<p>In today&rsquo;s Linux threat landscape, even the smallest refinement or introduction
+of complexity often results in AV evasion, and therefore Linux malware authors
+do not tend to invest unnecessary resources to sophisticate their implants.
+There are various reasons why this phenomenon occurs, and it is subject to
+ambiguity. The Linux ecosystem, in contrast to other popular spheres such as
+Windows and MacOS, is more dynamic and diverse, stemming from the many flavors
+of ELF files for different architectures, the fact that ELF binaries can be
+valid in many different forms, and that the visibility of Linux threats is often
+quite poor.</p>
+<p>Due to these issues, AV vendors face a completely different set of challenges
+detecting these threats. Often times this disproportionate detection failure of
+simple/unsophisticated threats leaves an implicit impression that Linux malware
+is by nature not complex. This statement couldn&rsquo;t be further from the truth, and
+those familiar with the ELF file format know that there is quite a lot of room
+for innovation with ELF files that other file formats are not able to provide
+due to their lack of flexibility, even if we have not seen it abused as much
+over the years.</p>
+<p>In this article we are going to discuss a technique that achieves an uncommon
+functionality of file formats, which generically converts full executables to
+shellcode in a way that demonstrates, yet again, another example that ELF
+binaries can be manipulated to achieve offensive innovation that is hard or
+impossible to replicate in other file formats.</p>
+<h2 id="a-primer-on-elf-reflective-loading">A Primer On ELF Reflective Loading<a href="#a-primer-on-elf-reflective-loading" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path>
+      <line x1="8" y1="12" x2="16" y2="12"></line>
+   </svg></a></h2>
+<p>In order to understand the technique, we must first give a contextual background
+on previously known ELF techniques upon which this one is based, with a
+comparison of the benefits and tradeoffs.</p>
+<p>Most ELF packers, or any application implementing any form of ELF binary
+loading, are primarily based on what&rsquo;s known as <code>User-Land-Exec</code>.</p>
+<p>User-Land-Exec is a method first documented by @thegrugq, in which an ELF binary
+can be loaded without using any of the execve family of system calls, and hence
+its name.</p>
+<p>For the sake of simplicity, the steps to implement an ordinary User-Land-Exec
+with support of <code>ET_EXEC</code> and <code>ET_DYN</code> ELF binaries is illustrated in the following
+diagram, showcasing an implementation of the UPX packer for ELF binaries:</p>
+<p><img src="https://tmpout.sh/1/10/10.1.png#center" alt=""></p>
+<p>As we can observe, this technique has the following requirements (by @thegrugq):</p>
+<ol>
+<li>Clean out the address space</li>
+<li>If the binary is dynamically linked, load the dynamic linker.</li>
+<li>Load the binary.</li>
+<li>Initialize the stack.</li>
+<li>Determine the entry point (i.e. the dynamic linker or the main executable).</li>
+<li>Transfer execution to the entry point.</li>
+</ol>
+<p>On a more technical level, we come up with the following requirements:</p>
+<ol>
+<li>Setup the stack of the embedded executable with its correspondent Auxiliary
+Vector.</li>
+<li>Parse PHDR&rsquo;s and identify if there is a PT_INTERP segment, denoting that
+the file is a dynamically linked executable.</li>
+<li>LOAD interpreter if PT_INTERP is present.</li>
+<li>LOAD target embedded executable.</li>
+<li>Pivot to mapped e_entry of target executable or interpreter accordingly,
+depending if the target executable is a dynamically linked binary.</li>
+</ol>
+<p>For a more in-depth explanation, we suggest reading @thegrugq&rsquo;s comprehensive
+paper on the matter [9].</p>
+<p>One of the capabilities of conventional <code>User-Land-Exec</code> are the evasion of an
+execve footprint as previously mentioned, in contrast with other techniques
+such as <code>memfd_create/execveat</code>, which are also widely used to load end execute
+a target ELF file. Since the loader maps and loads the target executable, the
+embedded executable has the flexibility of having a non-conventional structure.
+This has the side benefit of being useful for evasion and anti-forensics
+purposes.</p>
+<p>On the other hand, since there are a lot of critical artifacts involved in the
+loading process, it can be easy to recognize by reverse-engineers, as well as
+being somewhat fragile due to the fact that the technique is heavily dependent
+on these components. For this reason, writing <code>User-Land-Exec</code> based loaders have
+been somewhat tedious. As more features get added to the ELF file format, this
+technique has been inclined to mature over time and thereby increasing its
+complexity.</p>
+<p>The new technique that we will be covering in this paper relies on implementing
+a generic <code>User-Land-Exec</code> loader with a reduced set of constraints supporting a
+hybrid <code>PIE</code> and statically linked ELF binaries that to our knowledge have yet to
+be reported.</p>
+<p>We believe this technique represents a drastic improvement of previous versions
+of User-Land-Exec loaders, since based on the lack of technical implementation
+constraints and the nature of this new hybrid static/PIE ELF flavor, the extent
+of capabilities it can provide is wider and more evasive than with previous
+<code>User-Land-Exec</code> variants.</p>
+<h2 id="internals-of-static-pie-executable-generation">Internals Of Static PIE Executable Generation<a href="#internals-of-static-pie-executable-generation" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path>
+      <line x1="8" y1="12" x2="16" y2="12"></line>
+   </svg></a></h2>
+<h3 id="background">Background<a href="#background" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path>
+      <line x1="8" y1="12" x2="16" y2="12"></line>
+   </svg></a></h3>
+<p>In July of 2017 H. J. Lu patched a bug entry in GCC bugzilla named ‘Support
+creating static PIE&rsquo;. This patch mentioned the implementation of a statically
+based PIE in his branch at glibc <code>hjl/pie/static</code>, in which Lu documented that by
+supplying <code>–static</code> and <code>–pie</code> flags to the linker along with <code>PIE</code> versions of <code>crt*.o</code>
+as input, static PIE ELF executables could be generated. It is important to
+note, that at the time of this patch, generation of fully statically linked <code>PIE</code>
+binaries was not possible.[1]</p>
+<p>In August, Lu submitted a second patch[2] to the GCC driver, for adding the
+<code>–static</code> flag to support <code>static PIE</code> files that he was able to demonstrate in his
+previous patch. The patch was accepted in trunk[3], and this feature was
+released in GCC v8.</p>
+<p>Moreover, in December of 2017 a commit was made in glibc[4] adding the option
+<code>–enable-static-pie</code>. This patch made it possible to embed the needed parts of
+ld.so to produce standalone static PIE executables.</p>
+<p>The major change in glibc to allow static PIE was the addition of the function
+<code>_dl_relocate_static_pie</code> which gets called by <code>__libc_start_main</code>. This function is
+used to locate the run-time load address, read the dynamic segment, and perform
+dynamic relocations before initialization, then transfer control flow of
+execution to the subject application.</p>
+<p>In order to know which flags and compilation/linking stages were needed in order
+to generate static <code>PIE</code> executables, we passed the flag <code>–static-pie –v</code> to GCC.
+However, we soon realized by doing this that the linker generated a plethora of
+flags and calls to internal wrappers. As an example, the linking phase is
+handled by the tool <code>/usr/lib/gcc/x86_64-linux-gnu/9/collect2</code> and GCC itself is
+wrapped by <code>/usr/lib/gcc/x86_64-linux-gnu/9/cc1</code>. Nevertheless, we managed to
+remove the irrelevant flags and we ended up with the following steps:</p>
+<p><img src="https://tmpout.sh/1/10/10.2.png#center" alt=""></p>
+<p>These steps are in fact the same provided by Lu, supplying the linker with input
+files compiled with <code>–fpie</code>, and <code>–static, -pie, -z text, --no-dynamic-linker</code>.
+In particular, the most relevant artifacts for static PIE creation are <code>rcrt1.o</code>,
+<code>libc.a</code>, and our own supplied input file, <code>test.o</code>. The <code>rcrt1.o</code> object contains the
+<code>_start</code> code which has the code required to correctly load the application before
+executing its entry point by calling the correspondent libc startup code
+contained in <code>__libc_start_main</code>:</p>
+<p><img src="https://tmpout.sh/1/10/10.3.png#center" alt=""></p>
+<p>As previously mentioned, <code>__libc_start_main</code> will call the new added function
+<code>_dl_relocate_static_pie</code> (defined at <code>elf/dl-reloc-static-pie.c</code> file of glibc
+source). The primary steps performed by this function are commented in the
+source:</p>
+<p><img src="https://tmpout.sh/1/10/10.4.png#center" alt=""></p>
+<p>With the help of these features, GCC is capable of generating static executables
+which can be loaded at any arbitrary address.</p>
+<p>We can observe that <code>_dl_relocate_static_pie</code> will handle the needed dynamic
+relocations. One noticeable difference of <code>rcrt1.o</code> from conventional <code>crt1.o</code> is
+that all contained code is position independent. Inspecting what the generated
+binaries look like we see the following:</p>
+<p><img src="https://tmpout.sh/1/10/10.5.png#center" alt=""></p>
+<p>At first glance they seem to be common dynamically linked PIE executables, based
+on the <code>ET_DYN</code> executable type retrieved from the ELF header. However, upon
+closer examination of the segments, we will observe the nonexistent <code>PT_INTERP</code>
+segment usually denoting the path to the interpreter in dynamically linked
+executables and the existence of a <code>PT_TLS</code> segment, usually contained only in
+statically linked executables.</p>
+<p><img src="https://tmpout.sh/1/10/10.6.png#center" alt=""></p>
+<p>If we check what the dynamic linker identifies the subject executable as, we
+will see it identifies the file type correctly:</p>
+<p><img src="https://tmpout.sh/1/10/10.7.png#center" alt=""></p>
+<p>In order to load this file, all we would need to do is map all the <code>PT_LOAD</code>
+segments to memory, set up the process stack with the correspondent <code>Auxiliary Vector</code> entries, and then pivot to the mapped executable&rsquo;s entry point. We do
+not need to be concerned about mapping the <code>RTLD</code> since we don&rsquo;t have any external
+dependencies or link time address restrictions.</p>
+<p>As we can observe, we have four loadable segments commonly seen in <code>SCOP ELF  binaries</code>. However, for the sake of easier deployment, it will be crucial if we
+could merge all those segments into one as is usually done with ELF disk
+injection into a foreign executable. We can do just this by using the <code>–N</code> linker
+flag to merge data and text within a single segment.</p>
+<h3 id="non-compatibility-of-gccs--n-and-static-pie-flags">Non-compatibility of GCC&rsquo;s -N and static-pie flags<a href="#non-compatibility-of-gccs--n-and-static-pie-flags" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path>
+      <line x1="8" y1="12" x2="16" y2="12"></line>
+   </svg></a></h3>
+<p>If we pass <code>–static-pie</code> and <code>–N</code> flags together to GCC we see that it generates the
+following executable:</p>
+<p><img src="https://tmpout.sh/1/10/10.8.png#center" alt=""></p>
+<p>The first thing we noticed about the type of generated ELF when using
+<code>–static-pie</code> alone was that it had a type of <code>ET_DYN</code>, and now together with <code>–N</code> it
+results in an <code>ET_EXEC</code>.</p>
+<p>In addition, if we take a closer look at the segment&rsquo;s virtual addresses, we see
+that the generated binary is not a Position Independent Executable. This is due
+to the fact that the virtual addresses appear to be absolute addresses and not
+relative ones. To understand why our program is not being linked as expected, we
+inspected the linker script that was being used.</p>
+<p>As we are using the ld linker from binutils, we took a look on how ld selected
+the linker script; this is done in the <code>ld/ldmain.c</code> code at line 345:</p>
+<p><img src="https://tmpout.sh/1/10/10.9.png#center" alt=""></p>
+<p>The <code>ldfile_open_default_command_file</code> is in fact an indirect call to an
+architecture independent function generated at compile time that contains a set
+of internal linker scripts to be selected depending upon the flags passed to ld.
+Because we are using the x86_64 architecture, the generated source will be
+<code>ld/elf_x86_64.c</code>, and the function which is called to select the script is
+<code>gldelf_x86_64_get_script</code>, which is simply a set of if-else-if statements to
+select the internal linker script. The <code>–N</code> option sets the config.text_read_only
+variable to false, which forces the selection function to use an internal script
+which does not produce PIC as can be seen below:</p>
+<p><img src="https://tmpout.sh/1/10/10.10.png#center" alt=""></p>
+<p>This way of selecting the default script makes the <code>–static-pie</code> and <code>–N</code> flags
+non-compatible, because the forced test of selecting the script based on –N is
+parsed before <code>–static-pie</code>.</p>
+<h3 id="circumvention-via-custom-linker-script">Circumvention via custom Linker Script<a href="#circumvention-via-custom-linker-script" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path>
+      <line x1="8" y1="12" x2="16" y2="12"></line>
+   </svg></a></h3>
+<p>The incompatibility between <code>–N</code>, <code>-static</code>, and <code>–pie</code> flags led us to a dead end,
+and we were forced to think of different ways to overcome this barrier. What we
+attempted was to provide a custom script to drive the linker. As we essentially
+needed to merge the behavior of two separate linker scripts, our approach was to
+choose one of the scripts and adapt it to generate the desired outcome with
+features of the remaining script.</p>
+<p>We chose the default script of <code>–static-pie</code> over the one used with <code>–N</code> because in
+our case it was easier to modify as opposed to changing the –N default script to
+support PIE generation.</p>
+<p>To accomplish this goal, we would need to change the definition of the segments,
+which are controlled by the <code>PHDRS</code> [5] field in the linker script. If the command
+is not used the linker will provide program headers generated by default –
+However, if we neglect this in the linker script, the linker will not create any
+additional program headers and will strictly follow the guidelines defined in
+the subject linker script.</p>
+<p>Taking into account the details discussed above, we added a PHDRS command to the
+default linker script, starting with all the original segments which are created
+by default when using <code>–static-pie</code>:</p>
+<p><img src="https://tmpout.sh/1/10/10.11.png#center" alt=""></p>
+<p>After this we need to know how each section maps to each segment – and for this
+we can use readelf as shown below:</p>
+<p><img src="https://tmpout.sh/1/10/10.12.png#center" alt=""></p>
+<p>With knowledge of the mappings, we just needed to change the section output
+definition in the linker script which adds the appropriate segment name at the
+end of each function definition, as shown in the following example:</p>
+<p><img src="https://tmpout.sh/1/10/10.13.png#center" alt=""></p>
+<p>Here, the .tdata and .tbss sections are being assigned to the segments that get
+mapped in the same order that we saw in the output of the readelf –l command.
+Eventually, we ended up having a working script precisely changing all mapped
+sections which were mapped in data to the text segment:</p>
+<p><img src="https://tmpout.sh/1/10/10.14.png#center" alt=""></p>
+<p>If we compile our subject test file with this linker script, we see the
+following generated executable:</p>
+<p><img src="https://tmpout.sh/1/10/10.15.png#center" alt=""></p>
+<p>We now have a static-pie with just one loadable segment. The same approach can
+be repeated to remove other irrelevant segments, keeping only critical segments
+necessary for the execution of the binary. As an example, the following is a
+static-pie executable instance with minimal program headers needed to run:</p>
+<p><img src="https://tmpout.sh/1/10/10.16.png#center" alt=""></p>
+<p>The following is the final output of our desired ELF structure – having only one
+PT_LOAD segment generated by a linker script with the PHDRS command configured
+as in the screenshot below:</p>
+<p><img src="https://tmpout.sh/1/10/10.17.png#center" alt=""></p>
+<h2 id="shelf-loading">SHELF Loading<a href="#shelf-loading" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path>
+      <line x1="8" y1="12" x2="16" y2="12"></line>
+   </svg></a></h2>
+<p>This generated ELF flavor gives us some interesting capabilities that other ELF
+types are not able to provide. For the sake of simplicity, we have labelled this
+type of ELF binary as SHELF, and we will be referencing it throughout the rest
+of this paper. The following is an updated diagram of the loading stages needed
+for SHELF loading:</p>
+<p><img src="https://tmpout.sh/1/10/10.18.png#center" alt=""></p>
+<p>As we can see in the diagram above, the process of loading SHELF files is highly
+reduced in complexity compared to conventional ELF loading schemes.</p>
+<p>To illustrate the reduced set of constraints to load these types of files, a
+snippet of a minimalistic SHELF User-Land-Exec approach is as follows:</p>
+<p><img src="https://tmpout.sh/1/10/10.19.png#center" alt=""></p>
+<p>By using this approach, a subject SHELF file would look as follows in memory and
+on disk:</p>
+<p><img src="https://tmpout.sh/1/10/10.20.png#center" alt=""></p>
+<p>As we can observe, the ELF header and Program Headers are missing from the
+process image. This is a feature that this flavor of ELF enables us to implement
+and is discussed in the following section.</p>
+<h3 id="anti-forensic-capabilities">Anti-Forensic Capabilities<a href="#anti-forensic-capabilities" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path>
+      <line x1="8" y1="12" x2="16" y2="12"></line>
+   </svg></a></h3>
+<p>This new approach to <code>User-Land-Exec</code> has also two optional stages useful for
+anti-forensic purposes. Since the <code>dl_relocate_static_pie</code> function will obtain
+all of the required fields for relocation from the Auxiliary Vector, this leaves
+us room to play with how the subject <code>SHELF</code> file structure may look in memory and
+on disk.</p>
+<p>Removing the ELF header will directly impact reconstruction capabilities,
+because most Linux-based scanners will scan process memory for existing ELF
+images by first identifying ELF headers. The ELF header will be parsed and will
+contain further information on where to locate the Program Header Table and
+consequently the rest of the mapped artifacts of the file.</p>
+<p>Removal of the ELF header is trivial since this artifact is not really needed by
+the loader – all required information in the subject file will be retrieved from
+the <code>Auxiliary Vector</code> as previously mentioned.</p>
+<p>An additional artifact that can be hidden is the Program Header Table. This is a
+slightly different case when compared with the ELF Header. The <code>Auxiliary Vector</code>
+needs to locate the Program Header Table in order for the <code>RTLD</code> to successfully
+load the file by applying the needed runtime relocations. Regardless, there are
+many approaches to obfuscating the <code>PHT</code>. The simplest approach is to remove the
+original <code>Program Header Table</code> location, and relocate it somewhere in the file
+that is only known by the <code>Auxiliary Vector</code>.</p>
+<p><img src="https://tmpout.sh/1/10/10.21.png#center" alt=""></p>
+<p>We can precompute the location of each of the <code>Auxiliary Vector</code> entries and
+define each entry as a macro in an include file, tailoring our loader to every
+subject SHELF file at compile-time. The following is an example of how these
+macros can be generated:</p>
+<p><img src="https://tmpout.sh/1/10/10.22.png#center" alt=""></p>
+<p>As we can observe, we have parsed the subject <code>SHELF</code> file for its e_entry and
+e_phnum fields, creating corresponding macros to hold those values. We also have
+to choose a random base image to load the file. Finally, we locate the PHT and
+convert it to an array, then remove it from its original location. Applying
+these modifications allows us to completely remove the ELF header and change the
+default location of the subject <code>SHELF</code> file PHT both on disk and in memory(!)</p>
+<p>Without successful retrieval of the <code>Program Header Table</code>, reconstruction
+capabilities may be strictly limited and further heuristics will have to be
+applied for successful process image reconstruction.</p>
+<p>An additional approach to make the reconstruction of the Program Header Table
+much harder is by instrumenting the way glibc implements the resolution of the
+Auxiliary Vector fields.</p>
+<h3 id="obscuring-shelf-features-by-pt_tls-patching">Obscuring SHELF features by PT_TLS patching<a href="#obscuring-shelf-features-by-pt_tls-patching" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path>
+      <line x1="8" y1="12" x2="16" y2="12"></line>
+   </svg></a></h3>
+<p>Even after modifying the default location of the <code>Program Header Table</code> by
+choosing a new arbitrary location when crafting the <code>Auxiliary Vector</code>, the
+Program Header Table would still reside in memory and could be found with some
+effort. To obscure ourselves even further we can cover how the startup code
+reads the <code>Auxiliary Vector</code> fields.</p>
+<p>The code that does this is in <code>elf/dl_support.c</code> in the function <code>_dl_aux_init</code>. In
+abstract, the code iterates over all the <code>auxv_t</code> entries, and each of these
+entries initialize internal variables from glibc:</p>
+<p><img src="https://tmpout.sh/1/10/10.23.png#center" alt=""></p>
+<p>The only reason the Auxiliary Vector is required is to initialize internal <code>_dl_*</code>
+variables. Knowing this, we can bypass the creation of the <code>Auxiliary Vector</code>
+entirely and do the same job that <code>_dl_aux_init</code> would do before passing control
+of execution to the subject <code>SHELF</code> file.</p>
+<p>The only entries which are critical are <code>AT_PHDR</code>, <code>AT_PHNUM</code>, and <code>AT_RANDOM</code>.
+Therefore, we only need to patch the respective <code>_dl_*</code> variables that depend on
+these fields. As an example of how to retrieve these values, we can use the
+following one-liner to generate an include file with precomputed macros holding
+the offset to every <code>dl_*</code> variable:</p>
+<p><img src="https://tmpout.sh/1/10/10.24.png#center" alt=""></p>
+<p>With the offset to these variables located, we only need to patch them in the
+same way the original startup code would do so using the <code>Auxiliary Vector</code>. As a
+way to illustrate this technique, the following code will initialize the
+addresses of the <code>Program Headers</code> to <code>new_address</code>, and the number of program
+headers to the correct number:</p>
+<p><img src="https://tmpout.sh/1/10/10.25.png#center" alt=""></p>
+<p>At this point we have a working program without supplying the <code>Auxiliary Vector</code>.
+Because the subject binary is <code>statically linked</code>, and the code that will load the
+<code>SHELF</code> file is our loader, we can neglect every other segment in the Auxiliary
+Vector&rsquo;s <code>AT_PHDR</code> and <code>AT_PHNUM</code> or <code>dl_phdr</code> and <code>dl_phnum</code> respectively. There is an
+exception, which is the <code>PT_TLS</code> segment which is the interface in which Thread
+Local Storage is implemented in the ELF file format.</p>
+<p>The following code which resides in <code>csu/libc-tls.c</code> on function <code>__libc_setup_tls</code>
+show the type of information that gets retrieved from the <code>PT_TLS</code> segment:</p>
+<p><img src="https://tmpout.sh/1/10/10.26.png#center" alt=""></p>
+<p>In the code snippet above, we can see that TLS initialization relies on the
+presence of the <code>PT_TLS</code> segment. We have several approaches that can obfuscate
+this artifact, such as patching the <code>__libc_setup_tls</code> function to just return and
+then initialize the TLS with our own code. Here, we&rsquo;ll choose to implement a
+quick patch to glibc instead as a PoC.</p>
+<p>To avoid the need of the <code>PT_TLS</code> Program Header we have added a global variable
+to hold the values from <code>PT_TLS</code> and set the values inside <code>__libc_setup_tls</code>,
+reading from our global variable instead of the subject <code>SHELF</code> file Program
+Header Table. With this small change we finally strip all the program headers:</p>
+<p><img src="https://tmpout.sh/1/10/10.27.png#center" alt=""></p>
+<p>Using the following script to generate <code>_phdr.h</code>:</p>
+<p><img src="https://tmpout.sh/1/10/10.28.png#center" alt=""></p>
+<p>We can apply our patches in the following way after including <code>_phdr.h</code>:</p>
+<p><img src="https://tmpout.sh/1/10/10.29.png#center" alt=""></p>
+<p>Applying the methodology shown above, we gain a high level of evasiveness by
+loading and executing our <code>SHELF</code> file without an ELF header, Program Header
+Table, and <code>Auxiliary Vector</code> – just as shellcode gets loaded. The following
+diagram illustrates how straightforward the loading process of <code>SHELF</code> files is:</p>
+<p><img src="https://tmpout.sh/1/10/10.30.png#center" alt=""></p>
+<h2 id="conclusion">Conclusion<a href="#conclusion" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path>
+      <line x1="8" y1="12" x2="16" y2="12"></line>
+   </svg></a></h2>
+<p>We have covered the internals of Reflective Loading of ELF files, explaining
+previous implementations of User-Land-Exec, along with its benefits and
+drawbacks. We then explained the latest patches in the GCC code base that
+implemented support for static-pie binaries, discussing our desired outcome,
+and the approaches we followed to achieve the generation of static-pie ELF files
+with one single PT_LOAD segment. Finally, we discussed the anti-forensic
+features that SHELF loading can provide, which we think to be a considerable
+enhancement when compared with previous versions of ELF Reflective Loading.</p>
+<p>We think this could be the next generation of ELF Reflective Loading, and it may
+benefit readers to understand the extent of offensive capabilities that the ELF
+file format can provide. If you would like access to the source code, contact
+@sblip or @ulexec.</p>
+<h2 id="references">References<a href="#references" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path>
+      <line x1="8" y1="12" x2="16" y2="12"></line>
+   </svg></a></h2>
+<ul>
+<li>[1] (support static pie)
+<a href="https://gcc.gnu.org/bugzilla/show_bug.cgi?id=81498">https://gcc.gnu.org/bugzilla/show_bug.cgi?id=81498</a></li>
+<li>[2] (first patch gcc)
+<a href="https://gcc.gnu.org/ml/gcc-patches/2017-08/msg00638.html">https://gcc.gnu.org/ml/gcc-patches/2017-08/msg00638.html</a></li>
+<li>[3] (gcc patch)
+<a href="https://gcc.gnu.org/viewcvs/gcc?view=revision&amp;revision=252034">https://gcc.gnu.org/viewcvs/gcc?view=revision&amp;revision=252034</a></li>
+<li>[4] (glibc &ndash;enable-static-pie)
+<a href="https://sourceware.org/git/?p=glibc.git;a=commit;">https://sourceware.org/git/?p=glibc.git;a=commit;</a> <br>
+h=9d7a3741c9e59eba87fb3ca6b9f979befce07826</li>
+<li>[5] (ldscript doc)
+<a href="https://sourceware.org/binutils/docs/ld/PHDRS.html#PHDRS">https://sourceware.org/binutils/docs/ld/PHDRS.html#PHDRS</a></li>
+<li>[6] <a href="https://sourceware.org/binutils/docs/ld/">https://sourceware.org/binutils/docs/ld/</a>
+Output-Section-Phdr.html#Output-Section-Phdr</li>
+<li>[7] <a href="https://www.akkadia.org/drepper/tls.pdf">https://www.akkadia.org/drepper/tls.pdf</a></li>
+<li>[8] (why ld doesn&rsquo;t allow -static -pie -N)
+<a href="https://sourceware.org/git">https://sourceware.org/git</a> <br>
+/gitweb.cgi?p=binutils-gdb.git;a=blob;f=ld/ldmain.c; <br>
+h=c4af10f4e9121949b1b66df6428e95e66ce3eed4;hb=HEAD#l345</li>
+<li>[9] (grugq ul_exec paper)
+<a href="https://grugq.github.io/docs/ul_exec.txt">https://grugq.github.io/docs/ul_exec.txt</a></li>
+<li>[10] (ELF UPX internals)
+<a href="https://ulexec.github.io/ulexec.github.io/article">https://ulexec.github.io/ulexec.github.io/article</a> <br>
+/2017/11/17/UnPacking_a_Linux_Tsunami_Sample.html</li>
+</ul>
+
+		</div>
+		
+	</main>
+<footer id="site-footer" class="section-inner thin animated fadeIn faster">
+<p>
+	&copy; 2025 <a href="//localhost:1313/">Ignacio Sanmillan Research Blog</a>
+	&#183; CHANGE ME FOOTER COPYRIGHT&#183; Made with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a>
+	&#183; Theme <a href="https://github.com/1bl4z3r/hermit-V2" target="_blank" rel="noopener">Hermit-V2</a></p></footer>
+<script async src="//localhost:1313/js/bundle.min.c7c384e4d29d192bbac6811ae4660bb01767194a5bea56baca77e8260f93ea16.js" integrity="sha256-x8OE5NKdGSu6xoEa5GYLsBdnGUpb6la6ynfoJg+T6hY=" crossorigin="anonymous"></script><script async src="//localhost:1313/js/link-share.min.24409a4f6e5537d70ffc55ec8f9192208d718678cb8638585342423020b37f39.js" integrity="sha256-JECaT25VN9cP/FXsj5GSII1xhnjLhjhYU0JCMCCzfzk=" crossorigin="anonymous"></script>
+</body>
+</html>
