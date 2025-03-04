@@ -31,7 +31,7 @@
   <meta property="og:title" content="Dissecting the Internals of custom Linux Binary Packers">
   <meta property="og:description" content="Overview # In this writeup we’re going to unpack a Tsunami malware sample packed with a modified version of UPX. Hashes of this specific sample are the following:
 SHA256: f22ffc07e0cc907f00fd6a4ecee09fe8411225badb2289c1bffa867a2a3bd863 SHA1: 76584c9a22835353186e753903ee0a853663bd83 MD5: 171edd284f6a19c6ed3fe010b79c94af In VirusTotal the malware is identified as a Tsunami Variant for the most part:
-Is common in Linux systems to encounter packed malware with UPX. I then tried to see if I could find the UPX magic in the file.">
+If we do some static recon about the file, we can see the following: readelf -lh f22ffc07e0cc907f00fd6a4ecee09fe8411225badb2289c1bffa867a2a3bd863 ELF Header: Magic: 7f 45 4c 46 01 01 01 03 00 00 00 00 00 00 00 00 Class: ELF32 Data: 2&#39;s complement, little endian Version: 1 (current) OS/ABI: UNIX - GNU ABI Version: 0 Type: EXEC (Executable file) Machine: Intel 80386 Version: 0x1 Entry point address: 0xc8da20 Start of program headers: 52 (bytes into file) Start of section headers: 0 (bytes into file) Flags: 0x0 Size of this header: 52 (bytes) Size of program headers: 32 (bytes) Number of program headers: 2 Size of section headers: 40 (bytes) Number of section headers: 0 Section header string table index: 0 Program Headers: Type Offset VirtAddr PhysAddr FileSiz MemSiz Flg Align LOAD 0x000000 0x00c01000 0x00c01000 0x8d1c2 0x8d1c2 R E 0x1000 LOAD 0x000304 0x0819b304 0x0819b304 0x00000 0x00000 RW 0x1000 The binary&#39;s string table has been stripped, aswell as the section header table. In addition, the binary only contains two segments. Based on the number of segments, and the strange base address it holds (0x00c01000) we can assume that the file is packed. Furthermore, note that the file and size memory for the second `PT_LOAD` segment are set to 0. meaning that when segment will get loaded to memory, there will be a 0x1000 chunk at `0x0819b304` due to segment alignment. Is common in Linux systems to encounter packed malware with UPX. I then tried to see if I could find the UPX magic in the file.">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="post">
@@ -52,7 +52,7 @@ Is common in Linux systems to encounter packed malware with UPX. I then tried to
 
 
 
-<link rel="stylesheet" href="/assets/combined.min.4d83d9d131fa58e4a3582b029a9d295c34033e4132d049b0e16fa8d1e9ddfebf.css" media="all">
+<link rel="stylesheet" href="/assets/combined.min.a7696e900b4a7802d61674546b1266ce0c55e69a2b88e8bfc3c169feeea091a8.css" media="all">
 
 
 
@@ -212,13 +212,6 @@ $(document).ready(function () {
             </a>
         </p>
         
-      
-        <p class="small ">
-            <a href="/about" >
-                /about
-            </a>
-        </p>
-        
         
     </div>
 
@@ -285,7 +278,7 @@ $(document).ready(function () {
   <a class="anchor" href="#overview">#</a>
 </h2>
 <p>In this writeup we&rsquo;re going to unpack a Tsunami malware sample packed with a modified version of <code>UPX</code>. Hashes of this specific sample are the following:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">SHA256</span>: f22ffc07e0cc907f00fd6a4ecee09fe8411225badb2289c1bffa867a2a3bd863
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">SHA256</span>: f22ffc07e0cc907f00fd6a4ecee09fe8411225badb2289c1bffa867a2a3bd863
 </span></span><span style="display:flex;"><span>  <span style="color:#8be9fd;font-style:italic">SHA1</span>: <span style="color:#bd93f9">76584</span>c9a22835353186e753903ee0a853663bd83
 </span></span><span style="display:flex;"><span>   <span style="color:#8be9fd;font-style:italic">MD5</span>: <span style="color:#bd93f9">171</span>edd284f6a19c6ed3fe010b79c94af</span></span></code></pre></div>
 In VirusTotal the malware is identified as a Tsunami Variant for the most part:</p>
@@ -313,9 +306,40 @@ In VirusTotal the malware is identified as a Tsunami Variant for the most part:<
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
+<br/>
+If we do some static recon about the file, we can see the following:
+<br/>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>readelf <span style="color:#ff79c6">-</span>lh f22ffc07e0cc907f00fd6a4ecee09fe8411225badb2289c1bffa867a2a3bd863
+</span></span><span style="display:flex;"><span>ELF <span style="color:#8be9fd;font-style:italic">Header</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#8be9fd;font-style:italic">Magic</span>:   <span style="color:#bd93f9">7f</span> <span style="color:#bd93f9">45</span> <span style="color:#bd93f9">4</span>c <span style="color:#bd93f9">46</span> <span style="color:#bd93f9">01</span> <span style="color:#bd93f9">01</span> <span style="color:#bd93f9">01</span> <span style="color:#bd93f9">03</span> <span style="color:#bd93f9">00</span> <span style="color:#bd93f9">00</span> <span style="color:#bd93f9">00</span> <span style="color:#bd93f9">00</span> <span style="color:#bd93f9">00</span> <span style="color:#bd93f9">00</span> <span style="color:#bd93f9">00</span> <span style="color:#bd93f9">00</span> 
+</span></span><span style="display:flex;"><span>  <span style="color:#8be9fd;font-style:italic">Class</span>:                             ELF32
+</span></span><span style="display:flex;"><span>  <span style="color:#8be9fd;font-style:italic">Data</span>:                              <span style="color:#bd93f9">2</span>&#39;s complement, little endian
+</span></span><span style="display:flex;"><span>  <span style="color:#8be9fd;font-style:italic">Version</span>:                           <span style="color:#bd93f9">1</span> (current)
+</span></span><span style="display:flex;"><span>  OS<span style="color:#ff79c6">/</span><span style="color:#8be9fd;font-style:italic">ABI</span>:                            UNIX <span style="color:#ff79c6">-</span> GNU
+</span></span><span style="display:flex;"><span>  ABI <span style="color:#8be9fd;font-style:italic">Version</span>:                       <span style="color:#bd93f9">0</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8be9fd;font-style:italic">Type</span>:                              <span style="color:#50fa7b">EXEC</span> (Executable file)
+</span></span><span style="display:flex;"><span>  <span style="color:#8be9fd;font-style:italic">Machine</span>:                           Intel <span style="color:#bd93f9">80386</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#8be9fd;font-style:italic">Version</span>:                           <span style="color:#bd93f9">0x1</span>
+</span></span><span style="display:flex;"><span>  Entry point <span style="color:#8be9fd;font-style:italic">address</span>:               <span style="color:#bd93f9">0xc8da20</span>
+</span></span><span style="display:flex;"><span>  Start of program <span style="color:#8be9fd;font-style:italic">headers</span>:          <span style="color:#bd93f9">52</span> (bytes into file)
+</span></span><span style="display:flex;"><span>  Start of section <span style="color:#8be9fd;font-style:italic">headers</span>:          <span style="color:#bd93f9">0</span> (bytes into file)
+</span></span><span style="display:flex;"><span>  <span style="color:#8be9fd;font-style:italic">Flags</span>:                             <span style="color:#bd93f9">0x0</span>
+</span></span><span style="display:flex;"><span>  Size of this <span style="color:#8be9fd;font-style:italic">header</span>:               <span style="color:#bd93f9">52</span> (bytes)
+</span></span><span style="display:flex;"><span>  Size of program <span style="color:#8be9fd;font-style:italic">headers</span>:           <span style="color:#bd93f9">32</span> (bytes)
+</span></span><span style="display:flex;"><span>  Number of program <span style="color:#8be9fd;font-style:italic">headers</span>:         <span style="color:#bd93f9">2</span>
+</span></span><span style="display:flex;"><span>  Size of section <span style="color:#8be9fd;font-style:italic">headers</span>:           <span style="color:#bd93f9">40</span> (bytes)
+</span></span><span style="display:flex;"><span>  Number of section <span style="color:#8be9fd;font-style:italic">headers</span>:         <span style="color:#bd93f9">0</span>
+</span></span><span style="display:flex;"><span>  Section header string table <span style="color:#8be9fd;font-style:italic">index</span>: <span style="color:#bd93f9">0</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Program <span style="color:#8be9fd;font-style:italic">Headers</span>:
+</span></span><span style="display:flex;"><span>  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
+</span></span><span style="display:flex;"><span>  LOAD           <span style="color:#bd93f9">0x000000</span> <span style="color:#bd93f9">0x00c01000</span> <span style="color:#bd93f9">0x00c01000</span> <span style="color:#bd93f9">0x8d1c2</span> <span style="color:#bd93f9">0x8d1c2</span> R E <span style="color:#bd93f9">0x1000</span>
+</span></span><span style="display:flex;"><span>  LOAD           <span style="color:#bd93f9">0x000304</span> <span style="color:#bd93f9">0x0819b304</span> <span style="color:#bd93f9">0x0819b304</span> <span style="color:#bd93f9">0x00000</span> <span style="color:#bd93f9">0x00000</span> RW  <span style="color:#bd93f9">0x1000</span></span></span></code></pre></div>
+The binary's string table has been stripped, aswell as the section header table.
+In addition, the binary only contains two segments. Based on the number of segments, and the strange base address it holds (0x00c01000) we can assume that the file is packed.
+Furthermore, note that the file and size memory for the second `PT_LOAD` segment are set to 0. meaning that when segment will get loaded to memory, there will be a 0x1000 chunk at `0x0819b304` due to segment alignment.
 <p>Is common in Linux systems to encounter packed malware with UPX. I then tried to see if I could find the <code>UPX</code> magic in the file.</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>[<span style="color:#bd93f9">0x00c8da20</span>]<span style="color:#ff79c6">&gt;</span> <span style="color:#ff79c6">/</span> UPX
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>[<span style="color:#bd93f9">0x00c8da20</span>]<span style="color:#ff79c6">&gt;</span> <span style="color:#ff79c6">/</span> UPX
 </span></span><span style="display:flex;"><span>Searching <span style="color:#bd93f9">3</span> bytes from <span style="color:#bd93f9">0x00000000</span> to <span style="color:#bd93f9">0xffffffffffffffff</span><span style="color:#ff79c6">:</span> <span style="color:#bd93f9">55</span> <span style="color:#bd93f9">50</span> <span style="color:#bd93f9">58</span> 
 </span></span><span style="display:flex;"><span>Searching <span style="color:#bd93f9">3</span> bytes in [<span style="color:#bd93f9">0xc01000</span><span style="color:#ff79c6">-</span><span style="color:#bd93f9">0xc8e1c2</span>]
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">hits</span>: <span style="color:#bd93f9">1</span>
@@ -327,7 +351,7 @@ In VirusTotal the malware is identified as a Tsunami Variant for the most part:<
 </span></span><span style="display:flex;"><span><span style="color:#f1fa8c">&#34;UPX!&#34;</span> 
 </span></span><span style="display:flex;"><span>[<span style="color:#bd93f9">0x00c8dda8</span>]<span style="color:#ff79c6">&gt;</span> 
 </span></span></code></pre></div>This is quite interesting because if we try to use the automated unpacking feature of <code>UPX</code> we get an error:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>upx <span style="color:#ff79c6">-</span>d f22ffc07e0cc907f00fd6a4ecee09fe8411225badb2289c1bffa867a2a3bd863
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>upx <span style="color:#ff79c6">-</span>d f22ffc07e0cc907f00fd6a4ecee09fe8411225badb2289c1bffa867a2a3bd863
 </span></span><span style="display:flex;"><span>                       Ultimate Packer <span style="color:#ff79c6">for</span> eXecutables
 </span></span><span style="display:flex;"><span>                          <span style="color:#50fa7b">Copyright</span> (C) <span style="color:#bd93f9">1996</span> <span style="color:#ff79c6">-</span> <span style="color:#bd93f9">2017</span>
 </span></span><span style="display:flex;"><span>UPX <span style="color:#bd93f9">3.94</span>        Markus Oberhumer, Laszlo Molnar <span style="color:#ff79c6">&amp;</span> John Reiser   May <span style="color:#bd93f9">12</span>th <span style="color:#bd93f9">2017</span>
@@ -340,14 +364,15 @@ In VirusTotal the malware is identified as a Tsunami Variant for the most part:<
 </span></span><span style="display:flex;"><span>Unpacked <span style="color:#bd93f9">0</span> files.</span></span></code></pre></div>
 Threfore, we may be dealing with a custom packer based on a modified version of <code>UPX</code>.
 We will statically analyse the sample first, then we will continue our analysis with some dynamic analysis. At the end a brief summary of the sample will be discussed. Let&rsquo;s start with static analysis.</p>
-<!-- raw HTML omitted -->
+<br/>
+<br/>
 <h2 class="heading" id="static-analysis">
   Static Analysis
   <a class="anchor" href="#static-analysis">#</a>
 </h2>
-<!-- raw HTML omitted -->
+<br/>
 <p>If we open the binary with <code>IDA PRO</code> we can confirm that the sample is indeed packed:</p>
-<!-- raw HTML omitted -->
+<br/>
 <p>
 
 
@@ -372,7 +397,7 @@ We will statically analyse the sample first, then we will continue our analysis 
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
+<br/>
 <p>
 
 
@@ -397,9 +422,9 @@ We will statically analyse the sample first, then we will continue our analysis 
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
+<br/>
 <p>There are only 3 identifiable functions. Second and third functions seem straight forward. One allocates a <code>RWX</code> page sized chunk, and the latter executes a write syscall and then exits.</p>
-<!-- raw HTML omitted -->
+<br/>
 <p>
 
 
@@ -424,7 +449,7 @@ We will statically analyse the sample first, then we will continue our analysis 
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
+<br/>
 <p>
 
 
@@ -449,9 +474,9 @@ We will statically analyse the sample first, then we will continue our analysis 
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
+<br/>
 <p>The entry point of the application looks certainly more messier, and by first glance we can assume that it will have a decryptor/decoder functionality.</p>
-<!-- raw HTML omitted -->
+<br/>
 <p>
 
 
@@ -476,9 +501,9 @@ We will statically analyse the sample first, then we will continue our analysis 
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
+<br/>
 <p>The first thing that the entrypoint does is calling <code>0x00C8DC28</code>, which itself redirects execution to <code>allocate_rwx_page</code> and stores the return address (<code>start+5</code>) in ebp.</p>
-<!-- raw HTML omitted -->
+<br/>
 <p>
 
 
@@ -503,7 +528,7 @@ We will statically analyse the sample first, then we will continue our analysis 
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
+<br/>
 <p>
 
 
@@ -528,19 +553,20 @@ We will statically analyse the sample first, then we will continue our analysis 
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
+<br/>
 <p>Note the stub of data on <code>0x00C8DC31</code>, we will come back to it later.
 Execution then falls into <code>allocate_rwx_page</code> function, which as said before just allocates a memory page with <code>RXW</code> permissions. This buffer will be allocated at <code>0x00C8F000</code>. If the allocation fails, then execution will branch into the <code>write_message_and_exit</code> funtion, in which the string <code>'nandemo wa shiranai wa yo,'</code> gets printed to <code>stderr</code>. On the other hand, if allocation of RWX chunk is sucessfull, execution will pivot back to <code>start+5</code>.</p>
 <p>After allocating RWX memory, the malware will then proceed to copy and decode a given stub inside it. After a while analysing the code, I got to the conclusion that function <code>start+5</code> (entrypoint+5) is the routine the malware uses to decode and copy packer stub. At this point I coudn&rsquo;t do much progress just by static analysis. Therefore, I fired up the debugger ready to do some dynamic analysis.</p>
-<!-- raw HTML omitted -->
+<br/>
+<br/>
 <h2 class="heading" id="dynamic-analysis">
   Dynamic Analysis
   <a class="anchor" href="#dynamic-analysis">#</a>
 </h2>
-<!-- raw HTML omitted -->
+<br/>
 <p>Now that we have identified what routine the malware uses to decode and copy packer stub, It will be straight forward to trace the malware&rsquo;s first stage, that is to decode some stub inside the RWX chunk by decoding the data block previosly shown. We will try to follow along execution flow until the destination chunk (chunk <code>0x00c8f000</code>) of the decoded stub to remain with our analysis. One way this could be achieved would be by setting a hardware breakpoint on execution at the <code>RXW</code> chunk. However, we want to find the cleanest possible way to withness the execution transition into the chunk in order to not overlook details about the first malware&rsquo;s pivoting endeavour.</p>
 <p>On the entrypoint routine, after the function <code>pivot_to_allocate_rwx_pg</code> we can clearly see that the register context is being saved with a <code>pusha</code> instruction. Furthermore, two pointers are loaded into the <code>esi</code> and <code>edi</code> registers. Those pointers are the stub source address to be decoded, and the destination buffer address to transfer the decoded stub.</p>
-<!-- raw HTML omitted -->
+<br/>
 <p>
 
 
@@ -565,9 +591,9 @@ Execution then falls into <code>allocate_rwx_page</code> function, which as said
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
+<br/>
 <p>Further down <code>start</code> we can see the set of instructions in charge of copying data from stub to the destination buffer:</p>
-<!-- raw HTML omitted -->
+<br/>
 <p>
 
 
@@ -592,9 +618,9 @@ Execution then falls into <code>allocate_rwx_page</code> function, which as said
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
+<br/>
 <p>Nevertheless, There are specific bytes that get processed differently. Some of the stub bytes have a many to one relationship with decoded bytes, so that multiple decoded bytes get derived from a single stub byte. Based on this we can assume that the decoding algorithm must be some sort of deflate implementation.</p>
-<!-- raw HTML omitted -->
+<br/>
 <p>
 
 
@@ -619,9 +645,9 @@ Execution then falls into <code>allocate_rwx_page</code> function, which as said
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
+<br/>
 <p>We can see that decoding will stop when second argument <code>stub_size</code> + first argument <code>stub_base</code> == current stub pointer at <code>esi</code>. If this condition is true, the function simply returns.</p>
-<!-- raw HTML omitted -->
+<br/>
 <p>
 
 
@@ -646,9 +672,9 @@ Execution then falls into <code>allocate_rwx_page</code> function, which as said
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
+<br/>
 <p>If we put a breakpoint on this <code>retn</code> instruction and then resume the application we will get control of execution back when decoding is over.</p>
-<!-- raw HTML omitted -->
+<br/>
 <p>
 
 
@@ -673,9 +699,9 @@ Execution then falls into <code>allocate_rwx_page</code> function, which as said
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
+<br/>
 <p>Upon decoding finalization, decoding routine does not pivot directly to the RWX chunk at <code>0x00c8f000</code>, but it returns first to <code>allocate_rwx_page+49</code> to then unwind the stack and return to the RWX chunk.</p>
-<!-- raw HTML omitted -->
+<br/>
 <p>
 
 
@@ -700,9 +726,9 @@ Execution then falls into <code>allocate_rwx_page</code> function, which as said
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
+<br/>
 <p>When execution reaches the <code>0x00C8F000</code> chunk, we see the following routine:</p>
-<!-- raw HTML omitted -->
+<br/>
 <p>
 
 
@@ -727,9 +753,9 @@ Execution then falls into <code>allocate_rwx_page</code> function, which as said
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
+<br/>
 <p>The main purpose of this routine is to retrieve the <code>ELF Auxiliar vector</code> from the stack and copy it into a local stack buffer. The retrieved struture of the Auxiliar vector looks as follows:</p>
-<!-- raw HTML omitted -->
+<br/>
 <p>
 
 
@@ -754,9 +780,9 @@ Execution then falls into <code>allocate_rwx_page</code> function, which as said
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
+<br/>
 <p>Once Auxiliar vector is retrived from stack then <code>call_read_link</code> function gets called. This function looks as follows:</p>
-<!-- raw HTML omitted -->
+<br/>
 <p>
 
 
@@ -781,9 +807,9 @@ Execution then falls into <code>allocate_rwx_page</code> function, which as said
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
+<br/>
 <p>In this function a series of statistics are retrieved from the current file such as the location of the embedded <code>Elf</code> file in the first <code>PT_LOAD</code> segment along with 2 more flags used for decoding. Furthermore, the address of the page-aligned end of the first <code>PT_LOAD</code> segment is computed and a stack buffer is reserved in order to store decoded stub. After collecting these fields this function proceeds with <code>stage1</code> of the decoding process and calls <code>init_decoding_stage</code> function. This function looks as follows:</p>
-<!-- raw HTML omitted -->
+<br/>
 <p>
 
 
@@ -808,9 +834,9 @@ Execution then falls into <code>allocate_rwx_page</code> function, which as said
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
+<br/>
 <p>This routine is the entry point of what would be the stub decoding stage. the first part of this function calls <code>set_for_decoding</code> function . This function gets called with the previously reserved stack buffer dedicated for storing decoded stub and two stub flags as arguments. Function <code>set_for_decoding</code> looks as follows:</p>
-<!-- raw HTML omitted -->
+<br/>
 <p>
 
 
@@ -835,10 +861,10 @@ Execution then falls into <code>allocate_rwx_page</code> function, which as said
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
+<br/>
 <p>Based on the flags passed to this function it will copy different values of the stub into a prepared buffer. We see that when stub buffer is ready the decoding function will get called (<code>start+5</code>).
 If we step into the decoding function we see that the values in <code>esi</code> and <code>edi</code> registers have changed in comparison with the earlier call to this function:</p>
-<!-- raw HTML omitted -->
+<br/>
 <p>
 
 
@@ -863,9 +889,9 @@ If we step into the decoding function we see that the values in <code>esi</code>
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
+<br/>
 <p>If we continue until our previously saved breakpoint at <code>retn</code> instruction we can identify an ELF header and a program header table within the destination buffer after decoding.</p>
-<!-- raw HTML omitted -->
+<br/>
 <p>
 
 
@@ -890,9 +916,9 @@ If we step into the decoding function we see that the values in <code>esi</code>
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
+<br/>
 <p>Once the ELF header and the Program header table of embedded file get decded, execution continues after the call to <code>set_for_decoding</code> in the <code>init_decoding_stage</code> function.</p>
-<!-- raw HTML omitted -->
+<br/>
 <p>
 
 
@@ -917,9 +943,9 @@ If we step into the decoding function we see that the values in <code>esi</code>
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
+<br/>
 <p>Now that the program header table of embedded executable is decoded the malware is able to parse some of its fields in order to figure out where to load in memory its correspondent segments for sucesfull unpacking. Furthermore, the malware updates it&rsquo;s own <code>Auxiliar vector</code> with statistics of the embedded file in order to reuse that same structure on the loading process of the embedded executable. Malware updates <code>AT_PHNUM</code> , <code>AT_PHENT</code> and <code>AT_PHDR</code> fields of the <code>Auxiliar vector</code> at this point but it will be updating more fields in the remaining decoding process. After updating the Auxiliar vector, malware calls <code>ux_exec</code> function. This function is sort of an <code>execve</code> userland implementation which is in charge of loading the embedded executable segments and pivot execution to the <code>OEP</code> without interaction with the kernel. This function looks as follows:</p>
-<!-- raw HTML omitted -->
+<br/>
 <p>
 
 
@@ -944,10 +970,10 @@ If we step into the decoding function we see that the values in <code>esi</code>
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
+<br/>
 <p><code>Ux_exec</code> function first scans all segments in decoded proram header table in order to find the <code>CODE</code> segment( the first <code>PT_LOAD</code> segment). Once <code>CODE</code> segment has been found, a mmap system call gets invoked via <code>mmap_gate</code> function, passing the segment&rsquo;s <code>p_vaddr</code> value along with its page aligned <code>p_memsz</code> field as arguments. Upon<code>CODE</code> segment allocation execution flow enters a loop in which every <code>PT_LOAD</code> segments existent in the program header table gets scanned to be decoded. For every <code>PT_LOAD</code> segment that is not the <code>CODE</code> segment, this loop will call <code>mmap_gate</code> function again in order to map the segment.</p>
 <p>For every existent <code>PT_LOAD</code> segment, a call to <code>set_for_decoding</code> is made. We already cover this function previously. Therefore, I will try to avoid redundancy and I will not explain this routine again. After the <code>set_fo_decoding</code> call, our breakpoint in the decoding routine gets triggered once again and this time seems to be decoding into the base address of the embedded binary:</p>
-<!-- raw HTML omitted -->
+<br/>
 <p>
 
 
@@ -972,9 +998,9 @@ If we step into the decoding function we see that the values in <code>esi</code>
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
+<br/>
 <p>Once our <code>retn</code> breakpoint gets triggered, the destination buffer seems partially decoded:</p>
-<!-- raw HTML omitted -->
+<br/>
 <p>
 
 
@@ -999,9 +1025,9 @@ If we step into the decoding function we see that the values in <code>esi</code>
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
+<br/>
 <p>The segments get decoded in rounds, the following screenshot is the second round of the <code>CODE</code> segment&rsquo;s decoding, so we can have an idea how the decoding looks like:</p>
-<!-- raw HTML omitted -->
+<br/>
 <p>
 
 
@@ -1026,8 +1052,8 @@ If we step into the decoding function we see that the values in <code>esi</code>
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+<br/>
+<br/>
 <p>
 
 
@@ -1052,10 +1078,10 @@ If we step into the decoding function we see that the values in <code>esi</code>
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
+<br/>
 <p>Upon segment decoding completion, a <code>mprotect</code> system call is invoked in order to enforce the original segment&rsquo;s attributes. This is due to the fact that when container chunk was allocated by <code>mmap</code> syscall it must had wrtie permissions in order to write the decoded stub into the chunk.
 The code also checks if current segment base + size exceeds the end of the <code>DATA</code> segment. If that is the case, a chunk will be mmapped after the <code>DATA</code> segment, and a <code>brk</code> syscall will be invoked. The <code>brk</code> system call will initialise a series of pointers that would make the mmap chunk at the end of the data segment being initialised as the <code>HEAP</code> segment. <code>brk</code> systemcall does not actually allocate any memory, just initialises <code>program break</code>, <code>start_brk</code> and <code>end_data</code>. However, at this very point there is no <code>HEAP</code> segment since initially program break = start_brk. Nevertheless, in future malloc calls the program break address will increase and the <code>HEAP</code> segment (space between start_brk and program break) will fall within the mmapped chunk at the end of the <code>DATA</code> segment.</p>
-<!-- raw HTML omitted -->
+<br/>
 <p>
 
 
@@ -1080,9 +1106,9 @@ The code also checks if current segment base + size exceeds the end of the <code
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
+<br/>
 <p>After <code>ux_exec</code> function is done loading all segments of embedded executable, control flow returns back to <code>init_decoding_stage</code> after the call to <code>ux_exec</code>. There is just one more thing remaining to do before pivoting to OEP, check for a <code>PT_INTERP</code> segment. If this segment exists then the embedded executable is a dynamically linked executable, and the <code>RTLD</code> must be mapped. The <code>RTLD</code> will be opened, read and then a call to <code>ux_exec</code> will be done again in order to map the shared object&rsquo;s segments into the right location within the virtual address space.</p>
-<!-- raw HTML omitted -->
+<br/>
 <p>
 
 
@@ -1107,9 +1133,9 @@ The code also checks if current segment base + size exceeds the end of the <code
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
+<br/>
 <p>So far we covered all steps the packer does for decoding and loading the embedded executable. A brief overview of the packer&rsquo;s functionality is the following:</p>
-<!-- raw HTML omitted -->
+<br/>
 <p>
 
 
@@ -1134,9 +1160,9 @@ The code also checks if current segment base + size exceeds the end of the <code
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
+<br/>
 <p>At this point we know that the file is fully loaded into its respective virtual address. If we check the mappings we see the following:</p>
-<!-- raw HTML omitted -->
+<br/>
 <p>
 
 
@@ -1161,9 +1187,9 @@ The code also checks if current segment base + size exceeds the end of the <code
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
+<br/>
 <p>In order to retrieve the embedded executable we can use the following IDA script to dump the embedded file succesfully:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff79c6">import</span> struct
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff79c6">import</span> struct
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">class</span> <span style="color:#50fa7b">Elf32Phdr</span>:
 </span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">def</span> __init__(self, <span style="color:#8be9fd;font-style:italic">bytes</span>):
@@ -1237,7 +1263,7 @@ The code also checks if current segment base + size exceeds the end of the <code
 </span></span><span style="display:flex;"><span>    file<span style="color:#ff79c6">.</span>close()
 </span></span><span style="display:flex;"><span>    <span style="color:#8be9fd;font-style:italic">print</span> <span style="color:#f1fa8c">&#34;[+] Elf Dumped&#34;</span></span></span></code></pre></div>
 Once on disk we see that the dumped file is a 1.3M statically linked binary:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>ELF <span style="color:#8be9fd;font-style:italic">Header</span>:
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>ELF <span style="color:#8be9fd;font-style:italic">Header</span>:
 </span></span><span style="display:flex;"><span>  <span style="color:#8be9fd;font-style:italic">Magic</span>:   <span style="color:#bd93f9">7f</span> <span style="color:#bd93f9">45</span> <span style="color:#bd93f9">4</span>c <span style="color:#bd93f9">46</span> <span style="color:#bd93f9">01</span> <span style="color:#bd93f9">01</span> <span style="color:#bd93f9">01</span> <span style="color:#bd93f9">03</span> <span style="color:#bd93f9">00</span> <span style="color:#bd93f9">00</span> <span style="color:#bd93f9">00</span> <span style="color:#bd93f9">00</span> <span style="color:#bd93f9">00</span> <span style="color:#bd93f9">00</span> <span style="color:#bd93f9">00</span> <span style="color:#bd93f9">00</span> 
 </span></span><span style="display:flex;"><span>  <span style="color:#8be9fd;font-style:italic">Class</span>:                             ELF32
 </span></span><span style="display:flex;"><span>  <span style="color:#8be9fd;font-style:italic">Data</span>:                              <span style="color:#bd93f9">2</span>&#39;s complement, little endian
@@ -1266,15 +1292,17 @@ Once on disk we see that the dumped file is a 1.3M statically linked binary:</p>
 </span></span><span style="display:flex;"><span>  TLS            <span style="color:#bd93f9">0x14bea4</span> <span style="color:#bd93f9">0x08194ea4</span> <span style="color:#bd93f9">0x08194ea4</span> <span style="color:#bd93f9">0x00014</span> <span style="color:#bd93f9">0x00038</span> R   <span style="color:#bd93f9">0x4</span>
 </span></span><span style="display:flex;"><span>  GNU_STACK      <span style="color:#bd93f9">0x000000</span> <span style="color:#bd93f9">0x00000000</span> <span style="color:#bd93f9">0x00000000</span> <span style="color:#bd93f9">0x00000</span> <span style="color:#bd93f9">0x00000</span> RW  <span style="color:#bd93f9">0x10</span>
 </span></span><span style="display:flex;"><span>  GNU_RELRO      <span style="color:#bd93f9">0x14bea4</span> <span style="color:#bd93f9">0x08194ea4</span> <span style="color:#bd93f9">0x08194ea4</span> <span style="color:#bd93f9">0x0115c</span> <span style="color:#bd93f9">0x0115c</span> R   <span style="color:#bd93f9">0x1</span></span></span></code></pre></div>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted --></p>
-<!-- raw HTML omitted -->
+<br/>
+<br/></p>
+<h2>Summary</h2>
+This packer was straight forward to unpack since it did not implement any anti-debugging/anti-dump/anti-analysis techniques. 
+Therefore, the unpacking process could have been much quicker:
 <ul>
 <li>Tracing until decoding of Elf header and program header table.</li>
 <li>Set hardware breapoint on execution at entry-point address in the Elf header.</li>
 <li>Profit.</li>
 </ul>
-<!-- raw HTML omitted -->
+<script type="text/javascript" src="https://asciinema.org/a/OfiADjXfl73JB9mfe8vBqnidR.js" id="asciicast-OfiADjXfl73JB9mfe8vBqnidR" async></script>
 <p>In the next write up I will cover the analysis process of the unpacked file.
 Thanks for reading and I hope you learned something useful from this post!.</p>
 <p>n4x0r.</p>

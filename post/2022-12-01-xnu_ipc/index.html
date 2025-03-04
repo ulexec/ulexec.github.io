@@ -51,7 +51,7 @@ Often as a vulnerability researcher, attack-surfaces involving compromising othe
 
 
 
-<link rel="stylesheet" href="/assets/combined.min.4d83d9d131fa58e4a3582b029a9d295c34033e4132d049b0e16fa8d1e9ddfebf.css" media="all">
+<link rel="stylesheet" href="/assets/combined.min.a7696e900b4a7802d61674546b1266ce0c55e69a2b88e8bfc3c169feeea091a8.css" media="all">
 
 
 
@@ -211,13 +211,6 @@ $(document).ready(function () {
             </a>
         </p>
         
-      
-        <p class="small ">
-            <a href="/about" >
-                /about
-            </a>
-        </p>
-        
         
     </div>
 
@@ -339,7 +332,7 @@ The microkernel size is small than the monolithic kernel because only the kernel
 <p>Each task has its own namespace of port rights, and these are represented as 32bit integers. Is due to this reason that many Mach port APIs take an explicit task argument in order to disambiguate the respective mach port name.</p>
 <p>Is important to note that mach ports are not only used to establish a means of IPC communication for the kernel and user-space services, but to also serve as an abstraction for resources. As an example, in user-space all tasks, threads or even semaphores handles are used as port rights to ports representing the underlying resources.</p>
 <p>Here for example are some typedefs from <a href="https://opensource.apple.com/source/xnu/xnu-792/osfmk/mach/mach_types.h"><code>mach/mach_types.h</code></a> showcasing this abstraction:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#6272a4">/*
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#6272a4">/*
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"> * If we are not in the kernel, then these will all be represented by
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"> * ports at user-space.
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"> */</span>
@@ -486,7 +479,7 @@ The role of this bootstrap server in XNU is fulfilled by <code>launchd</code> (a
 </figure>
 </p>
 <p>As shown in the diagram above, a mach message is composed of a header and a body. Mach message header conforms to a structure of type <code>mach_msg_header_t</code>. This structure is defined as follows:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#ff79c6">typedef</span> <span style="color:#ff79c6">struct</span> {
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#ff79c6">typedef</span> <span style="color:#ff79c6">struct</span> {
 </span></span><span style="display:flex;"><span>  mach_msg_bits_t       msgh_bits;
 </span></span><span style="display:flex;"><span>  mach_msg_size_t       msgh_size;
 </span></span><span style="display:flex;"><span>  mach_port_t           msgh_remote_port;
@@ -522,7 +515,7 @@ This will be divided into two parts, being the server and client side roles.</p>
 <li>Message receiving</li>
 </ol>
 <p>The full source code for the server is shown as follows:
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#6272a4">// server.c
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#6272a4">// server.c
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;bootstrap.h&gt;</span><span style="color:#ff79c6">
 </span></span></span><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;mach/mach.h&gt;</span><span style="color:#ff79c6">
 </span></span></span><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;mach/message.h&gt;</span><span style="color:#ff79c6">
@@ -586,13 +579,13 @@ This will be divided into two parts, being the server and client side roles.</p>
   <a class="anchor" href="#create-a-mach-port-receive-right">#</a>
 </h3>
 <p>Defining our message structure composed of a <code>mach_msg_header_t</code> header, a body and a default <code>mach_msg_trailer_t</code>, although this last one is not neccesary for now.</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#ff79c6">typedef</span> <span style="color:#ff79c6">struct</span> {
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#ff79c6">typedef</span> <span style="color:#ff79c6">struct</span> {
 </span></span><span style="display:flex;"><span>  mach_msg_header_t header;
 </span></span><span style="display:flex;"><span>  <span style="color:#8be9fd">char</span> body[<span style="color:#bd93f9">4096</span>];
 </span></span><span style="display:flex;"><span>  mach_msg_trailer_t trailer;
 </span></span><span style="display:flex;"><span>} MachMessage;</span></span></code></pre></div>
 Allocating a new mach port
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>  mach_port_t task <span style="color:#ff79c6">=</span> mach_task_self();
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>  mach_port_t task <span style="color:#ff79c6">=</span> mach_task_self();
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>  mach_port_name_t recv_port;
 </span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">if</span> (mach_port_allocate(task, MACH_PORT_RIGHT_RECEIVE, <span style="color:#ff79c6">&amp;</span>recv_port) <span style="color:#ff79c6">!=</span> KERN_SUCCESS) {
@@ -603,7 +596,7 @@ Allocating a new mach port
   <a class="anchor" href="#add-a-send-right-to-the-port-for-the-bootstrap-server-to-use">#</a>
 </h3>
 <p>Inserting a new send right into our mach port
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>  <span style="color:#ff79c6">if</span> (mach_port_insert_right(task, recv_port, recv_port, MACH_MSG_TYPE_MAKE_SEND) <span style="color:#ff79c6">!=</span> KERN_SUCCESS) {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>  <span style="color:#ff79c6">if</span> (mach_port_insert_right(task, recv_port, recv_port, MACH_MSG_TYPE_MAKE_SEND) <span style="color:#ff79c6">!=</span> KERN_SUCCESS) {
 </span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">return</span> EXIT_FAILURE;
 </span></span><span style="display:flex;"><span>  }</span></span></code></pre></div></p>
 <h3 class="heading" id="registering-service-to-bootstrap-server">
@@ -611,12 +604,12 @@ Allocating a new mach port
   <a class="anchor" href="#registering-service-to-bootstrap-server">#</a>
 </h3>
 <p>Retrieving the port of the bootstrap server
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>  mach_port_t bootstrap_port;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>  mach_port_t bootstrap_port;
 </span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">if</span> (task_get_special_port(task, TASK_BOOTSTRAP_PORT, <span style="color:#ff79c6">&amp;</span>bootstrap_port) <span style="color:#ff79c6">!=</span> KERN_SUCCESS) {
 </span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">return</span> EXIT_FAILURE;
 </span></span><span style="display:flex;"><span>  }</span></span></code></pre></div>
 Register mach port to service name via the bootstrap server
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>  <span style="color:#ff79c6">if</span> (bootstrap_register(bootstrap_port, <span style="color:#f1fa8c">&#34;com.test-service.alice&#34;</span>, recv_port) <span style="color:#ff79c6">!=</span> KERN_SUCCESS) {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>  <span style="color:#ff79c6">if</span> (bootstrap_register(bootstrap_port, <span style="color:#f1fa8c">&#34;com.test-service.alice&#34;</span>, recv_port) <span style="color:#ff79c6">!=</span> KERN_SUCCESS) {
 </span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">return</span> EXIT_FAILURE;
 </span></span><span style="display:flex;"><span>  }</span></span></code></pre></div></p>
 <h3 class="heading" id="wait-to-receive-messages">
@@ -624,7 +617,7 @@ Register mach port to service name via the bootstrap server
   <a class="anchor" href="#wait-to-receive-messages">#</a>
 </h3>
 <p>Wait in an infinite loop for messages to arrive
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>  
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>  
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">while</span> (<span style="color:#8be9fd;font-style:italic">true</span>) {
 </span></span><span style="display:flex;"><span>    mach_msg_return_t ret <span style="color:#ff79c6">=</span> mach_msg(
 </span></span><span style="display:flex;"><span>        (mach_msg_header_t <span style="color:#ff79c6">*</span>)<span style="color:#ff79c6">&amp;</span>message,  <span style="color:#6272a4">// msg 
@@ -656,7 +649,7 @@ Register mach port to service name via the bootstrap server
 <li>Send the message</li>
 </ol>
 <p>The full source of the client is shown as follows:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#6272a4">// client.c
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#6272a4">// client.c
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;bootstrap.h&gt;</span><span style="color:#ff79c6">
 </span></span></span><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;mach/mach_init.h&gt;</span><span style="color:#ff79c6">
 </span></span></span><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;mach/mach_port.h&gt;</span><span style="color:#ff79c6">
@@ -724,13 +717,13 @@ Register mach port to service name via the bootstrap server
   <a class="anchor" href="#retrieve-target-service-port">#</a>
 </h3>
 <p>Retrieve the bootstrap server prot
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>  mach_port_name_t task <span style="color:#ff79c6">=</span> mach_task_self();
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>  mach_port_name_t task <span style="color:#ff79c6">=</span> mach_task_self();
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>  mach_port_t bootstrap_port;
 </span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">if</span> (task_get_special_port(task, TASK_BOOTSTRAP_PORT, <span style="color:#ff79c6">&amp;</span>bootstrap_port) <span style="color:#ff79c6">!=</span> KERN_SUCCESS) {
 </span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">return</span> EXIT_FAILURE;
 </span></span><span style="display:flex;"><span>  }</span></span></code></pre></div>Retrieve the target service port via the bootstrap server
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>  mach_port_t port;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>  mach_port_t port;
 </span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">if</span> (bootstrap_look_up(bootstrap_port, <span style="color:#f1fa8c">&#34;com.test-service.alice&#34;</span>, <span style="color:#ff79c6">&amp;</span>port) <span style="color:#ff79c6">!=</span> KERN_SUCCESS) {
 </span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">return</span> EXIT_FAILURE;
 </span></span><span style="display:flex;"><span>  }</span></span></code></pre></div></p>
@@ -739,7 +732,7 @@ Register mach port to service name via the bootstrap server
   <a class="anchor" href="#setup-message-header">#</a>
 </h3>
 <p>One important macro to cover is the macro <code>MACH_MSGH_BITS_SET</code>. It serves to set appropiate bits in <code>mach_msg_bits_t</code> representing a given port right disposition. This macro is defined in <a href="https://opensource.apple.com/source/xnu/xnu-4570.41.2/osfmk/mach/message.h.auto.html"><code>mach/message.h.auto.html</code></a>:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#6272a4">/* setter macros for the bits */</span>
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#6272a4">/* setter macros for the bits */</span>
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">#define MACH_MSGH_BITS(remote, local)  </span><span style="color:#6272a4">/* legacy */</span><span style="color:#ff79c6">		\
 </span></span></span><span style="display:flex;"><span><span style="color:#ff79c6">		((remote) | ((local) &lt;&lt; 8))
 </span></span></span><span style="display:flex;"><span><span style="color:#ff79c6"></span>
@@ -771,7 +764,7 @@ The complex bit must be specified if the message body contains additional port r
 <p>Basically these mask, estipulate to which port the port right disposition is being applied (remote port, local port, or OOL port rights).</p>
 <p>These bits applied to these binary masks correspond to a specified port disposition, which indicates the kernel what to do with the port specified in the mach message header.</p>
 <p>Here we are usig the <code>MACH_MSGH_BITS_SET</code> to specify that the send right should be copied to the remote port with the value <code>MACH_MSG_TYPE_COPY_SEND</code>. This may seem a bit weird at first, however lets remember that port disposition serve to direct the kernel how to process port rights for each port. In this case, we are directing the kernel to copy the send right of the registered service shared by the bootstrap server to the remote port in order for the message to be delivered to the destination endpoint sucessfully.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span> 
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span> 
 </span></span><span style="display:flex;"><span>  MachMessage message <span style="color:#ff79c6">=</span> {<span style="color:#bd93f9">0</span>};
 </span></span><span style="display:flex;"><span>  message.header.msgh_remote_port <span style="color:#ff79c6">=</span> port;
 </span></span><span style="display:flex;"><span>
@@ -789,7 +782,7 @@ The complex bit must be specified if the message body contains additional port r
   <a class="anchor" href="#send-the-message">#</a>
 </h3>
 <p>Here we simply populate the message body, and we proceed to call <code>mach_msg</code> with the <code>MACH_SEND_MSG</code> option
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>  strcpy(message.body, <span style="color:#f1fa8c">&#34;Some Message Body Data :)&#34;</span>);
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>  strcpy(message.body, <span style="color:#f1fa8c">&#34;Some Message Body Data :)&#34;</span>);
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>  mach_msg_return_t ret <span style="color:#ff79c6">=</span> mach_msg(
 </span></span><span style="display:flex;"><span>    (mach_msg_header_t <span style="color:#ff79c6">*</span>)<span style="color:#ff79c6">&amp;</span>message,    <span style="color:#6272a4">// msg 
@@ -814,7 +807,7 @@ The complex bit must be specified if the message body contains additional port r
   Server
   <a class="anchor" href="#server">#</a>
 </h2>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#6272a4">// server.c
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#6272a4">// server.c
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;bootstrap.h&gt;</span><span style="color:#ff79c6">
 </span></span></span><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;mach/mach.h&gt;</span><span style="color:#ff79c6">
 </span></span></span><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;mach/message.h&gt;</span><span style="color:#ff79c6">
@@ -915,7 +908,7 @@ The complex bit must be specified if the message body contains additional port r
 </span></span><span style="display:flex;"><span>}</span></span></code></pre></div>### Using msg_bits to fetch remote reply port
 The only thing that is worth to highlight in contrast to the previous example is that, once we have received a mach message, we can use the msg_bits from the initial received message header, and acquire the destination port as the endpoint to send our message to.
 This can be seen in the following snippet:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#6272a4">// crafting reply message
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#6272a4">// crafting reply message
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span>MachMessage response <span style="color:#ff79c6">=</span> {<span style="color:#bd93f9">0</span>};
 </span></span><span style="display:flex;"><span><span style="color:#6272a4">// We can use msgh_bits from the received message as it is
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span>response.header.msgh_bits <span style="color:#ff79c6">=</span> received_message.message.header.msgh_bits
@@ -946,7 +939,7 @@ This can be seen in the following snippet:</p>
   <a class="anchor" href="#client">#</a>
 </h2>
 <p>The full client source is shown below:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#6272a4">// client.c
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#6272a4">// client.c
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;bootstrap.h&gt;</span><span style="color:#ff79c6">
 </span></span></span><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;mach/mach_init.h&gt;</span><span style="color:#ff79c6">
 </span></span></span><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;mach/mach_port.h&gt;</span><span style="color:#ff79c6">
@@ -1057,7 +1050,7 @@ Changes that are worth to highlight are as follows:</p>
 <p>In order to receive replies, we need to allocate a new mach port for doing so.
 In order to do this we do this as we did it in the server side, via <code>mach_port_allocate</code>.</p>
 <p>In addition, in order for the remote task to be able to send us messages, we need to also insert a send right to our newly created port:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>  <span style="color:#6272a4">// creating a bew epehemeral mach port dedicated to receive reply messages
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>  <span style="color:#6272a4">// creating a bew epehemeral mach port dedicated to receive reply messages
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span>  mach_port_t reply_port;
 </span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">if</span> (mach_port_allocate(task, MACH_PORT_RIGHT_RECEIVE, <span style="color:#ff79c6">&amp;</span>reply_port) <span style="color:#ff79c6">!=</span> KERN_SUCCESS) {
 </span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">return</span> EXIT_FAILURE;
@@ -1074,7 +1067,7 @@ In order to do this we do this as we did it in the server side, via <code>mach_p
 <p>Now we have to craft the initial message we will be sending to the server.
 In order to do so we need to set the apporpiate disposition not only for the remote port, but also to our local port dedicated for the remote endpoit to send us replies.</p>
 <p>In order to do this we have to use the macro <code>MACH_MSGH_BITS_SET</code> again, setting the <code>MACH_MSG_TYPE_COPY_SEND</code> disposition for the remote port&rsquo;s port right to be able to send the message in the first place, but also the <code>MACH_MSG_TYPE_MAKE_SEND</code> dispositioin for our local port, which is dedicated to receive message replies. With this, this message will send our local port send right to the remote endpoint, in order for it to be able to send us replies.</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>  <span style="color:#6272a4">// crafting initial message
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>  <span style="color:#6272a4">// crafting initial message
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span>  MachMessage message <span style="color:#ff79c6">=</span> {<span style="color:#bd93f9">0</span>};
 </span></span><span style="display:flex;"><span>  message.header.msgh_remote_port <span style="color:#ff79c6">=</span> port;
 </span></span><span style="display:flex;"><span>  message.header.msgh_local_port <span style="color:#ff79c6">=</span> reply_port;
@@ -1106,7 +1099,7 @@ Once we do that we can send the message, and our local_port field in the mach me
   <a class="anchor" href="#waiting-for-replies-from-remote-task">#</a>
 </h3>
 <p>Once we have sent our local port send right to the remote endpoint, all we have to do now is to listen to replies in our local port</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#6272a4">// waiting for replies
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#6272a4">// waiting for replies
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span>  ReceivedMachMessage response <span style="color:#ff79c6">=</span> {<span style="color:#bd93f9">0</span>};
 </span></span><span style="display:flex;"><span>  ret <span style="color:#ff79c6">=</span> mach_msg(
 </span></span><span style="display:flex;"><span>    (mach_msg_header_t<span style="color:#ff79c6">*</span>)<span style="color:#ff79c6">&amp;</span>response,
@@ -1126,7 +1119,7 @@ Once we do that we can send the message, and our local_port field in the mach me
   <a class="anchor" href="#server-1">#</a>
 </h2>
 <p>The full source of the server application can be shown below:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#6272a4">// server.c
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#6272a4">// server.c
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;bootstrap.h&gt;</span><span style="color:#ff79c6">
 </span></span></span><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;mach/mach.h&gt;</span><span style="color:#ff79c6">
 </span></span></span><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;mach/message.h&gt;</span><span style="color:#ff79c6">
@@ -1232,7 +1225,7 @@ Once we do that we can send the message, and our local_port field in the mach me
 </span></span><span style="display:flex;"><span>}</span></span></code></pre></div>### Mach message layout for complex messages
 On important thing to higlight is that the type definitions of our mach messages have to be defined slightly different to support complex messages. Lets remember that for complex messages, we will have
 the mach message header, an additional <code>mach_msg_size_t</code> field denoting the number of subsequent descriptors, and then an array of descriptors, which in our case for sake of simplicity, we only defined one descriptor of type <code>mach_msg_port_descriptor_t</code>, although other descriptor types are supported such as OOL (out-of-line) descriptors which we will be covering next. For the sake of this example the following are the defined message types:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#ff79c6">typedef</span> <span style="color:#ff79c6">struct</span> {
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#ff79c6">typedef</span> <span style="color:#ff79c6">struct</span> {
 </span></span><span style="display:flex;"><span>  mach_msg_header_t header;
 </span></span><span style="display:flex;"><span>  <span style="color:#8be9fd">char</span> body[<span style="color:#bd93f9">4096</span>];
 </span></span><span style="display:flex;"><span>} MachMessage;
@@ -1248,7 +1241,7 @@ the mach message header, an additional <code>mach_msg_size_t</code> field denoti
 </span></span><span style="display:flex;"><span>  mach_msg_trailer_t trailer;
 </span></span><span style="display:flex;"><span>} ReceivedPortMachMessage;</span></span></code></pre></div>
 Note that in our type definition for <code>PortMachMessage</code> type, we put a <code>mach_msg_size_t</code> field called <code>msgh_descriptor_count</code> right after the <code>mach_msg_header_t</code> member. One could instead use the <code>mach_msg_body_t</code> type to define the &lsquo;body&rsquo; of the message, although it seems a bit misleading because this field only contains one member called <code>msgh_descriptor_count</code> as shown below, but both of these declarations are valid.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#ff79c6">typedef</span> <span style="color:#ff79c6">struct</span> {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#ff79c6">typedef</span> <span style="color:#ff79c6">struct</span> {
 </span></span><span style="display:flex;"><span>    mach_msg_size_t  msgh_descriptor_count;
 </span></span><span style="display:flex;"><span>} mach_msg_body_t;</span></span></code></pre></div>
 <h3 class="heading" id="retrieving-remote-port-disposition-for-message-reply">
@@ -1257,7 +1250,7 @@ Note that in our type definition for <code>PortMachMessage</code> type, we put a
 </h3>
 <p>In the previous example we actually needed to handle the port disposition manually by applying a binary mask to the reply message message header msgh_bits field.</p>
 <p>However, for this scenario since we are using a complex message with a port descriptor, we can obstain the port disposition directly from the port descriptor&rsquo;s name field in the received message.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>MachMessage response <span style="color:#ff79c6">=</span> {<span style="color:#bd93f9">0</span>};
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>MachMessage response <span style="color:#ff79c6">=</span> {<span style="color:#bd93f9">0</span>};
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>response.header.msgh_bits <span style="color:#ff79c6">=</span> MACH_MSGH_BITS_SET(
 </span></span><span style="display:flex;"><span>    received_message.message.descriptor.disposition,
@@ -1272,7 +1265,7 @@ Note that in our type definition for <code>PortMachMessage</code> type, we put a
 </h2>
 <p>Now we will cover the changes we will have to make to support complex messages with port descriptors in our client.</p>
 <p>The following is the full source of the client:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#6272a4">// client.c
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#6272a4">// client.c
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;bootstrap.h&gt;</span><span style="color:#ff79c6">
 </span></span></span><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;mach/mach_init.h&gt;</span><span style="color:#ff79c6">
 </span></span></span><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;mach/mach_port.h&gt;</span><span style="color:#ff79c6">
@@ -1383,7 +1376,7 @@ Note that in our type definition for <code>PortMachMessage</code> type, we put a
   <a class="anchor" href="#set-the-complex-bit-in-the-message-header">#</a>
 </h3>
 <p>One thing that is easy to overlook to craft complex messages, is to set the appropiate bit in the mach message header to denote the message is indeed complex. We can do this with the macro <code>MACH_MSGH_BITS_SET</code> as follows:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>PortMachMessage message <span style="color:#ff79c6">=</span> {<span style="color:#bd93f9">0</span>};
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>PortMachMessage message <span style="color:#ff79c6">=</span> {<span style="color:#bd93f9">0</span>};
 </span></span><span style="display:flex;"><span>message.header.msgh_bits <span style="color:#ff79c6">=</span> MACH_MSGH_BITS_SET(
 </span></span><span style="display:flex;"><span>    MACH_MSG_TYPE_COPY_SEND,
 </span></span><span style="display:flex;"><span>    <span style="color:#bd93f9">0</span>, 
@@ -1395,7 +1388,7 @@ Note that in our type definition for <code>PortMachMessage</code> type, we put a
   <a class="anchor" href="#crafting-a-complex-message">#</a>
 </h3>
 <p>In contrast with previous examples, appart from populating the header of our mach message with a <code>msgh_id</code> (optional), <code>msgh_size</code> and <code>msgh_remote_port</code> fields, we need to also populate our port descriptor. In order to do this we need to put the port name under the descriptor&rsquo;s name field, the port disposition under the descritor&rsquo;s disposition field and lastly the type to reflect that our descriptor is of type <code>MACH_MSG_PORT_DESCRIPTOR</code>. We can do all of this as follows:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>message.header.msgh_id <span style="color:#ff79c6">=</span> MSG_ID_PORT;
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>message.header.msgh_id <span style="color:#ff79c6">=</span> MSG_ID_PORT;
 </span></span><span style="display:flex;"><span>message.header.msgh_size <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">sizeof</span> message;
 </span></span><span style="display:flex;"><span>message.header.msgh_remote_port <span style="color:#ff79c6">=</span> port;
 </span></span><span style="display:flex;"><span>
@@ -1404,7 +1397,7 @@ Note that in our type definition for <code>PortMachMessage</code> type, we put a
 </span></span><span style="display:flex;"><span>message.descriptor.disposition <span style="color:#ff79c6">=</span> MACH_MSG_TYPE_MAKE_SEND;
 </span></span><span style="display:flex;"><span>message.descriptor.type <span style="color:#ff79c6">=</span> MACH_MSG_PORT_DESCRIPTOR;</span></span></code></pre></div># Complex Message Server with DispatchQueue Example
 Although not entirely relevant for the subject in question of this post, I also wanted to document how we can handle mach messages with a dedicated GCD dispatch queue. Is very simple to implement, and provides handling of concurrent/serial, aync/sync connections much easier. This design pattern is also followed by many large projects which has to handle a high volume of mach messages for IPC communication. As an example, WebKit implements a similar but much more elaborated approach to send/receive mach messages to WebKit XPC services. In any case, to showcase the concept, the server of previous examples its been rewritten to handle incoming mach messages in an dedicated dispatch queue. The source code of this server is the follwing:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#6272a4">// server.c
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#6272a4">// server.c
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;bootstrap.h&gt;</span><span style="color:#ff79c6">
 </span></span></span><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;mach/mach.h&gt;</span><span style="color:#ff79c6">
 </span></span></span><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;mach/message.h&gt;</span><span style="color:#ff79c6">
@@ -1596,7 +1589,7 @@ is the file descriptor (int) to monitor and the mask is unused and should be zer
 </ul>
 <p>As shown above by the different types of dispatch sources, dispatch sources are versatile and are convenient to distribute code on specific events on dedicated dispatch queues.</p>
 <p>On our server, all we have to do to create a dispatch source to monitor state changes on a mach port is the following:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>  dispatch_source_t port_source <span style="color:#ff79c6">=</span> dispatch_source_create(
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>  dispatch_source_t port_source <span style="color:#ff79c6">=</span> dispatch_source_create(
 </span></span><span style="display:flex;"><span>    DISPATCH_SOURCE_TYPE_MACH_RECV,
 </span></span><span style="display:flex;"><span>    recv_port,
 </span></span><span style="display:flex;"><span>    <span style="color:#bd93f9">0</span>,
@@ -1607,16 +1600,16 @@ is the file descriptor (int) to monitor and the mask is unused and should be zer
   <a class="anchor" href="#registering-an-event-handler-to-the-dispatch-source">#</a>
 </h2>
 <p>Once we have created our dispatch source, we can then register a handler to the dispatch source as follows:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>  
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>  
 </span></span><span style="display:flex;"><span>  dispatch_source_set_event_handler(port_source, <span style="color:#ff79c6">^</span>(<span style="color:#8be9fd">void</span>) { <span style="color:#6272a4">/* code to handle incoming mach messages */</span> });</span></span></code></pre></div>
 <h2 class="heading" id="deploying-the-dispatch-queue">
   Deploying the dispatch queue
   <a class="anchor" href="#deploying-the-dispatch-queue">#</a>
 </h2>
 <p>Lasly, all we have to do left is to resume the dispatch source so the event handler to our dispatch queue gets deployed. We can do this as follows:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>dispatch_resume(port_source);</span></span></code></pre></div>
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>dispatch_resume(port_source);</span></span></code></pre></div>
 We can see that now when new incomming messages arrive, they will be processed in a dedicated concurrent queue:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#ff79c6">*</span> <span style="color:#ff79c6">thread</span> #<span style="color:#bd93f9">2</span>, queue <span style="color:#ff79c6">=</span> &#39;com.service.MessageQueue&#39;, stop reason <span style="color:#ff79c6">=</span> breakpoint <span style="color:#bd93f9">1.1</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#ff79c6">*</span> <span style="color:#ff79c6">thread</span> #<span style="color:#bd93f9">2</span>, queue <span style="color:#ff79c6">=</span> &#39;com.service.MessageQueue&#39;, stop reason <span style="color:#ff79c6">=</span> breakpoint <span style="color:#bd93f9">1.1</span>
 </span></span><span style="display:flex;"><span>    frame #<span style="color:#bd93f9">0</span><span style="color:#ff79c6">:</span> <span style="color:#bd93f9">0x0000000100003cdc</span> server`<span style="color:#50fa7b">__main_block_invoke</span>(.block_descriptor<span style="color:#ff79c6">=</span><span style="color:#bd93f9">0x00000001002043a0</span>) at server.<span style="color:#8be9fd;font-style:italic">mm</span>:<span style="color:#bd93f9">63</span><span style="color:#ff79c6">:</span><span style="color:#bd93f9">30</span>
 </span></span><span style="display:flex;"><span>   <span style="color:#bd93f9">60</span>  
 </span></span><span style="display:flex;"><span>   <span style="color:#bd93f9">61</span>     <span style="color:#50fa7b">dispatch_source_set_event_handler</span>(port_source, <span style="color:#ff79c6">^</span>(<span style="color:#8be9fd">void</span>) {
@@ -1636,7 +1629,7 @@ We can see that now when new incomming messages arrive, they will be processed i
   Server
   <a class="anchor" href="#server-2">#</a>
 </h2>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#6272a4">// server.mm
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#6272a4">// server.mm
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;bootstrap.h&gt;</span><span style="color:#ff79c6">
 </span></span></span><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;mach/mach.h&gt;</span><span style="color:#ff79c6">
 </span></span></span><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;mach/message.h&gt;</span><span style="color:#ff79c6">
@@ -1769,7 +1762,7 @@ We can see that now when new incomming messages arrive, they will be processed i
 </h3>
 <p>One important thing to highlight is that in order to send an OOL message, we need to first allocate the OOL buffer we will be sending to our client. We could use any standard APIs to do this (such as malloc),  However, in our example we will be using <code>vm_allocate</code> to directly allocate virtual memory.</p>
 <p>Here we allocate a new memory region of a page size, with read/write permissions:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>  <span style="color:#8be9fd">void</span> <span style="color:#ff79c6">*</span>ool_buffer <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">NULL</span>;
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>  <span style="color:#8be9fd">void</span> <span style="color:#ff79c6">*</span>ool_buffer <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">NULL</span>;
 </span></span><span style="display:flex;"><span>  vm_size_t ool_buffer_size <span style="color:#ff79c6">=</span> vm_page_size;
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">if</span> (vm_allocate(
@@ -1788,7 +1781,7 @@ We can see that now when new incomming messages arrive, they will be processed i
   <a class="anchor" href="#setting-appropiate-ool-message-msgh_bits">#</a>
 </h3>
 <p>Lets remember that we have to set the appropiate bit in <code>msgh_bits</code> field in our mach message header to direct that our message is a complex message setting the <code>MACH_MSGH_BITS_COMPLEX</code> bit:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>OOLMachMessage message <span style="color:#ff79c6">=</span> {<span style="color:#bd93f9">0</span>};
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>OOLMachMessage message <span style="color:#ff79c6">=</span> {<span style="color:#bd93f9">0</span>};
 </span></span><span style="display:flex;"><span>message.header.msgh_bits <span style="color:#ff79c6">=</span> MACH_MSGH_BITS_SET(
 </span></span><span style="display:flex;"><span>    MACH_MSG_TYPE_COPY_SEND,
 </span></span><span style="display:flex;"><span>    <span style="color:#bd93f9">0</span>,
@@ -1799,14 +1792,14 @@ We can see that now when new incomming messages arrive, they will be processed i
   <a class="anchor" href="#crafting-an-ool-message">#</a>
 </h3>
 <p>The type definition for our OOL Mach message is the following:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#ff79c6">typedef</span> <span style="color:#ff79c6">struct</span> {
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#ff79c6">typedef</span> <span style="color:#ff79c6">struct</span> {
 </span></span><span style="display:flex;"><span>  mach_msg_header_t header;
 </span></span><span style="display:flex;"><span>  mach_msg_size_t msgh_descriptor_count;
 </span></span><span style="display:flex;"><span>  mach_msg_ool_descriptor_t descriptor;
 </span></span><span style="display:flex;"><span>} OOLMachMessage;</span></span></code></pre></div>
 We can notice that a new descriptor type is introduced, which is of type <code>mach_msg_ool_descriptor_t</code>.
 The following is the OOL descriptor structure:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#ff79c6">typedef</span> <span style="color:#ff79c6">struct</span>{
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#ff79c6">typedef</span> <span style="color:#ff79c6">struct</span>{
 </span></span><span style="display:flex;"><span>  <span style="color:#8be9fd">void</span><span style="color:#ff79c6">*</span>                         address;
 </span></span><span style="display:flex;"><span>  mach_msg_size_t               size;
 </span></span><span style="display:flex;"><span>  boolean_t                     <span style="color:#8be9fd;font-style:italic">deallocate</span>: <span style="color:#bd93f9">8</span>;
@@ -1841,7 +1834,7 @@ to perform an actual copy of the physical memory.</p>
 For the scope of this article, you’re only going to need the <code>MACH_MSG_VIRTUAL_COPY</code> copy type.</p>
 <p>Note that sending out-of-line data requires merely the data address and size, where both can be dynamic. This is unlike inline data, where indirection isn’t possible, and all data must be copied into the message buffer.</p>
 <p>The following is how we populate the OOL message structures in our server:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>    message.header.msgh_remote_port <span style="color:#ff79c6">=</span> received_message.message.header.msgh_remote_port;
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span>    message.header.msgh_remote_port <span style="color:#ff79c6">=</span> received_message.message.header.msgh_remote_port;
 </span></span><span style="display:flex;"><span>    message.header.msgh_size <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">sizeof</span> message;
 </span></span><span style="display:flex;"><span>    
 </span></span><span style="display:flex;"><span>    message.msgh_descriptor_count <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">1</span>;
@@ -1856,7 +1849,7 @@ After this, all there is left is to send the message to the client.</p>
   <a class="anchor" href="#client-2">#</a>
 </h2>
 <p>The client does not introduce any new changes to handle OOL messages in addition to what has been already introduced in the server. For sake of convenience the client source code is left here for testing:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#6272a4">// client.mm
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#6272a4">// client.mm
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;bootstrap.h&gt;</span><span style="color:#ff79c6">
 </span></span></span><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;mach/mach_init.h&gt;</span><span style="color:#ff79c6">
 </span></span></span><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;mach/mach_port.h&gt;</span><span style="color:#ff79c6">

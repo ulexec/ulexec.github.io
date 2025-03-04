@@ -53,7 +53,7 @@ move: ELF 32-bit LSB executable, Intel 80386, version 1 (GNU/Linux), statically 
 
 
 
-<link rel="stylesheet" href="/assets/combined.min.4d83d9d131fa58e4a3582b029a9d295c34033e4132d049b0e16fa8d1e9ddfebf.css" media="all">
+<link rel="stylesheet" href="/assets/combined.min.a7696e900b4a7802d61674546b1266ce0c55e69a2b88e8bfc3c169feeea091a8.css" media="all">
 
 
 
@@ -213,13 +213,6 @@ $(document).ready(function () {
             </a>
         </p>
         
-      
-        <p class="small ">
-            <a href="/about" >
-                /about
-            </a>
-        </p>
-        
         
     </div>
 
@@ -273,9 +266,9 @@ $(document).ready(function () {
     <p><code>PackedMovement</code> was the last Reverse Engineering challenge on <code>AlexCTF 2017</code>. The puntuation of this challnege was of <code>350</code> points.</p>
 <p>The only hint given to this challenge was its name. You will see why later on in this writeup.</p>
 <p>The retrieved binary is called <code>move</code>. if we run the <code>file</code> command over it we find the following:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>move: ELF 32-bit LSB executable, Intel 80386, version <span style="color:#bd93f9">1</span> <span style="color:#ff79c6">(</span>GNU/Linux<span style="color:#ff79c6">)</span>, statically linked, stripped</span></span></code></pre></div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>move: ELF 32-bit LSB executable, Intel 80386, version <span style="color:#bd93f9">1</span> <span style="color:#ff79c6">(</span>GNU/Linux<span style="color:#ff79c6">)</span>, statically linked, stripped</span></span></code></pre></div>
 <p>Even more interesting is when we see the binaries segments with <code>readelf -l move</code></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Elf file <span style="color:#8be9fd;font-style:italic">type</span> is EXEC <span style="color:#ff79c6">(</span>Executable file<span style="color:#ff79c6">)</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Elf file <span style="color:#8be9fd;font-style:italic">type</span> is EXEC <span style="color:#ff79c6">(</span>Executable file<span style="color:#ff79c6">)</span>
 </span></span><span style="display:flex;"><span>Entry point 0xd906d0
 </span></span><span style="display:flex;"><span>There are <span style="color:#bd93f9">2</span> program headers, starting at offset <span style="color:#bd93f9">52</span>
 </span></span><span style="display:flex;"><span>
@@ -311,7 +304,7 @@ $(document).ready(function () {
 </p>
 <p>Several packers use the instruction <code>pusha</code> in order to save the registry contents before running the decompression routine. One famous packer that uses this instruction is the <code>UPX</code> packer.</p>
 <p>If we run the <code>strings move | grep UPX</code> command we will confirm this binary has been packed with <code>UPX</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>9vUPX!
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>9vUPX!
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">$Info</span>: This file is packed with the UPX executable packer http://upx.sf.net $
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">$Id</span>: UPX 3.91 Copyright <span style="color:#ff79c6">(</span>C<span style="color:#ff79c6">)</span> 1996-2013 the UPX Team. All Rights Reserved. $
 </span></span><span style="display:flex;"><span>UPX!u
@@ -319,7 +312,7 @@ $(document).ready(function () {
 </span></span><span style="display:flex;"><span>UPX!</span></span></code></pre></div>
 <p>Fortunately, <code>UPX</code> also contains a flag for decompression. If we run the <code>upx -d move -o dem</code> command it will decompress the <code>move</code> binary and save a copy of the decompressed binary into disk with the name <code>dem</code></p>
 <p>If we run <code>readelf -l dem</code> command to see <code>dem's</code> segments we see the following:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Elf file <span style="color:#8be9fd;font-style:italic">type</span> is EXEC <span style="color:#ff79c6">(</span>Executable file<span style="color:#ff79c6">)</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Elf file <span style="color:#8be9fd;font-style:italic">type</span> is EXEC <span style="color:#ff79c6">(</span>Executable file<span style="color:#ff79c6">)</span>
 </span></span><span style="display:flex;"><span>Entry point 0x804829c
 </span></span><span style="display:flex;"><span>There are <span style="color:#bd93f9">6</span> program headers, starting at offset <span style="color:#bd93f9">52</span>
 </span></span><span style="display:flex;"><span>
@@ -342,7 +335,7 @@ $(document).ready(function () {
 </span></span><span style="display:flex;"><span>   <span style="color:#bd93f9">04</span>     .dynamic 
 </span></span><span style="display:flex;"><span>   <span style="color:#bd93f9">05</span>     .dynamic </span></span></code></pre></div>
 <p>This looks more like what we are looking for. Now that we have a decompressed file is a good chance to see what the binary on execution looks like. When we execute the file we see the following:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Guess a flag: AAAAAAA
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Guess a flag: AAAAAAA
 </span></span><span style="display:flex;"><span>Wrong Flag!</span></span></code></pre></div>
 Easy enough. Lets see how the binary looks like. When we open the <code>dem</code> binary in <code>IDA</code> we see the following:</p>
 <p>
@@ -487,7 +480,7 @@ At the beginning I felt like I was looking throuh glass. My assumptions about ho
 Both of these registers will then be loaded into the <code>ALU</code> module of the machine. A series of operations will be done and the result of them will be stored into the <code>rax</code> register which will then be checked wether this result is 0 by a <code>test eax, eax</code> instruction. If Z flag not set when this instruction is executed, the binary will be redirected so that it finish execution. Otherwise it will proceed and compare the next byte of the flag with our input string.</p>
 <p>Something somewhat curious about this whole procedure is that the flag byte is always loaded into the <code>R2</code> virtual register. If we could see all the instructions in which some value is being loaded into <code>R2</code>, we may be able to see all the bytes our input string is being compared against.</p>
 <p>Running the following <code>IDA python</code> sript will help us find exactly that:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff79c6">from</span> idc <span style="color:#ff79c6">import</span> <span style="color:#ff79c6">*</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff79c6">from</span> idc <span style="color:#ff79c6">import</span> <span style="color:#ff79c6">*</span>
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">from</span> idaapi <span style="color:#ff79c6">import</span> <span style="color:#ff79c6">*</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>main <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">None</span>
@@ -503,7 +496,7 @@ Both of these registers will then be loaded into the <code>ALU</code> module of 
 </span></span><span style="display:flex;"><span>            <span style="color:#8be9fd;font-style:italic">print</span> <span style="color:#8be9fd;font-style:italic">hex</span>(line), <span style="color:#f1fa8c">&#34;</span><span style="color:#f1fa8c">\t</span><span style="color:#f1fa8c">&#34;</span>, GetDisasm(line)</span></span></code></pre></div>
 <p>Make sure to extend the end of the main function down to the end of the <code>_text</code> section. This is because <code>IDA</code> fails on analyzing the entire main function. That address is <code>0x08060B38</code>.</p>
 <p>The result of this script is the following:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-nasm" data-lang="nasm"><span style="display:flex;"><span>0<span style="color:#50fa7b">x80493dbL</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">41h</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-nasm" data-lang="nasm"><span style="display:flex;"><span>0<span style="color:#50fa7b">x80493dbL</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">41h</span>
 </span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x8049ddeL</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">4Ch</span>
 </span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x804a7e1L</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">45h</span>
 </span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x804b1e4L</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">58h</span>
@@ -542,7 +535,7 @@ Both of these registers will then be loaded into the <code>ALU</code> module of 
 </span></span><span style="display:flex;"><span>0<span style="color:#50fa7b">x805f8ccL</span> 	<span style="color:#8be9fd;font-style:italic">mov</span>     <span style="color:#8be9fd;font-style:italic">R2</span>, <span style="color:#bd93f9">7Dh</span></span></span></code></pre></div>
 <p>If we modify the script above to print the characters that are been stored into <code>R2</code> we should get the flag.</p>
 <p>final script is:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff79c6">from</span> idc <span style="color:#ff79c6">import</span> <span style="color:#ff79c6">*</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff79c6">from</span> idc <span style="color:#ff79c6">import</span> <span style="color:#ff79c6">*</span>
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">from</span> idaapi <span style="color:#ff79c6">import</span> <span style="color:#ff79c6">*</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>flag <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#39;&#39;</span>

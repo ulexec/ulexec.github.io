@@ -53,7 +53,7 @@ Nanomites.exe: PE32 executable (GUI) Intel 80386, for MS Windows">
 
 
 
-<link rel="stylesheet" href="/assets/combined.min.4d83d9d131fa58e4a3582b029a9d295c34033e4132d049b0e16fa8d1e9ddfebf.css" media="all">
+<link rel="stylesheet" href="/assets/combined.min.a7696e900b4a7802d61674546b1266ce0c55e69a2b88e8bfc3c169feeea091a8.css" media="all">
 
 
 
@@ -213,13 +213,6 @@ $(document).ready(function () {
             </a>
         </p>
         
-      
-        <p class="small ">
-            <a href="/about" >
-                /about
-            </a>
-        </p>
-        
         
     </div>
 
@@ -271,7 +264,7 @@ $(document).ready(function () {
 
   <div class="single-content">
     <p>Nanomites was a Reverse engineering challenge of 300 point in SharifCTF7. The specification of this problem was the following:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Analyze the given file. Find the C&amp;C IP address and the data sent to it in plain text.
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>Analyze the given file. Find the C&amp;C IP address and the data sent to it in plain text.
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">Flag</span> <span style="color:#ff79c6">=</span> SharifCTF<span style="color:#ff79c6">{</span>md5<span style="color:#ff79c6">(</span>strcat<span style="color:#ff79c6">(</span>IP, Data<span style="color:#ff79c6">))}</span>_</span></span></code></pre></div>
 For the ones that coud not attend the competition, You can download the challenge from <a href="../files/Nanomites.exe">here</a>.</p>
 <p>After running the command <code>file</code> against the binary, I got the following output:</p>
@@ -455,7 +448,7 @@ If we look above the call to <code>send</code> we can see that this buffer is pa
 </figure>
 </p>
 <p>For sake of simplicity we are not really going to explain the purpose of function 0x402c97 since I think this function is merely used for confusion purposes. Depending how well we do debugging it, this function will return a value of <code>34</code>, <code>22</code>, <code>0</code> or instead redirect execution into an end_point of execution. Moreover, this function even though retrieves a different return value in <code>eax</code> depending which path is executed, this return value is never actually used outside the context of itself. However it really doesnt matter what this function returns. The actual purpose of this function is to copy the contents of its 3rd argument to its 1st argument. Wheter this copy will be successfull will be determined by the value of the second argument. The following is a decompilation of this function:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8be9fd">signed</span> <span style="color:#8be9fd">int</span> <span style="color:#ff79c6">__cdecl</span> <span style="color:#50fa7b">copy_cond</span>(<span style="color:#8be9fd">char</span> <span style="color:#ff79c6">*</span>copy, <span style="color:#8be9fd">int</span> centinel, <span style="color:#8be9fd">char</span> <span style="color:#ff79c6">*</span>payload) {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8be9fd">signed</span> <span style="color:#8be9fd">int</span> <span style="color:#ff79c6">__cdecl</span> <span style="color:#50fa7b">copy_cond</span>(<span style="color:#8be9fd">char</span> <span style="color:#ff79c6">*</span>copy, <span style="color:#8be9fd">int</span> centinel, <span style="color:#8be9fd">char</span> <span style="color:#ff79c6">*</span>payload) {
 </span></span><span style="display:flex;"><span>  <span style="color:#8be9fd">int</span> v3;
 </span></span><span style="display:flex;"><span>  _DWORD <span style="color:#ff79c6">*</span>v4;
 </span></span><span style="display:flex;"><span>  <span style="color:#8be9fd">signed</span> <span style="color:#8be9fd">int</span> v5;
@@ -567,7 +560,7 @@ If we look above the call to <code>send</code> we can see that this buffer is pa
 </figure>
 </p>
 <p>The previous routine is xoring each byte of the buffer-copy of the encrypted payload against <code>70 (0x46)</code>. Knowing this, I run the following python script:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#6272a4">#!usr/bin/env python</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#6272a4">#!usr/bin/env python</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>payload <span style="color:#ff79c6">=</span> [ <span style="color:#bd93f9">0x12</span>, <span style="color:#bd93f9">0x2e</span>, <span style="color:#bd93f9">0x2f</span>, <span style="color:#bd93f9">0x35</span>, <span style="color:#bd93f9">0x19</span>, <span style="color:#bd93f9">0x0f</span>, <span style="color:#bd93f9">0x35</span>, <span style="color:#bd93f9">0x19</span>, \
 </span></span><span style="display:flex;"><span>            <span style="color:#bd93f9">0x12</span>, <span style="color:#bd93f9">0x2e</span>, <span style="color:#bd93f9">0x23</span>, <span style="color:#bd93f9">0x19</span>, <span style="color:#bd93f9">0x15</span>, <span style="color:#bd93f9">0x23</span>, <span style="color:#bd93f9">0x25</span>, <span style="color:#bd93f9">0x34</span>, \

@@ -52,7 +52,7 @@ if we have a closer look at the call graph, every basic block is composed of a s
 
 
 
-<link rel="stylesheet" href="/assets/combined.min.4d83d9d131fa58e4a3582b029a9d295c34033e4132d049b0e16fa8d1e9ddfebf.css" media="all">
+<link rel="stylesheet" href="/assets/combined.min.a7696e900b4a7802d61674546b1266ce0c55e69a2b88e8bfc3c169feeea091a8.css" media="all">
 
 
 
@@ -212,13 +212,6 @@ $(document).ready(function () {
             </a>
         </p>
         
-      
-        <p class="small ">
-            <a href="/about" >
-                /about
-            </a>
-        </p>
-        
         
     </div>
 
@@ -371,7 +364,7 @@ $(document).ready(function () {
 </figure>
 </p>
 <p>When I attempted to execute the file, I found out that it wil not execute. The reason for this is because the functions at the beginning of <code>main</code> are in charge to avoid execution of the program. One can see things like:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-nasm" data-lang="nasm"><span style="display:flex;"><span>	<span style="color:#50fa7b">mov</span>		<span style="color:#8be9fd;font-style:italic">eax</span>, <span style="color:#bd93f9">0</span>
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-nasm" data-lang="nasm"><span style="display:flex;"><span>	<span style="color:#50fa7b">mov</span>		<span style="color:#8be9fd;font-style:italic">eax</span>, <span style="color:#bd93f9">0</span>
 </span></span><span style="display:flex;"><span>	<span style="color:#50fa7b">test</span>		<span style="color:#8be9fd;font-style:italic">eax</span>, <span style="color:#8be9fd;font-style:italic">eax</span>
 </span></span><span style="display:flex;"><span>	<span style="color:#50fa7b">jz</span> 		<span style="color:#8be9fd;font-style:italic">_exit</span></span></span></code></pre></div>
 Anyways, at the time of the challenge I was too lazy to patch the binary to debug it, Also the idea of going trough every single block was overwhelming.
@@ -383,7 +376,7 @@ I decided to follow my intuition and try some <code>symbolic execution magic</co
 <p>Okey, we know where to start and where to go. However it would be nice to feed the symbolic engine a series of states to avoid in order to process the search faster.</p>
 <p>The approach I followed to choose these states was to find the xrefs of the <code>_exit</code> function. This is because this function is always called if any of the checks fail.</p>
 <p>This being said and with a bit of vim magic I came up with the following python script:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff79c6">import</span> sys
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff79c6">import</span> sys
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">import</span> angr
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">import</span> simuvex
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">import</span> claripy

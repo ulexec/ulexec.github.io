@@ -51,7 +51,7 @@ Introduction # There are close to 31 known code transformations. However, In thi
 
 
 
-<link rel="stylesheet" href="/assets/combined.min.4d83d9d131fa58e4a3582b029a9d295c34033e4132d049b0e16fa8d1e9ddfebf.css" media="all">
+<link rel="stylesheet" href="/assets/combined.min.a7696e900b4a7802d61674546b1266ce0c55e69a2b88e8bfc3c169feeea091a8.css" media="all">
 
 
 
@@ -211,13 +211,6 @@ $(document).ready(function () {
             </a>
         </p>
         
-      
-        <p class="small ">
-            <a href="/about" >
-                /about
-            </a>
-        </p>
-        
         
     </div>
 
@@ -300,40 +293,41 @@ We will be also covering practical approaches to the aforementioned techniques u
 </ul>
 <p>We will be discussing each of these techniques on a conceptual level, although we will be also covering practical examples.
 The purpose of this article is to crystallize concepts instead of being a strict technical reference, although further technical reading will be linked all throughout the article along with practical implementations on how to remediate some of these techniques.</p>
-<!-- raw HTML omitted -->
+<br/>
+## Unreachable/Dead Code, Constant Unfolding and Instruction Substitution
 <p>In this section we will be covering 3 different transformations which have a close correlation between one another, and consequently a similar approach for circumvention.</p>
 <ul>
 <li>
 <p><strong>Unreachable Code</strong>: is defined as inserted code into a target application which is never going to be executed, serving the purpose of an unexpensive way of distracting the analyst for a few minutes.
 an example of Junk code is the following:
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-nasm" data-lang="nasm"><span style="display:flex;"><span><span style="color:#50fa7b">jz</span> <span style="color:#8be9fd;font-style:italic">loc_key1</span>      <span style="color:#6272a4">; lets imagine this conditional branch is not really conditional</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-nasm" data-lang="nasm"><span style="display:flex;"><span><span style="color:#50fa7b">jz</span> <span style="color:#8be9fd;font-style:italic">loc_key1</span>      <span style="color:#6272a4">; lets imagine this conditional branch is not really conditional</span>
 </span></span><span style="display:flex;"><span><span style="color:#50fa7b">xor</span> <span style="color:#8be9fd;font-style:italic">eax</span>, <span style="color:#8be9fd;font-style:italic">eax</span>     <span style="color:#6272a4">; * this will never execute</span>
 </span></span><span style="display:flex;"><span><span style="color:#50fa7b">pushf</span> 	         <span style="color:#6272a4">; *</span>
 </span></span><span style="display:flex;"><span><span style="color:#50fa7b">pop</span> <span style="color:#8be9fd;font-style:italic">ebx</span>          <span style="color:#6272a4">; *</span>
 </span></span><span style="display:flex;"><span><span style="color:#50fa7b">and</span> <span style="color:#8be9fd;font-style:italic">ebx</span>, <span style="color:#bd93f9">0x100</span>   <span style="color:#6272a4">; *</span>
 </span></span><span style="display:flex;"><span><span style="color:#50fa7b">cmp</span> <span style="color:#8be9fd;font-style:italic">ebx</span>, <span style="color:#bd93f9">0x100</span>   <span style="color:#6272a4">; *</span>
 </span></span><span style="display:flex;"><span><span style="color:#50fa7b">je</span> <span style="color:#8be9fd;font-style:italic">loc_key2</span>      <span style="color:#6272a4">; *</span>
-</span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">loc_key1:</span></span></span></code></pre></div><!-- raw HTML omitted --></p>
+</span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">loc_key1:</span></span></span></code></pre></div><br/></p>
 </li>
 <li>
 <p><strong>Dead Code</strong>: is defined as inserted code into a target application which, although it may be executed, it does not change the original control flow of the program.
 Again this technique&rsquo;s pupose is to just confuse the analyst to make him/her spend a bit more time understanding the purpose of the aforementioned instructions.
 The following is an example:
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-nasm" data-lang="nasm"><span style="display:flex;"><span><span style="color:#50fa7b">mov</span> <span style="color:#8be9fd;font-style:italic">edx</span>, <span style="color:#bd93f9">0xdeadc00d</span>  <span style="color:#6272a4">; * this specific instruction is deadcode</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-nasm" data-lang="nasm"><span style="display:flex;"><span><span style="color:#50fa7b">mov</span> <span style="color:#8be9fd;font-style:italic">edx</span>, <span style="color:#bd93f9">0xdeadc00d</span>  <span style="color:#6272a4">; * this specific instruction is deadcode</span>
 </span></span><span style="display:flex;"><span><span style="color:#50fa7b">mov</span> <span style="color:#8be9fd;font-style:italic">eax</span>, [<span style="color:#8be9fd;font-style:italic">ebp</span><span style="color:#ff79c6">+</span><span style="color:#8be9fd;font-style:italic">arg_4</span>]
 </span></span><span style="display:flex;"><span><span style="color:#50fa7b">mov</span> <span style="color:#8be9fd;font-style:italic">ecx</span>, [<span style="color:#8be9fd;font-style:italic">ebp</span><span style="color:#ff79c6">+</span><span style="color:#8be9fd;font-style:italic">arg_0</span>]
 </span></span><span style="display:flex;"><span><span style="color:#50fa7b">mov</span> <span style="color:#8be9fd;font-style:italic">edx</span>, <span style="color:#bd93f9">5</span>           <span style="color:#6272a4">; * edx gets overriden here, also deadcode</span>
 </span></span><span style="display:flex;"><span><span style="color:#50fa7b">mov</span> [<span style="color:#8be9fd;font-style:italic">ebp</span><span style="color:#ff79c6">+</span><span style="color:#8be9fd;font-style:italic">var_4</span>], <span style="color:#8be9fd;font-style:italic">ecx</span>
-</span></span><span style="display:flex;"><span><span style="color:#50fa7b">mov</span> [<span style="color:#8be9fd;font-style:italic">ebp</span><span style="color:#ff79c6">+</span><span style="color:#8be9fd;font-style:italic">var_8</span>], <span style="color:#8be9fd;font-style:italic">eax</span></span></span></code></pre></div><!-- raw HTML omitted --></p>
+</span></span><span style="display:flex;"><span><span style="color:#50fa7b">mov</span> [<span style="color:#8be9fd;font-style:italic">ebp</span><span style="color:#ff79c6">+</span><span style="color:#8be9fd;font-style:italic">var_8</span>], <span style="color:#8be9fd;font-style:italic">eax</span></span></span></code></pre></div><br/></p>
 </li>
 <li>
 <p><strong>Instruction Substitution</strong>: defined as to replace a given set of instructions with another more complex set of instructions with identical semantic meaning. This kind of techniques have been heavely employed by metamorphic code engines in the past and may highly affect the legibility of the affected code.
 Lets imagine that originally we have the following set of instructions:
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-nasm" data-lang="nasm"><span style="display:flex;"><span><span style="color:#50fa7b">mov</span> <span style="color:#8be9fd;font-style:italic">eax</span>, [<span style="color:#8be9fd;font-style:italic">ebp</span><span style="color:#ff79c6">+</span><span style="color:#8be9fd;font-style:italic">var_8</span>]
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-nasm" data-lang="nasm"><span style="display:flex;"><span><span style="color:#50fa7b">mov</span> <span style="color:#8be9fd;font-style:italic">eax</span>, [<span style="color:#8be9fd;font-style:italic">ebp</span><span style="color:#ff79c6">+</span><span style="color:#8be9fd;font-style:italic">var_8</span>]
 </span></span><span style="display:flex;"><span><span style="color:#50fa7b">add</span> <span style="color:#8be9fd;font-style:italic">eax</span>, [<span style="color:#8be9fd;font-style:italic">ebp</span><span style="color:#ff79c6">+</span><span style="color:#8be9fd;font-style:italic">var_C</span>]
 </span></span><span style="display:flex;"><span><span style="color:#50fa7b">add</span> <span style="color:#8be9fd;font-style:italic">eax</span>, [<span style="color:#8be9fd;font-style:italic">ebp</span><span style="color:#ff79c6">+</span><span style="color:#8be9fd;font-style:italic">var_10</span>]
 </span></span><span style="display:flex;"><span><span style="color:#50fa7b">add</span> <span style="color:#8be9fd;font-style:italic">eax</span>, [<span style="color:#8be9fd;font-style:italic">ebp</span><span style="color:#ff79c6">+</span><span style="color:#8be9fd;font-style:italic">var_4</span>]</span></span></code></pre></div>This set of instruction can be transform to the following one, being much harder to interpret and understand having the same semantic meaning:
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-nasm" data-lang="nasm"><span style="display:flex;"><span><span style="color:#50fa7b">mov</span> <span style="color:#8be9fd;font-style:italic">eax</span>, [<span style="color:#8be9fd;font-style:italic">ebp</span><span style="color:#ff79c6">+</span><span style="color:#8be9fd;font-style:italic">var_C</span>]
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-nasm" data-lang="nasm"><span style="display:flex;"><span><span style="color:#50fa7b">mov</span> <span style="color:#8be9fd;font-style:italic">eax</span>, [<span style="color:#8be9fd;font-style:italic">ebp</span><span style="color:#ff79c6">+</span><span style="color:#8be9fd;font-style:italic">var_C</span>]
 </span></span><span style="display:flex;"><span><span style="color:#50fa7b">mov</span> <span style="color:#8be9fd;font-style:italic">edx</span>, [<span style="color:#8be9fd;font-style:italic">ebp</span><span style="color:#ff79c6">+</span><span style="color:#8be9fd;font-style:italic">var_10</span>]
 </span></span><span style="display:flex;"><span><span style="color:#50fa7b">sub</span> <span style="color:#8be9fd;font-style:italic">eax</span>, <span style="color:#bd93f9">2598A32Bh</span>
 </span></span><span style="display:flex;"><span><span style="color:#50fa7b">add</span> <span style="color:#8be9fd;font-style:italic">eax</span>, <span style="color:#8be9fd;font-style:italic">edx</span>
@@ -348,7 +342,7 @@ Lets imagine that originally we have the following set of instructions:
 </span></span><span style="display:flex;"><span><span style="color:#50fa7b">sub</span> <span style="color:#8be9fd;font-style:italic">eax</span>, <span style="color:#8be9fd;font-style:italic">esi</span>
 </span></span><span style="display:flex;"><span><span style="color:#50fa7b">mov</span> <span style="color:#8be9fd;font-style:italic">edx</span>,[<span style="color:#8be9fd;font-style:italic">ebp</span><span style="color:#ff79c6">+</span><span style="color:#8be9fd;font-style:italic">var_8</span>]
 </span></span><span style="display:flex;"><span><span style="color:#50fa7b">sub</span> <span style="color:#8be9fd;font-style:italic">ecx</span>, <span style="color:#8be9fd;font-style:italic">edx</span>
-</span></span><span style="display:flex;"><span><span style="color:#50fa7b">sub</span> <span style="color:#8be9fd;font-style:italic">eax</span>, <span style="color:#8be9fd;font-style:italic">ecx</span></span></span></code></pre></div><!-- raw HTML omitted --></p>
+</span></span><span style="display:flex;"><span><span style="color:#50fa7b">sub</span> <span style="color:#8be9fd;font-style:italic">eax</span>, <span style="color:#8be9fd;font-style:italic">ecx</span></span></span></code></pre></div><br/></p>
 </li>
 </ul>
 <h3 class="heading" id="circumvention">
@@ -358,7 +352,7 @@ Lets imagine that originally we have the following set of instructions:
 <p>In order to mitigate these transformations we can do a variety of techniques based on Data Flow Analysis. Before we introduce these techniques, is important to understand that in order to succesfully implement Data Flow Analysis strategies we have to rely on a Intermediate Representation of the subject code. Compilers also rely on IRs to apply their program synthesis and code optimitations capabilities. In other words, We can deobfuscate these transformations by using the same techniques used by compilers for
 their own optimization purposes.</p>
 <p>These techniques are the following:</p>
-<!-- raw HTML omitted -->
+<br/>
 <h4 class="heading" id="reachable-definition-analysis">
   Reachable Definition Analysis
   <a class="anchor" href="#reachable-definition-analysis">#</a>
@@ -398,7 +392,10 @@ their own optimization purposes.</p>
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
+<br/>
+The theoritical model to apply Reachability Analysis is the following"
+![](/RA_equ.png#center)
+<br/>
 <h4 class="heading" id="liveless-analysis">
   Liveless Analysis
   <a class="anchor" href="#liveless-analysis">#</a>
@@ -413,7 +410,7 @@ their own optimization purposes.</p>
 </li>
 </ul>
 <p>An overview of how Liveless Analysis work can be shown in the following picture from Yuma&rsquo;s Course:
-<!-- raw HTML omitted --></p>
+<br/></p>
 <p>
 
 
@@ -438,16 +435,18 @@ their own optimization purposes.</p>
     
 </figure>
 </p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
+<br/>
+The theoritical model to apply Liveless Analysis is the following"
+![](/LA_equ.png#center)
+<br/>
 <p>Both reachable definition analysis and liveness analysis are IR optimization techniques used by a compiler backend, and are also useful for binary analysis.</p>
-<!-- raw HTML omitted -->
+<br/>
 <h4 class="heading" id="practical-example-deobfuscating-ollvms-instruction-substitution-pass">
   Practical Example. Deobfuscating OLLVM&rsquo;s Instruction Substitution Pass
   <a class="anchor" href="#practical-example-deobfuscating-ollvms-instruction-substitution-pass">#</a>
 </h4>
 <p>For this example we will be using the given example compiled with o-llvm -sub flag to enable OLLVM&rsquo;s Intruction Substitution Pass.</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;stdio.h&gt;</span><span style="color:#ff79c6">
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;stdio.h&gt;</span><span style="color:#ff79c6">
 </span></span></span><span style="display:flex;"><span><span style="color:#ff79c6"></span>
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd">unsigned</span> <span style="color:#8be9fd">int</span> <span style="color:#50fa7b">target_function</span>(<span style="color:#8be9fd">int</span> n) {
 </span></span><span style="display:flex;"><span>    <span style="color:#8be9fd">int</span> a,b,c,r;
@@ -490,10 +489,10 @@ their own optimization purposes.</p>
     
 </figure>
 
-<!-- raw HTML omitted --></p>
+<br/></p>
 <p>Since we need a framework to lift the code to an IR to apply these types of optimization analyses, we can use MIASM&rsquo;s Data Flow Analysis modules to deobfuscate transformations such as instruction substitution, dead/junk code or constant unfolding.</p>
 <p>MIASM has a simple way of retrieving and lifting the subject function to MIASM IR:
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#6272a4"># Opening Target File and Storing it in a &#39;Container&#39; Object</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#6272a4"># Opening Target File and Storing it in a &#39;Container&#39; Object</span>
 </span></span><span style="display:flex;"><span>cont <span style="color:#ff79c6">=</span> Container<span style="color:#ff79c6">.</span>from_stream(<span style="color:#8be9fd;font-style:italic">open</span>(args<span style="color:#ff79c6">.</span>target, <span style="color:#f1fa8c">&#39;rb&#39;</span>))
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#6272a4"># Instantiating disassembler</span>
@@ -520,7 +519,7 @@ their own optimization purposes.</p>
 At this point we will be able to optimise the given subject function and consequently mitigate the aforementioned obfuscation techniques. In order to show the result in a more readable format, it would be nice to transform the optimized IR function representation back to x86, the original architecture we compiled our test case.
 Unfortunatelly, MIASM&rsquo;s IR is not backwards compatible with x86, however MIASM provide capabilities to translate MIASM&rsquo;s IR to LLVM IR to then retrieve back the optimized subject function in its native representation.</p>
 <p>In order to do this we can do the following:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#6272a4"># Instantiate an LLVM context and Function to fill</span>
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#6272a4"># Instantiate an LLVM context and Function to fill</span>
 </span></span><span style="display:flex;"><span>context <span style="color:#ff79c6">=</span> LLVMContext_IRCompilation()
 </span></span><span style="display:flex;"><span>context<span style="color:#ff79c6">.</span>ir_arch <span style="color:#ff79c6">=</span> ir_arch
 </span></span><span style="display:flex;"><span>
@@ -585,19 +584,19 @@ The following is the result of this:</p>
     
 </figure>
 
-<!-- raw HTML omitted --></p>
+<br/></p>
 <p>As we can see in the previous screenshot, there is some dead code resident in the optimized function. This dead code represents the local variables used in the obfuscated (and original) version of the function.</p>
 <p>Data Flow Analysis and optimizations are restricted to memory writes along with other constraints such as variables involved in conditional jumps.
 Despite this, we can clearly see that Data Flow Analysis can be very effective for instruction subtitution deobfuscation giving us a simplified version of what the function may have looked like after and even before obfuscation.</p>
 <p>As we mentioned there are some additional contraints while removing some of the dead code after simplification, such as memory writes or variables needed for conditional branches. In regards to conditional branches, in the next section we will cover the concept of opaque predicates and what we can do to indentify and mitigate them.</p>
-<!-- raw HTML omitted -->
+<br/>
 <h2 class="heading" id="opaque-predicates">
   Opaque Predicates
   <a class="anchor" href="#opaque-predicates">#</a>
 </h2>
 <p>Opaque predicates in a nutshell is a commonly used technique in code obfuscation intended to add complexity to control flow usually implemented as conditional branches although these conditional branches have a deterministic control flow.</p>
 <p>A simple example of what opaque predicates are can be shown in the following C code:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;stdio.h&gt;</span><span style="color:#ff79c6">
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;stdio.h&gt;</span><span style="color:#ff79c6">
 </span></span></span><span style="display:flex;"><span><span style="color:#ff79c6"></span>
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd">int</span> <span style="color:#50fa7b">main</span> (<span style="color:#8be9fd">int</span> argc, <span style="color:#8be9fd">char</span> <span style="color:#ff79c6">**</span>argv) {
 </span></span><span style="display:flex;"><span>    <span style="color:#8be9fd">int</span> a<span style="color:#ff79c6">=</span><span style="color:#bd93f9">3</span>, b<span style="color:#ff79c6">=</span><span style="color:#bd93f9">4</span>;
@@ -612,7 +611,7 @@ Despite this, we can clearly see that Data Flow Analysis can be very effective f
 The previous C snippet is an over-simplified opaque predicate example, however its important to illustrate the concept we are trying to tackle. As we can see in the  example, a and b local variables are never going to satisfy the equality condition of the if statement since the values of a and b are not dependant on function&rsquo;s input, therefore the condition itself is not prone to change.</p>
 <p>This same concept can be extrapolated to more complex equalities/conditions usually appearing in high volume on a subject obfuscated application.
 Depending on the implementation sophistication of this technique, control flow clarity can be highly affected and therefore the interpretation and time of analysis of a subject application.</p>
-<!-- raw HTML omitted -->
+<br/>
 <h3 class="heading" id="circumvention-1">
   Circumvention
   <a class="anchor" href="#circumvention-1">#</a>
@@ -637,16 +636,16 @@ Depending on the implementation sophistication of this technique, control flow c
 Therefore, we can invoke a SMT solver at every conditional branch and verify whether there is an input value that evaluates the condition to a True or False result.
 If a subject conditional branch is not dependant on a input value the branch should be an opaque predicate.
 We can apply the technique discussed above and attempt to detect opaque predicates via Symbolic Execution + SMT solver.</p>
-<!-- raw HTML omitted -->
+<br/>
 <h4 class="heading" id="practical-example-deobfuscating-x-tunnel-opaque-predicates">
   Practical Example. Deobfuscating X-Tunnel Opaque Predicates
   <a class="anchor" href="#practical-example-deobfuscating-x-tunnel-opaque-predicates">#</a>
 </h4>
 <p>The binary file we are going to use for this example is the following:
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>X<span style="color:#ff79c6">-</span><span style="color:#8be9fd;font-style:italic">Tunnel</span>: a979c5094f75548043a22b174aa10e1f2025371bd9e1249679f052b168e194b3</span></span></code></pre></div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>X<span style="color:#ff79c6">-</span><span style="color:#8be9fd;font-style:italic">Tunnel</span>: a979c5094f75548043a22b174aa10e1f2025371bd9e1249679f052b168e194b3</span></span></code></pre></div>
 The first thing we have to do is to write a path exploration function based on Symbolic Execution.
 We can do this with MIASM as follows:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff79c6">def</span> <span style="color:#50fa7b">explore</span>(ir, start_addr, start_symbols,
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff79c6">def</span> <span style="color:#50fa7b">explore</span>(ir, start_addr, start_symbols,
 </span></span><span style="display:flex;"><span>        ircfg, cond_limit<span style="color:#ff79c6">=</span><span style="color:#bd93f9">30</span>, uncond_limit<span style="color:#ff79c6">=</span><span style="color:#bd93f9">100</span>,
 </span></span><span style="display:flex;"><span>        lbl_stop<span style="color:#ff79c6">=</span><span style="color:#ff79c6">None</span>, final_states<span style="color:#ff79c6">=</span>[]):
 </span></span><span style="display:flex;"><span>
@@ -727,7 +726,7 @@ As seen in the previous snippet, the overall steps of our path exploration algor
 <li>When we have identified the two different branch addresses, then we compute the feasibility of each subject branch (which includes all previous conditions to reach to the designated destination address) and if its feasible we continue symbolically executing the branch. If not we mark that current path as finished and we store it.</li>
 </ul>
 <p>The feasibility of the branch condition can be done via MIASM&rsquo;s z3 SMT Solver Translator:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff79c6">def</span> <span style="color:#50fa7b">check_path_feasibility</span>(conds):
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff79c6">def</span> <span style="color:#50fa7b">check_path_feasibility</span>(conds):
 </span></span><span style="display:flex;"><span>    solver <span style="color:#ff79c6">=</span> z3<span style="color:#ff79c6">.</span>Solver()
 </span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">for</span> lval, rval <span style="color:#ff79c6">in</span> conds:
 </span></span><span style="display:flex;"><span>        z3_cond <span style="color:#ff79c6">=</span> Translator<span style="color:#ff79c6">.</span>to_language(<span style="color:#f1fa8c">&#34;z3&#34;</span>)<span style="color:#ff79c6">.</span>from_expr(lval)
@@ -742,7 +741,7 @@ As seen in the previous snippet, the overall steps of our path exploration algor
 After Symbolic Execution of our target function is done, we will have an array of all of the stored final states of each path in the function.
 These final states will contained every executed block.
 In order to identify blocks which have not been executed, we do the following:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff79c6">...</span>
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff79c6">...</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#6272a4"># The IR nodes in final_states array are the path nodes that were executed.</span>
 </span></span><span style="display:flex;"><span><span style="color:#6272a4"># We collect the &#39;lock_key&#39; or block labels of each of the nodes executed</span>
@@ -768,7 +767,7 @@ In order to identify blocks which have not been executed, we do the following:</
 Once we have the locations of the blocks that haven&rsquo;t been executed, we can do a variety of things.
 We could simply mark the non-executed blocks in order to inspect the target function for further analysis.
 Yuma Kurogome shows how to do this in his course by dynamically creating an IDC script based on the context retrieved in previous stages:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff79c6">def</span> <span style="color:#50fa7b">to_idc</span>(lockeys, asmcfg):
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff79c6">def</span> <span style="color:#50fa7b">to_idc</span>(lockeys, asmcfg):
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    header <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#39;&#39;&#39;
 </span></span></span><span style="display:flex;"><span><span style="color:#f1fa8c">#include &lt;idc.idc&gt;
@@ -812,10 +811,10 @@ Yuma Kurogome shows how to do this in his course by dynamically creating an IDC 
     
 </figure>
 
-<!-- raw HTML omitted --></p>
+<br/></p>
 <p>This can help us to figure out the logic of the implementation of the subject opaque predicates. Once this is clear, we can then write a solution to patch the binary to obtain a more clear view of the function&rsquo;s control flow to apply further analysis to it such as optimizations or data flow analysis after opaque predicates are removed.
 I decided to write a solution to remove X-Tunnel&rsquo;s opaque predicates by using radare2 via its r2pipe Python binding:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff79c6">def</span> <span style="color:#50fa7b">remove_xtunnel_op</span>(lockeys, asmcfg):
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff79c6">def</span> <span style="color:#50fa7b">remove_xtunnel_op</span>(lockeys, asmcfg):
 </span></span><span style="display:flex;"><span>    <span style="color:#6272a4"># Opening File in r2</span>
 </span></span><span style="display:flex;"><span>    r2 <span style="color:#ff79c6">=</span> r2pipe<span style="color:#ff79c6">.</span>open(<span style="color:#f1fa8c">&#34;./x-tunnel.bin&#34;</span>, [<span style="color:#f1fa8c">&#34;-w&#34;</span>])
 </span></span><span style="display:flex;"><span>
@@ -889,7 +888,7 @@ I decided to write a solution to remove X-Tunnel&rsquo;s opaque predicates by us
     
 </figure>
 
-<!-- raw HTML omitted --></p>
+<br/></p>
 <p>This approach can work for deterministic opaque perdicates although it has the following limitations:</p>
 <ul>
 <li>Path exploration algorithm can be very slow.</li>
@@ -903,14 +902,14 @@ I decided to write a solution to remove X-Tunnel&rsquo;s opaque predicates by us
 </ul>
 <p>Another approach to detect opaque predicates: Abstract Interpretation (TODO. Some nice <a href="https://www.msreverseengineering.com/blog/2018/2/26/concrete-and-abstract-interpretation-explained-through-chess">reference</a> by Rolf Rolles)</p>
 <p>In the following section we will cover an approach to detect Range Dividers and how we can circumvent them.</p>
-<!-- raw HTML omitted -->
+<br/>
 <h2 class="heading" id="range-dividers">
   Range Dividers
   <a class="anchor" href="#range-dividers">#</a>
 </h2>
 <p><a href="https://www.researchgate.net/publication/311491954_Code_obfuscation_against_symbolic_execution_attacks">Range dividers</a> are branch conditions that can be inserted at an arbitrary position inside a basic block, such that they divide the input range into multiple sets.</p>
 <p>A simple example to illustrate this technique can be shown below:
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;stdio.h&gt;</span><span style="color:#ff79c6">
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;stdio.h&gt;</span><span style="color:#ff79c6">
 </span></span></span><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;string.h&gt;</span><span style="color:#ff79c6">
 </span></span></span><span style="display:flex;"><span><span style="color:#ff79c6"></span>
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd">int</span> <span style="color:#50fa7b">main</span>(<span style="color:#8be9fd">int</span> argc, <span style="color:#8be9fd">char</span> <span style="color:#ff79c6">*</span>argv[]) {
@@ -950,7 +949,7 @@ I decided to write a solution to remove X-Tunnel&rsquo;s opaque predicates by us
 <li>Number of branches of the predicate</li>
 <li>The number of times the predicate is executed</li>
 </ul>
-<!-- raw HTML omitted -->
+<br/>
 <h3 class="heading" id="circumvention-2">
   Circumvention
   <a class="anchor" href="#circumvention-2">#</a>
@@ -967,17 +966,17 @@ Semantic Equivalence is an apporach to identify if two given sets of instruction
 <li>Check for basic blocks semantic and syntactic equivalence within a given function.</li>
 <li>Can be also seen as Semantic basic block diffing</li>
 </ul>
-<!-- raw HTML omitted -->
+<br/>
 <h4 class="heading" id="practical-example-deobfuscating-asprox-range-dividers">
   Practical Example. Deobfuscating Asprox Range Dividers
   <a class="anchor" href="#practical-example-deobfuscating-asprox-range-dividers">#</a>
 </h4>
 <p>The binary file we are going to use for this example is the following:
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">Asprox</span>: c56792bea8ac5fbf893ae3df1be0c3c878a615db6b24fd5253e5cbbc2e3e1dd3</span></span></code></pre></div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">Asprox</span>: c56792bea8ac5fbf893ae3df1be0c3c878a615db6b24fd5253e5cbbc2e3e1dd3</span></span></code></pre></div>
 The first thing we have to do is to retrieve all blocks from the subject obfuscated function.
 Then we should compare for syntactic and semantic equivalence every block in the funtion with one another.
 We can do this as follows:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>    <span style="color:#ff79c6">...</span>
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>    <span style="color:#ff79c6">...</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#6272a4"># enumerate all blogs in target function</span>
 </span></span><span style="display:flex;"><span>    target_blocks <span style="color:#ff79c6">=</span> []
@@ -1030,7 +1029,7 @@ We can do this as follows:</p>
 </span></span><span style="display:flex;"><span>            <span style="color:#ff79c6">...</span></span></span></code></pre></div>
 Syntactic equivalence is fairly straight forward, for this we don&rsquo;t even need to lift the subject block into IR.
 This is how it can be implemented:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff79c6">def</span> <span style="color:#50fa7b">syntax_compare</span>(blk0, blk1):
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff79c6">def</span> <span style="color:#50fa7b">syntax_compare</span>(blk0, blk1):
 </span></span><span style="display:flex;"><span>    <span style="color:#6272a4"># if blocks do not contain the same</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#6272a4"># number of instructions return</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">if</span> <span style="color:#8be9fd;font-style:italic">len</span>(blk0<span style="color:#ff79c6">.</span>lines) <span style="color:#ff79c6">!=</span> <span style="color:#8be9fd;font-style:italic">len</span>(blk1<span style="color:#ff79c6">.</span>lines):
@@ -1054,7 +1053,7 @@ This is how it can be implemented:</p>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">return</span> <span style="color:#ff79c6">True</span></span></span></code></pre></div>
 On the other hand, for Semantic equivalence its slightly more complicated:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff79c6">def</span> <span style="color:#50fa7b">semantic_compare</span>(blk0, blk1, ir_arch0, ir_arch1, asmcfg, flag_cmp<span style="color:#ff79c6">=</span><span style="color:#ff79c6">False</span>):
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff79c6">def</span> <span style="color:#50fa7b">semantic_compare</span>(blk0, blk1, ir_arch0, ir_arch1, asmcfg, flag_cmp<span style="color:#ff79c6">=</span><span style="color:#ff79c6">False</span>):
 </span></span><span style="display:flex;"><span>    <span style="color:#6272a4"># create empty IR CFG for src block</span>
 </span></span><span style="display:flex;"><span>    src_ircfg <span style="color:#ff79c6">=</span> IRCFG(<span style="color:#ff79c6">None</span>, ir_arch0<span style="color:#ff79c6">.</span>loc_db)
 </span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">try</span>:
@@ -1092,7 +1091,7 @@ On the other hand, for Semantic equivalence its slightly more complicated:</p>
 </span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">return</span> <span style="color:#ff79c6">True</span></span></span></code></pre></div>
 We lift both of the ASMBlock into IR ones (IRBlock of AssignBlocks) and then we symbolically execute them.
 In order to sucessfully symbolically execute both of them, some default setup for each IR block has to be done:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>    <span style="color:#ff79c6">...</span>
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>    <span style="color:#ff79c6">...</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#6272a4"># Initialize symbol context with register context</span>
 </span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">for</span> i, r <span style="color:#ff79c6">in</span> <span style="color:#8be9fd;font-style:italic">enumerate</span>(all_regs_ids):
@@ -1140,7 +1139,7 @@ In order to sucessfully symbolically execute both of them, some default setup fo
 </span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">...</span></span></span></code></pre></div>
 As we can see we have to configure the symbols we desire to symbolize, create one symbolic instance per block, Symbolically execute block and set up the top of the stack of each symbolic engine.</p>
 <p>When this is done then we can start checking for semantic equivalence by evaluating each of the symbol&rsquo;s contraints of each symbolically executed block:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>    <span style="color:#ff79c6">...</span>
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>    <span style="color:#ff79c6">...</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>     <span style="color:#6272a4"># Retrieve all memory accesses from src and dst symbolic engines</span>
 </span></span><span style="display:flex;"><span>    all_memory_ids <span style="color:#ff79c6">=</span> [k <span style="color:#ff79c6">for</span> k, v <span style="color:#ff79c6">in</span> dst_sb<span style="color:#ff79c6">.</span>symbols<span style="color:#ff79c6">.</span>memory()] <span style="color:#ff79c6">+</span> [k <span style="color:#ff79c6">for</span> k, v <span style="color:#ff79c6">in</span> src_sb<span style="color:#ff79c6">.</span>symbols<span style="color:#ff79c6">.</span>memory()]
@@ -1190,14 +1189,14 @@ As we can see we have to configure the symbols we desire to symbolize, create on
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">...</span></span></span></code></pre></div>
 After this we will have a list of all function&rsquo;s blocks evaluation with each other in terms of syntactic and semantic equivalence:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff79c6">...</span>
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff79c6">...</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#6272a4"># save results of syntax and semantic checks</span>
 </span></span><span style="display:flex;"><span>results[(src_ldl, dst_ldl)] <span style="color:#ff79c6">=</span> [(r_syntax, r_semantic)]
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">...</span></span></span></code></pre></div>
 Having this we can create a graph based on this relationship and utilize it to mark the equivalent blocks in a given subject function:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff79c6">...</span>
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff79c6">...</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>    <span style="color:#6272a4"># create graph</span>
 </span></span><span style="display:flex;"><span>    G <span style="color:#ff79c6">=</span> nx<span style="color:#ff79c6">.</span>Graph()
@@ -1267,7 +1266,7 @@ Having this we can create a graph based on this relationship and utilize it to m
     
 </figure>
 
-<!-- raw HTML omitted --></p>
+<br/></p>
 <p>After this is trivial to remove the range divider predicates from the subject function. All we need is to identify the initial conditional branch that diverges into each individual predicate and apply the correspondent chnages to it appropietly.
 The following are the before and after effects:</p>
 <p>
@@ -1294,7 +1293,7 @@ The following are the before and after effects:</p>
     
 </figure>
 
-<!-- raw HTML omitted --></p>
+<br/></p>
 <p>In the particular case of Asprox I found that it wasn&rsquo;t implementing a high number of Range Divider predicates, usually two. Therefore it was trivial to clean the code after identifying them.
 All needed to do was to either patch the intial conditional branch that diverges into each individual predicate so that it becomes unconditional or patch the conditional branch in a way so that it becomes NOPed.
 We can apply either of these approaches accordingly to chose the predicate that will drive the control flow and remove the remaining ones.</p>
