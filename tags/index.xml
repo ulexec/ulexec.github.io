@@ -1,60 +1,60 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Tags on Ignacio Sanmillan</title>
-    <link>https://ulexec.github.io/tags/</link>
-    <description>Recent content in Tags on Ignacio Sanmillan</description>
+    <title>Tags on U L E X E C</title>
+    <link>http://localhost:1313/tags/</link>
+    <description>Recent content in Tags on U L E X E C</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <lastBuildDate>Mon, 28 Nov 2022 00:00:00 +0000</lastBuildDate>
-    <atom:link href="https://ulexec.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://localhost:1313/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>IPC</title>
-      <link>https://ulexec.github.io/tags/ipc/</link>
+      <link>http://localhost:1313/tags/ipc/</link>
       <pubDate>Mon, 28 Nov 2022 00:00:00 +0000</pubDate>
-      <guid>https://ulexec.github.io/tags/ipc/</guid>
+      <guid>http://localhost:1313/tags/ipc/</guid>
       <description></description>
     </item>
     <item>
       <title>MacOS</title>
-      <link>https://ulexec.github.io/tags/macos/</link>
+      <link>http://localhost:1313/tags/macos/</link>
       <pubDate>Mon, 28 Nov 2022 00:00:00 +0000</pubDate>
-      <guid>https://ulexec.github.io/tags/macos/</guid>
+      <guid>http://localhost:1313/tags/macos/</guid>
       <description></description>
     </item>
     <item>
       <title>Chrome</title>
-      <link>https://ulexec.github.io/tags/chrome/</link>
+      <link>http://localhost:1313/tags/chrome/</link>
       <pubDate>Tue, 22 Feb 2022 00:00:00 +0000</pubDate>
-      <guid>https://ulexec.github.io/tags/chrome/</guid>
+      <guid>http://localhost:1313/tags/chrome/</guid>
       <description></description>
     </item>
     <item>
       <title>Pwn</title>
-      <link>https://ulexec.github.io/tags/pwn/</link>
+      <link>http://localhost:1313/tags/pwn/</link>
       <pubDate>Tue, 22 Feb 2022 00:00:00 +0000</pubDate>
-      <guid>https://ulexec.github.io/tags/pwn/</guid>
+      <guid>http://localhost:1313/tags/pwn/</guid>
       <description></description>
     </item>
     <item>
       <title>Ctf</title>
-      <link>https://ulexec.github.io/tags/ctf/</link>
+      <link>http://localhost:1313/tags/ctf/</link>
       <pubDate>Thu, 20 May 2021 00:00:00 +0000</pubDate>
-      <guid>https://ulexec.github.io/tags/ctf/</guid>
+      <guid>http://localhost:1313/tags/ctf/</guid>
       <description></description>
     </item>
     <item>
       <title>Malware</title>
-      <link>https://ulexec.github.io/tags/malware/</link>
+      <link>http://localhost:1313/tags/malware/</link>
       <pubDate>Thu, 08 Apr 2021 00:00:00 +0000</pubDate>
-      <guid>https://ulexec.github.io/tags/malware/</guid>
+      <guid>http://localhost:1313/tags/malware/</guid>
       <description></description>
     </item>
     <item>
       <title>Reversing</title>
-      <link>https://ulexec.github.io/tags/reversing/</link>
+      <link>http://localhost:1313/tags/reversing/</link>
       <pubDate>Thu, 08 Apr 2021 00:00:00 +0000</pubDate>
-      <guid>https://ulexec.github.io/tags/reversing/</guid>
+      <guid>http://localhost:1313/tags/reversing/</guid>
       <description></description>
     </item>
   </channel>

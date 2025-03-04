@@ -2,17 +2,17 @@
 <html lang="en-us"
   dir="ltr">
 
-<head>
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
   <meta charset="utf-8">
 <meta name="viewport" content="width=device-width">
 
 
 
-<link rel="icon" type="image/ico" href="https://ulexec.github.io//favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="https://ulexec.github.io//favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="https://ulexec.github.io//favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="192x192" href="https://ulexec.github.io//android-chrome-192x192.png">
-<link rel="apple-touch-icon" sizes="180x180" href="https://ulexec.github.io//apple-touch-icon.png">
+<link rel="icon" type="image/ico" href="http://localhost:1313//favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313//favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313//favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="http://localhost:1313//android-chrome-192x192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="http://localhost:1313//apple-touch-icon.png">
 
 <meta name="description" content=""/>
 
@@ -20,14 +20,14 @@
 
 <title>
     
-    Projects | Ignacio Sanmillan
+    Projects | U L E X E C
     
 </title>
 
-<link rel="canonical" href="https://ulexec.github.io/projects/"/>
+<link rel="canonical" href="http://localhost:1313/projects/"/>
 
-<meta property="og:url" content="https://ulexec.github.io/projects/">
-  <meta property="og:site_name" content="Ignacio Sanmillan">
+<meta property="og:url" content="http://localhost:1313/projects/">
+  <meta property="og:site_name" content="U L E X E C">
   <meta property="og:title" content="Projects">
   <meta property="og:description" content="Exploits # Repository of exploits and pwn CTF challenge solutions
 SHELFLoading # Evasive ELF static PIE User-Land-Exec
@@ -54,11 +54,7 @@ elf_rela_obfuscation # A small PoC of an EPO technique abusing Elf64_Rela reloca
 
 
 
-<link rel="stylesheet" href="/assets/combined.min.a7696e900b4a7802d61674546b1266ce0c55e69a2b88e8bfc3c169feeea091a8.css" media="all">
-
-
-
-
+<link rel="stylesheet" href="/assets/combined.min.73998ea9546c981e6dd196fa66ae68c6effbafa6ccc976e3848e2d48ebbf952b.css" media="all">
 
 
 
@@ -87,17 +83,34 @@ $(document).ready(function () {
         var OGarray = originalText.split(''); 
         var obfuscatedText;
         var revealIndex = 0; 
-        var duration = 3000; 
-        var intervalTime = 30; 
-        var delayBeforeStart = 500; 
+        var intervalTime = 5; 
+        var delayBeforeStart = 400; 
         var phase = 1; 
-        var convertedIndices = new Set(); 
+        var convertedIndices = new Map(); 
         var interval; 
+        const hexTransformations = 15; 
+
+        
+        function willOverflow(text) {
+            let testElement = $('<span>')
+                .text(text)
+                .css({
+                    visibility: 'hidden',
+                    whiteSpace: 'nowrap',
+                    position: 'absolute'
+                })
+                .appendTo('body');
+
+            let overflows = testElement.width() > $('.code').width();
+            testElement.remove();
+            return overflows;
+        }
 
         
         function getRandomASCII(len) {
             let chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&';
-            return Array.from({ length: len }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+            let asciiStr = Array.from({ length: len }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+            return willOverflow(asciiStr) ? originalText : asciiStr;
         }
 
         
@@ -112,32 +125,45 @@ $(document).ready(function () {
         }
 
         function gradualHexConversionStep() {
-            if (convertedIndices.size < OGarray.length) {
-                let index;
-                do {
-                    index = Math.floor(Math.random() * OGarray.length);
-                } while (convertedIndices.has(index));
+            let unfinishedIndices = Array.from({length: OGarray.length}, (_, i) => i).filter(i => {
+                let count = convertedIndices.get(i) || 0;
+                return count < hexTransformations;
+            });
 
-                obfuscatedText[index] = getRandomHexChar(); 
-                convertedIndices.add(index);
-                $('.code').text(obfuscatedText.join(''));
-            }
+            if (unfinishedIndices.length > 0) {
+                let randomIndex = unfinishedIndices[Math.floor(Math.random() * unfinishedIndices.length)];
+                let currentCount = convertedIndices.get(randomIndex) || 0;
 
-            if (convertedIndices.size >= OGarray.length) {
+                if (currentCount < hexTransformations) {
+                    let tempText = [...obfuscatedText];
+                    tempText[randomIndex] = getRandomHexChar(); 
+
+                    if (!willOverflow(tempText.join(''))) {
+                        obfuscatedText[randomIndex] = tempText[randomIndex];
+                        convertedIndices.set(randomIndex, currentCount + 1);
+                        $('.code').text(obfuscatedText.join(''));
+                    }
+                }
+            } else {
                 clearInterval(interval);
                 setTimeout(() => {
                     phase = 3;
                     revealIndex = 0;
-                    interval = setInterval(decryptStep, intervalTime);
-                }, 100);
+                    interval = setInterval(decryptStep, 50);
+                }, 0);
             }
         }
 
         function decryptStep() {
             if (revealIndex < OGarray.length) {
-                obfuscatedText[revealIndex] = OGarray[revealIndex]; 
-                $('.code').text(obfuscatedText.join(''));
-                revealIndex++;
+                let tempText = [...obfuscatedText];
+                tempText[revealIndex] = OGarray[revealIndex]; 
+
+                if (!willOverflow(tempText.join(''))) {
+                    obfuscatedText[revealIndex] = tempText[revealIndex];
+                    $('.code').text(obfuscatedText.join(''));
+                    revealIndex++;
+                }
             }
 
             if (revealIndex >= OGarray.length) {
@@ -157,12 +183,14 @@ $(document).ready(function () {
 
             setTimeout(() => {
                 phase = 2;
-            }, 100);
+            }, 0);
         }, delayBeforeStart);
     }
 
     start();
 });
+
+
 
 </script>
 
@@ -171,7 +199,7 @@ $(document).ready(function () {
     
 
     <h1 class="header-title">
-        <div  class="code" onload="start()" href="https://ulexec.github.io/">Ignacio Sanmillan</div>
+        <div  class="code" onload="start()" href="http://localhost:1313/">U L E X E C</div>
     </h1>
 
     <div class="flex">
