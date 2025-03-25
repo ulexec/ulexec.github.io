@@ -2,17 +2,17 @@
 <html lang="en-us"
   dir="ltr">
 
-<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+<head>
   <meta charset="utf-8">
 <meta name="viewport" content="width=device-width">
 
 
 
-<link rel="icon" type="image/ico" href="http://localhost:1313//favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313//favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313//favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="192x192" href="http://localhost:1313//android-chrome-192x192.png">
-<link rel="apple-touch-icon" sizes="180x180" href="http://localhost:1313//apple-touch-icon.png">
+<link rel="icon" type="image/ico" href="https://ulexec.github.io//favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://ulexec.github.io//favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://ulexec.github.io//favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="https://ulexec.github.io//android-chrome-192x192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="https://ulexec.github.io//apple-touch-icon.png">
 
 <meta name="description" content=""/>
 
@@ -24,9 +24,9 @@
     
 </title>
 
-<link rel="canonical" href="http://localhost:1313/post/2021-04-09-htb_modern_typer/"/>
+<link rel="canonical" href="https://ulexec.github.io/post/2021-04-09-htb_modern_typer/"/>
 
-<meta property="og:url" content="http://localhost:1313/post/2021-04-09-htb_modern_typer/">
+<meta property="og:url" content="https://ulexec.github.io/post/2021-04-09-htb_modern_typer/">
   <meta property="og:site_name" content="U L E X E C">
   <meta property="og:title" content="HTB 2021: Modern Typer ">
   <meta property="og:description" content="Overview # SPOILER: This blog contains the solution of Modern Typer Chrome exploitation challenge from HTB. If you are planning to take this challenge, I would highly encourage attempting the challenge first before reading this blog. This challenge can be obtained from the Challenges section of hackthebox.
@@ -52,7 +52,11 @@ Prerequisites # This blog is not a Turbofan reference and is not intended to be.
 
 
 
-<link rel="stylesheet" href="/assets/combined.min.73998ea9546c981e6dd196fa66ae68c6effbafa6ccc976e3848e2d48ebbf952b.css" media="all">
+<link rel="stylesheet" href="/assets/combined.min.c1b82ba60f4eedeb18ec02f88bd00dcd2ef99f4d118b3ecdf36445a0bdba5b96.css" media="all">
+
+
+
+
 
 
 
@@ -81,12 +85,12 @@ $(document).ready(function () {
         var OGarray = originalText.split(''); 
         var obfuscatedText;
         var revealIndex = 0; 
-        var duration = 3000; 
-        var intervalTime = 80; 
-        var delayBeforeStart = 500; 
+        var intervalTime = 5; 
+        var delayBeforeStart = 400; 
         var phase = 1; 
-        var convertedIndices = new Set(); 
+        var convertedIndices = new Map(); 
         var interval; 
+        const hexTransformations = 15; 
 
         
         function willOverflow(text) {
@@ -123,29 +127,32 @@ $(document).ready(function () {
         }
 
         function gradualHexConversionStep() {
-            if (convertedIndices.size < OGarray.length) {
-                let index;
-                do {
-                    index = Math.floor(Math.random() * OGarray.length);
-                } while (convertedIndices.has(index));
+            let unfinishedIndices = Array.from({length: OGarray.length}, (_, i) => i).filter(i => {
+                let count = convertedIndices.get(i) || 0;
+                return count < hexTransformations;
+            });
 
-                let tempText = [...obfuscatedText];
-                tempText[index] = getRandomHexChar(); 
+            if (unfinishedIndices.length > 0) {
+                let randomIndex = unfinishedIndices[Math.floor(Math.random() * unfinishedIndices.length)];
+                let currentCount = convertedIndices.get(randomIndex) || 0;
 
-                if (!willOverflow(tempText.join(''))) {
-                    obfuscatedText[index] = tempText[index];
-                    convertedIndices.add(index);
-                    $('.code').text(obfuscatedText.join(''));
+                if (currentCount < hexTransformations) {
+                    let tempText = [...obfuscatedText];
+                    tempText[randomIndex] = getRandomHexChar(); 
+
+                    if (!willOverflow(tempText.join(''))) {
+                        obfuscatedText[randomIndex] = tempText[randomIndex];
+                        convertedIndices.set(randomIndex, currentCount + 1);
+                        $('.code').text(obfuscatedText.join(''));
+                    }
                 }
-            }
-
-            if (convertedIndices.size >= OGarray.length) {
+            } else {
                 clearInterval(interval);
                 setTimeout(() => {
                     phase = 3;
                     revealIndex = 0;
-                    interval = setInterval(decryptStep, intervalTime);
-                }, 9);
+                    interval = setInterval(decryptStep, 50);
+                }, 0);
             }
         }
 
@@ -185,6 +192,8 @@ $(document).ready(function () {
     start();
 });
 
+
+
 </script>
 
 <div class="header">
@@ -192,7 +201,7 @@ $(document).ready(function () {
     
 
     <h1 class="header-title">
-        <div  class="code" onload="start()" href="http://localhost:1313/">U L E X E C</div>
+        <div  class="code" onload="start()" href="https://ulexec.github.io/">U L E X E C</div>
     </h1>
 
     <div class="flex">
@@ -311,7 +320,7 @@ $(document).ready(function () {
 </h3>
 <p>CVE-2020-6383 involves a v8 type Inference vulnerability in <code>Typer::Visitor::TypeInductionVariablePhi</code> in <code>compiler/typer.cc</code>. When a function is attempted to be optimized by Turbofan, Turbofan&rsquo;s Typer will visit the graph of Ignition generated nodes to try to type and reduce them. The function <code>TypeInductionVariablePhi</code> is the function in charge to optimize for-loops and apply type inference analysis.</p>
 <p>Let&rsquo;s break up the most relevant bits and pieces of this function before the patch for CVE-2020-6383 was applied:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8be9fd">int</span> arity <span style="color:#ff79c6">=</span> NodeProperties<span style="color:#ff79c6">::</span><span style="color:#50fa7b">GetControlInput</span>(node)<span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">op</span>()<span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">ControlInputCount</span>();
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8be9fd">int</span> arity <span style="color:#ff79c6">=</span> NodeProperties<span style="color:#ff79c6">::</span><span style="color:#50fa7b">GetControlInput</span>(node)<span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">op</span>()<span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">ControlInputCount</span>();
 </span></span><span style="display:flex;"><span><span style="color:#50fa7b">DCHECK_EQ</span>(IrOpcode<span style="color:#ff79c6">::</span>kLoop, NodeProperties<span style="color:#ff79c6">::</span><span style="color:#50fa7b">GetControlInput</span>(node)<span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">opcode</span>());
 </span></span><span style="display:flex;"><span><span style="color:#50fa7b">DCHECK_EQ</span>(<span style="color:#bd93f9">2</span>, NodeProperties<span style="color:#ff79c6">::</span><span style="color:#50fa7b">GetControlInput</span>(node)<span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">InputCount</span>());
 </span></span><span style="display:flex;"><span>
@@ -328,7 +337,7 @@ $(document).ready(function () {
 <li><code>arithmetic_type</code>: holds the type of the arithmetic operation applied in the for loop, that being subtraction or addition.</li>
 </ul>
 <p>The function then evaluates the type of <code>initial_type</code> and <code>increment_type</code>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#ff79c6">const</span> <span style="color:#8be9fd">bool</span> both_types_integer <span style="color:#ff79c6">=</span> initial_type.<span style="color:#50fa7b">Is</span>(typer_<span style="color:#ff79c6">-&gt;</span>cache_<span style="color:#ff79c6">-&gt;</span>kInteger) <span style="color:#ff79c6">&amp;&amp;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#ff79c6">const</span> <span style="color:#8be9fd">bool</span> both_types_integer <span style="color:#ff79c6">=</span> initial_type.<span style="color:#50fa7b">Is</span>(typer_<span style="color:#ff79c6">-&gt;</span>cache_<span style="color:#ff79c6">-&gt;</span>kInteger) <span style="color:#ff79c6">&amp;&amp;</span>
 </span></span><span style="display:flex;"><span>							  increment_type.<span style="color:#50fa7b">Is</span>(typer_<span style="color:#ff79c6">-&gt;</span>cache_<span style="color:#ff79c6">-&gt;</span>kInteger);
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd">bool</span> maybe_nan <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">false</span>;
 </span></span><span style="display:flex;"><span><span style="color:#6272a4">// The addition or subtraction could still produce a NaN, if the integer
@@ -365,11 +374,11 @@ $(document).ready(function () {
 </span></span><span style="display:flex;"><span>}</span></span></code></pre></div>
 If the type of both <code>initial_type</code> and <code>increment_type</code> are of type <code>kInteger</code>, and the resultant type (stored in <code>resultant_type</code>) is nothing but the range of the minimum and maximum values these variables can hold. These ranges are obtained via <code>NumberAdd</code> and <code>NumberSubstract</code> returning an <code>AddRanger</code> or <code>SubstractRAnger</code> types accordingly.</p>
 <p>In addition, the definition of the Type <code>kInteger</code> is the range of <code>-Infinity</code> to <code>+Infinity</code>, as defined in <code>compiler/type-cache.h</code> as shown below:
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>Type <span style="color:#ff79c6">const</span> kInteger <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">CreateRange</span>(<span style="color:#ff79c6">-</span>V8_INFINITY, V8_INFINITY);</span></span></code></pre></div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>Type <span style="color:#ff79c6">const</span> kInteger <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">CreateRange</span>(<span style="color:#ff79c6">-</span>V8_INFINITY, V8_INFINITY);</span></span></code></pre></div>
 The range type product of the addition or subtraction operation gets evaluated next, and the likelihood of the result of the correspondent arithmetic operation to be of type <code>NaN</code> (Not a Number) is stored in <code>maybe_nan</code>. This usually holds for arithmetic operations where both operands are Infinity.</p>
 <p>On the other hand, if <code>resultant_type</code> is likely to be <code>NaN</code>, or either <code>initial_type</code> or <code>increment_type</code> is not of type <code>kInteger</code> then the function returns a <code>Union</code> with all the possible types based on each operand type.</p>
 <p>If both operands are of type <code>kInteger</code> the bounds of their correspondent arithmetic operation ranges gets evaluated :</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#6272a4">// Now process the bounds.
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#6272a4">// Now process the bounds.
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span><span style="color:#8be9fd">double</span> min <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">-</span>V8_INFINITY;
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd">double</span> max <span style="color:#ff79c6">=</span> V8_INFINITY;
 </span></span><span style="display:flex;"><span>
@@ -439,7 +448,7 @@ The comments provided in the source are self-explanatory. Upper and lower bounds
 <p>A type confusion vulnerability can be caused by a logical bug in the implementation of <code>TypeInductionVariablePhi</code> as this function does not take into account if the type of <code>increment_type</code> can become <code>NaN</code> through addition or subtraction of
 Infinities during the execution of the for-loop, having the initial value of <code>initial_type</code> not being Infinity.</p>
 <p>In order to understand the way to trigger this vulnerability, let&rsquo;s take a similar PoC as the one provided in the <a href="https://bugs.chromium.org/p/chromium/issues/detail?id=1051017">crbug issue</a> :</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">function</span> trigger() {
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">function</span> trigger() {
 </span></span><span style="display:flex;"><span>	<span style="color:#8be9fd;font-style:italic">var</span> x <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">-</span><span style="color:#ff79c6">Infinity</span>;
 </span></span><span style="display:flex;"><span>	<span style="color:#ff79c6">for</span> (<span style="color:#8be9fd;font-style:italic">var</span> i <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">0</span>; i <span style="color:#ff79c6">&lt;</span> <span style="color:#bd93f9">1</span>; i <span style="color:#ff79c6">+=</span> x) {
 </span></span><span style="display:flex;"><span>	  <span style="color:#ff79c6">if</span> (i <span style="color:#ff79c6">==</span> <span style="color:#ff79c6">-</span><span style="color:#ff79c6">Infinity</span>) {
@@ -535,7 +544,7 @@ In this scenario, we will have the following:</p>
 <p>In conjunction with the previous vulnerability, there is an additional fault that enables this bug to be exploitable. This fault resides in the implementation of <code>JSCreateLowering::ReduceJSCreateArray</code>  held in <code>compiler/js-create-lowering.cc</code>.
 The function <code>ReduceJSCreateArray</code> is in charge of the optimization of constructed arrays.
 For sake of simplicity, the only relevant portion of this function to enable exploitation will be covered. That is the following code within <code>ReduceJSCreateArray</code> implementation:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#ff79c6">if</span> (arity <span style="color:#ff79c6">==</span> <span style="color:#bd93f9">0</span>) {
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#ff79c6">if</span> (arity <span style="color:#ff79c6">==</span> <span style="color:#bd93f9">0</span>) {
 </span></span><span style="display:flex;"><span>    Node<span style="color:#ff79c6">*</span> length <span style="color:#ff79c6">=</span> <span style="color:#50fa7b">jsgraph</span>()<span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">ZeroConstant</span>();
 </span></span><span style="display:flex;"><span>    <span style="color:#8be9fd">int</span> capacity <span style="color:#ff79c6">=</span> JSArray<span style="color:#ff79c6">::</span>kPreallocatedArrayElements;
 </span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">return</span> <span style="color:#50fa7b">ReduceNewArray</span>(node, length, capacity, <span style="color:#ff79c6">*</span>initial_map, elements_kind,
@@ -607,7 +616,7 @@ As we can observe, depending on the number of arguments (arity) passed to the ar
 </li>
 </ul>
 <p>We can observe based on the previous resumed overview of the implementation of <code>ReduceJSCreateArray</code> that if one argument is passed to the constructor, and that argument falls within the range of 0 &lt;= <code>length_type</code> &lt;= <code>kElementLoopUnrollLimit</code>, a new array will be created having its capacity initialized as <code>length_type.Max()</code>. The value of <code>kElementLoopUnrollLimit</code> is the following:
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#6272a4">// When initializing arrays, we&#39;ll unfold the loop if the number of
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#6272a4">// When initializing arrays, we&#39;ll unfold the loop if the number of
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4">// elements is known to be of this type.
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span><span style="color:#ff79c6">const</span> <span style="color:#8be9fd">int</span> kElementLoopUnrollLimit <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">16</span>;</span></span></code></pre></div>Therefore, by following this path we can abuse the creation of an array with OOB indexed property access, as the upper bounds of the newly created array will be set to  <code>lenght_type.Max()</code>.</p>
 <h3 class="heading" id="exploitation">
@@ -615,7 +624,7 @@ As we can observe, depending on the number of arguments (arity) passed to the ar
   <a class="anchor" href="#exploitation">#</a>
 </h3>
 <p>The PoC provided in the crbug issue shows how we can chain these two vulnerabilities to abuse the speculation of a wrongly assumed type inference. This PoC is the following:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">function</span> trigger() {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">function</span> trigger() {
 </span></span><span style="display:flex;"><span>  <span style="color:#8be9fd;font-style:italic">var</span> x <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">-</span><span style="color:#ff79c6">Infinity</span>;
 </span></span><span style="display:flex;"><span>  <span style="color:#8be9fd;font-style:italic">var</span> k <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">0</span>;
 </span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">for</span> (<span style="color:#8be9fd;font-style:italic">var</span> i <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">0</span>; i <span style="color:#ff79c6">&lt;</span> <span style="color:#bd93f9">1</span>; i <span style="color:#ff79c6">+=</span> x) {
@@ -665,7 +674,7 @@ As we can observe, depending on the number of arguments (arity) passed to the ar
   Patch applied to <a href="https://chromium.googlesource.com/v8/v8/+/6516b1ccbe6f549d2aa2fe24510f73eb3a33b41a%5E%21/#F0">JSCreateLowering::ReduceJSCreateArray</a>
   <a class="anchor" href="#patch-applied-to-jscreateloweringreducejscreatearray">#</a>
 </h4>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span><span style="font-weight:bold">diff --git a/src/compiler/js-create-lowering.cc b/src/compiler/js-create-lowering.cc
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span><span style="font-weight:bold">diff --git a/src/compiler/js-create-lowering.cc b/src/compiler/js-create-lowering.cc
 </span></span></span><span style="display:flex;"><span><span style="font-weight:bold">index ff057a4..77da973 100644
 </span></span></span><span style="display:flex;"><span><span style="font-weight:bold"></span><span style="color:#f55">--- a/src/compiler/js-create-lowering.cc
 </span></span></span><span style="display:flex;"><span><span style="color:#f55"></span><span style="color:#50fa7b;font-weight:bold">+++ b/src/compiler/js-create-lowering.cc
@@ -684,7 +693,7 @@ As we can observe, depending on the number of arguments (arity) passed to the ar
   Patch applied to <a href="https://chromium.googlesource.com/v8/v8/+/a2e971c56d1c46f7c71ccaf33057057308cc8484%5E%21/#F1"> Typer::TypeInductionVariablePhi</a>
   <a class="anchor" href="#patch-applied-to--typertypeinductionvariablephi">#</a>
 </h4>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span><span style="font-weight:bold">diff --git a/src/compiler/typer.cc b/src/compiler/typer.cc
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span><span style="font-weight:bold">diff --git a/src/compiler/typer.cc b/src/compiler/typer.cc
 </span></span></span><span style="display:flex;"><span><span style="font-weight:bold">index 14ec856..4e86b96 100644
 </span></span></span><span style="display:flex;"><span><span style="font-weight:bold"></span><span style="color:#f55">--- a/src/compiler/typer.cc
 </span></span></span><span style="display:flex;"><span><span style="color:#f55"></span><span style="color:#50fa7b;font-weight:bold">+++ b/src/compiler/typer.cc
@@ -773,7 +782,7 @@ As we can observe, depending on the number of arguments (arity) passed to the ar
   Patch File
   <a class="anchor" href="#patch-file">#</a>
 </h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span><span style="font-weight:bold">diff --git a/src/compiler/js-create-lowering.cc b/src/compiler/js-create-lowering.cc
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-diff" data-lang="diff"><span style="display:flex;"><span><span style="font-weight:bold">diff --git a/src/compiler/js-create-lowering.cc b/src/compiler/js-create-lowering.cc
 </span></span></span><span style="display:flex;"><span><span style="font-weight:bold">index 619475ef7f..d1cfcae1f4 100644
 </span></span></span><span style="display:flex;"><span><span style="font-weight:bold"></span><span style="color:#f55">--- a/src/compiler/js-create-lowering.cc
 </span></span></span><span style="display:flex;"><span><span style="color:#f55"></span><span style="color:#50fa7b;font-weight:bold">+++ b/src/compiler/js-create-lowering.cc
@@ -821,7 +830,7 @@ As we can observe, depending on the number of arguments (arity) passed to the ar
 <p>Having in mind the extent of the provided patch and the functions involved, we can execute a number of test in order to understand how exploitation can be achieved.</p>
 <p>If we take the previous PoC provided for <code>CVE-2020-6383</code> and try to execute it on a patched v8 build we will see that an OOB array is not achieved. We can inspect Turbofan&rsquo;s optimization phases with <code>Turbolizer</code> in order to gain a better understanding of what is happening.</p>
 <p>We can generate Turbolizer output files if we run the PoC with the following flags:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#6272a4"># setting up turbolizer</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#6272a4"># setting up turbolizer</span>
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">cd</span> v8/tools/turbolizer
 </span></span><span style="display:flex;"><span>npm i <span style="color:#ff79c6">&amp;&amp;</span> npm run-script build
 </span></span><span style="display:flex;"><span>python3 -m http.server 2&amp;&gt;1 &gt; /dev/null &amp;
@@ -854,7 +863,7 @@ As we can observe, depending on the number of arguments (arity) passed to the ar
 </figure>
 </p>
 <p>Based on the Turbolizer&rsquo;s output, we can interpret that type inference of our variable <code>i</code> as being interpreted as follows:
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">function</span> trigger() {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">function</span> trigger() {
 </span></span><span style="display:flex;"><span>	  <span style="color:#8be9fd;font-style:italic">var</span> x <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">-</span><span style="color:#ff79c6">Infinity</span>;
 </span></span><span style="display:flex;"><span>	  <span style="color:#ff79c6">for</span> (<span style="color:#8be9fd;font-style:italic">var</span> i <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">0</span>; i <span style="color:#ff79c6">&lt;</span> <span style="color:#bd93f9">1</span>; i <span style="color:#ff79c6">+=</span> x) {
 </span></span><span style="display:flex;"><span>		<span style="color:#ff79c6">if</span> (i <span style="color:#ff79c6">==</span> <span style="color:#ff79c6">-</span><span style="color:#ff79c6">Infinity</span>)
@@ -912,7 +921,7 @@ Based on previous patches applied to <code>CVE-2020-6383</code>, we can notice t
 <p>Moving forward from this point, the type inference of <code>i</code> align with the possible values that <code>i</code> may hold, and the creation of an Array with OOB indexed property access is not achieved.</p>
 <p>However, we may be able to escape <code>NaN</code> typing abusing the <code>NumberAbs</code> function. As we covered previously, the patch for this challenge removes the <code>NaN</code> type check to the return value of <code>NumberAbs</code>, therefore it will effectively escape <code>NaN</code> typing of whatever value we provide as a parameter.</p>
 <p>Lets modify our PoC and apply the following:
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">function</span> trigger() {
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">function</span> trigger() {
 </span></span><span style="display:flex;"><span>	  <span style="color:#8be9fd;font-style:italic">var</span> x <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">-</span><span style="color:#ff79c6">Infinity</span>;
 </span></span><span style="display:flex;"><span>	  <span style="color:#ff79c6">for</span> (<span style="color:#8be9fd;font-style:italic">var</span> i <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">0</span>; i <span style="color:#ff79c6">&lt;</span> <span style="color:#bd93f9">1</span>; i <span style="color:#ff79c6">+=</span> x) {
 </span></span><span style="display:flex;"><span>		<span style="color:#ff79c6">if</span> (i <span style="color:#ff79c6">==</span> <span style="color:#ff79c6">-</span><span style="color:#ff79c6">Infinity</span>)
@@ -960,7 +969,7 @@ Based on previous patches applied to <code>CVE-2020-6383</code>, we can notice t
 <p>As we can observe, the call to <code>NumberAbs</code> escapes <code>NaN</code> typing. We can also observe based on Turbolizer&rsquo;s <code>Simplified Lowering</code> phase that the value of <code>i</code> changes from <code>NaN</code> to 0 via the <code>ChangeFloat64ToInt32</code> machine level node after the call to <code>NumberAbs</code>, enabling to apply arithmetic operations to the value of <code>i</code> moving forward:</p>
 <p>![](/2021-12-30-140249_924x731_scrot 1.png#center)</p>
 <p>Overall the wrong type inference in this scenario works as follows:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">function</span> trigger() {
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">function</span> trigger() {
 </span></span><span style="display:flex;"><span>	  <span style="color:#8be9fd;font-style:italic">var</span> x <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">-</span><span style="color:#ff79c6">Infinity</span>;
 </span></span><span style="display:flex;"><span>	  <span style="color:#ff79c6">for</span> (<span style="color:#8be9fd;font-style:italic">var</span> i <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">0</span>; i <span style="color:#ff79c6">&lt;</span> <span style="color:#bd93f9">1</span>; i <span style="color:#ff79c6">+=</span> x) {
 </span></span><span style="display:flex;"><span>		<span style="color:#ff79c6">if</span> (i <span style="color:#ff79c6">==</span> <span style="color:#ff79c6">-</span><span style="color:#ff79c6">Infinity</span>)
@@ -1009,7 +1018,7 @@ This is due to the fact that since we have a large enough OOB read/write primiti
   Full Exploit
   <a class="anchor" href="#full-exploit">#</a>
 </h3>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">var</span> buf <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">new</span> ArrayBuffer(<span style="color:#bd93f9">8</span>); 
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-js" data-lang="js"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">var</span> buf <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">new</span> ArrayBuffer(<span style="color:#bd93f9">8</span>); 
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">var</span> f64_buf <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">new</span> Float64Array(buf);
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">var</span> u64_buf <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">new</span> Uint32Array(buf);
 </span></span><span style="display:flex;"><span>

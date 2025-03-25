@@ -2,17 +2,17 @@
 <html lang="en-us"
   dir="ltr">
 
-<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+<head>
   <meta charset="utf-8">
 <meta name="viewport" content="width=device-width">
 
 
 
-<link rel="icon" type="image/ico" href="http://localhost:1313//favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313//favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313//favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="192x192" href="http://localhost:1313//android-chrome-192x192.png">
-<link rel="apple-touch-icon" sizes="180x180" href="http://localhost:1313//apple-touch-icon.png">
+<link rel="icon" type="image/ico" href="https://ulexec.github.io//favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://ulexec.github.io//favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://ulexec.github.io//favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="https://ulexec.github.io//android-chrome-192x192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="https://ulexec.github.io//apple-touch-icon.png">
 
 <meta name="description" content=""/>
 
@@ -24,9 +24,9 @@
     
 </title>
 
-<link rel="canonical" href="http://localhost:1313/post/2017-11-17-unpacking_a_linux_tsunami_sample/"/>
+<link rel="canonical" href="https://ulexec.github.io/post/2017-11-17-unpacking_a_linux_tsunami_sample/"/>
 
-<meta property="og:url" content="http://localhost:1313/post/2017-11-17-unpacking_a_linux_tsunami_sample/">
+<meta property="og:url" content="https://ulexec.github.io/post/2017-11-17-unpacking_a_linux_tsunami_sample/">
   <meta property="og:site_name" content="U L E X E C">
   <meta property="og:title" content="Dissecting the Internals of custom Linux Binary Packers">
   <meta property="og:description" content="Overview # In this writeup we’re going to unpack a Tsunami malware sample packed with a modified version of UPX. Hashes of this specific sample are the following:
@@ -52,7 +52,11 @@ If we do some static recon about the file, we can see the following: readelf -lh
 
 
 
-<link rel="stylesheet" href="/assets/combined.min.73998ea9546c981e6dd196fa66ae68c6effbafa6ccc976e3848e2d48ebbf952b.css" media="all">
+<link rel="stylesheet" href="/assets/combined.min.c1b82ba60f4eedeb18ec02f88bd00dcd2ef99f4d118b3ecdf36445a0bdba5b96.css" media="all">
+
+
+
+
 
 
 
@@ -81,12 +85,12 @@ $(document).ready(function () {
         var OGarray = originalText.split(''); 
         var obfuscatedText;
         var revealIndex = 0; 
-        var duration = 3000; 
-        var intervalTime = 80; 
-        var delayBeforeStart = 500; 
+        var intervalTime = 5; 
+        var delayBeforeStart = 400; 
         var phase = 1; 
-        var convertedIndices = new Set(); 
+        var convertedIndices = new Map(); 
         var interval; 
+        const hexTransformations = 15; 
 
         
         function willOverflow(text) {
@@ -123,29 +127,32 @@ $(document).ready(function () {
         }
 
         function gradualHexConversionStep() {
-            if (convertedIndices.size < OGarray.length) {
-                let index;
-                do {
-                    index = Math.floor(Math.random() * OGarray.length);
-                } while (convertedIndices.has(index));
+            let unfinishedIndices = Array.from({length: OGarray.length}, (_, i) => i).filter(i => {
+                let count = convertedIndices.get(i) || 0;
+                return count < hexTransformations;
+            });
 
-                let tempText = [...obfuscatedText];
-                tempText[index] = getRandomHexChar(); 
+            if (unfinishedIndices.length > 0) {
+                let randomIndex = unfinishedIndices[Math.floor(Math.random() * unfinishedIndices.length)];
+                let currentCount = convertedIndices.get(randomIndex) || 0;
 
-                if (!willOverflow(tempText.join(''))) {
-                    obfuscatedText[index] = tempText[index];
-                    convertedIndices.add(index);
-                    $('.code').text(obfuscatedText.join(''));
+                if (currentCount < hexTransformations) {
+                    let tempText = [...obfuscatedText];
+                    tempText[randomIndex] = getRandomHexChar(); 
+
+                    if (!willOverflow(tempText.join(''))) {
+                        obfuscatedText[randomIndex] = tempText[randomIndex];
+                        convertedIndices.set(randomIndex, currentCount + 1);
+                        $('.code').text(obfuscatedText.join(''));
+                    }
                 }
-            }
-
-            if (convertedIndices.size >= OGarray.length) {
+            } else {
                 clearInterval(interval);
                 setTimeout(() => {
                     phase = 3;
                     revealIndex = 0;
-                    interval = setInterval(decryptStep, intervalTime);
-                }, 9);
+                    interval = setInterval(decryptStep, 50);
+                }, 0);
             }
         }
 
@@ -185,6 +192,8 @@ $(document).ready(function () {
     start();
 });
 
+
+
 </script>
 
 <div class="header">
@@ -192,7 +201,7 @@ $(document).ready(function () {
     
 
     <h1 class="header-title">
-        <div  class="code" onload="start()" href="http://localhost:1313/">U L E X E C</div>
+        <div  class="code" onload="start()" href="https://ulexec.github.io/">U L E X E C</div>
     </h1>
 
     <div class="flex">
@@ -301,7 +310,7 @@ $(document).ready(function () {
   <a class="anchor" href="#overview">#</a>
 </h2>
 <p>In this writeup we&rsquo;re going to unpack a Tsunami malware sample packed with a modified version of <code>UPX</code>. Hashes of this specific sample are the following:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">SHA256</span>: f22ffc07e0cc907f00fd6a4ecee09fe8411225badb2289c1bffa867a2a3bd863
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">SHA256</span>: f22ffc07e0cc907f00fd6a4ecee09fe8411225badb2289c1bffa867a2a3bd863
 </span></span><span style="display:flex;"><span>  <span style="color:#8be9fd;font-style:italic">SHA1</span>: <span style="color:#bd93f9">76584</span>c9a22835353186e753903ee0a853663bd83
 </span></span><span style="display:flex;"><span>   <span style="color:#8be9fd;font-style:italic">MD5</span>: <span style="color:#bd93f9">171</span>edd284f6a19c6ed3fe010b79c94af</span></span></code></pre></div>
 In VirusTotal the malware is identified as a Tsunami Variant for the most part:</p>
@@ -332,7 +341,7 @@ In VirusTotal the malware is identified as a Tsunami Variant for the most part:<
 <br/>
 If we do some static recon about the file, we can see the following:
 <br/>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>readelf <span style="color:#ff79c6">-</span>lh f22ffc07e0cc907f00fd6a4ecee09fe8411225badb2289c1bffa867a2a3bd863
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>readelf <span style="color:#ff79c6">-</span>lh f22ffc07e0cc907f00fd6a4ecee09fe8411225badb2289c1bffa867a2a3bd863
 </span></span><span style="display:flex;"><span>ELF <span style="color:#8be9fd;font-style:italic">Header</span>:
 </span></span><span style="display:flex;"><span>  <span style="color:#8be9fd;font-style:italic">Magic</span>:   <span style="color:#bd93f9">7f</span> <span style="color:#bd93f9">45</span> <span style="color:#bd93f9">4</span>c <span style="color:#bd93f9">46</span> <span style="color:#bd93f9">01</span> <span style="color:#bd93f9">01</span> <span style="color:#bd93f9">01</span> <span style="color:#bd93f9">03</span> <span style="color:#bd93f9">00</span> <span style="color:#bd93f9">00</span> <span style="color:#bd93f9">00</span> <span style="color:#bd93f9">00</span> <span style="color:#bd93f9">00</span> <span style="color:#bd93f9">00</span> <span style="color:#bd93f9">00</span> <span style="color:#bd93f9">00</span> 
 </span></span><span style="display:flex;"><span>  <span style="color:#8be9fd;font-style:italic">Class</span>:                             ELF32
@@ -362,7 +371,7 @@ The binary's string table has been stripped, aswell as the section header table.
 In addition, the binary only contains two segments. Based on the number of segments, and the strange base address it holds (0x00c01000) we can assume that the file is packed.
 Furthermore, note that the file and size memory for the second `PT_LOAD` segment are set to 0. meaning that when segment will get loaded to memory, there will be a 0x1000 chunk at `0x0819b304` due to segment alignment.
 <p>Is common in Linux systems to encounter packed malware with UPX. I then tried to see if I could find the <code>UPX</code> magic in the file.</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>[<span style="color:#bd93f9">0x00c8da20</span>]<span style="color:#ff79c6">&gt;</span> <span style="color:#ff79c6">/</span> UPX
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>[<span style="color:#bd93f9">0x00c8da20</span>]<span style="color:#ff79c6">&gt;</span> <span style="color:#ff79c6">/</span> UPX
 </span></span><span style="display:flex;"><span>Searching <span style="color:#bd93f9">3</span> bytes from <span style="color:#bd93f9">0x00000000</span> to <span style="color:#bd93f9">0xffffffffffffffff</span><span style="color:#ff79c6">:</span> <span style="color:#bd93f9">55</span> <span style="color:#bd93f9">50</span> <span style="color:#bd93f9">58</span> 
 </span></span><span style="display:flex;"><span>Searching <span style="color:#bd93f9">3</span> bytes in [<span style="color:#bd93f9">0xc01000</span><span style="color:#ff79c6">-</span><span style="color:#bd93f9">0xc8e1c2</span>]
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">hits</span>: <span style="color:#bd93f9">1</span>
@@ -374,7 +383,7 @@ Furthermore, note that the file and size memory for the second `PT_LOAD` segment
 </span></span><span style="display:flex;"><span><span style="color:#f1fa8c">&#34;UPX!&#34;</span> 
 </span></span><span style="display:flex;"><span>[<span style="color:#bd93f9">0x00c8dda8</span>]<span style="color:#ff79c6">&gt;</span> 
 </span></span></code></pre></div>This is quite interesting because if we try to use the automated unpacking feature of <code>UPX</code> we get an error:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>upx <span style="color:#ff79c6">-</span>d f22ffc07e0cc907f00fd6a4ecee09fe8411225badb2289c1bffa867a2a3bd863
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>upx <span style="color:#ff79c6">-</span>d f22ffc07e0cc907f00fd6a4ecee09fe8411225badb2289c1bffa867a2a3bd863
 </span></span><span style="display:flex;"><span>                       Ultimate Packer <span style="color:#ff79c6">for</span> eXecutables
 </span></span><span style="display:flex;"><span>                          <span style="color:#50fa7b">Copyright</span> (C) <span style="color:#bd93f9">1996</span> <span style="color:#ff79c6">-</span> <span style="color:#bd93f9">2017</span>
 </span></span><span style="display:flex;"><span>UPX <span style="color:#bd93f9">3.94</span>        Markus Oberhumer, Laszlo Molnar <span style="color:#ff79c6">&amp;</span> John Reiser   May <span style="color:#bd93f9">12</span>th <span style="color:#bd93f9">2017</span>
@@ -1212,7 +1221,7 @@ The code also checks if current segment base + size exceeds the end of the <code
 </p>
 <br/>
 <p>In order to retrieve the embedded executable we can use the following IDA script to dump the embedded file succesfully:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff79c6">import</span> struct
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff79c6">import</span> struct
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">class</span> <span style="color:#50fa7b">Elf32Phdr</span>:
 </span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">def</span> __init__(self, <span style="color:#8be9fd;font-style:italic">bytes</span>):
@@ -1286,7 +1295,7 @@ The code also checks if current segment base + size exceeds the end of the <code
 </span></span><span style="display:flex;"><span>    file<span style="color:#ff79c6">.</span>close()
 </span></span><span style="display:flex;"><span>    <span style="color:#8be9fd;font-style:italic">print</span> <span style="color:#f1fa8c">&#34;[+] Elf Dumped&#34;</span></span></span></code></pre></div>
 Once on disk we see that the dumped file is a 1.3M statically linked binary:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>ELF <span style="color:#8be9fd;font-style:italic">Header</span>:
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>ELF <span style="color:#8be9fd;font-style:italic">Header</span>:
 </span></span><span style="display:flex;"><span>  <span style="color:#8be9fd;font-style:italic">Magic</span>:   <span style="color:#bd93f9">7f</span> <span style="color:#bd93f9">45</span> <span style="color:#bd93f9">4</span>c <span style="color:#bd93f9">46</span> <span style="color:#bd93f9">01</span> <span style="color:#bd93f9">01</span> <span style="color:#bd93f9">01</span> <span style="color:#bd93f9">03</span> <span style="color:#bd93f9">00</span> <span style="color:#bd93f9">00</span> <span style="color:#bd93f9">00</span> <span style="color:#bd93f9">00</span> <span style="color:#bd93f9">00</span> <span style="color:#bd93f9">00</span> <span style="color:#bd93f9">00</span> <span style="color:#bd93f9">00</span> 
 </span></span><span style="display:flex;"><span>  <span style="color:#8be9fd;font-style:italic">Class</span>:                             ELF32
 </span></span><span style="display:flex;"><span>  <span style="color:#8be9fd;font-style:italic">Data</span>:                              <span style="color:#bd93f9">2</span>&#39;s complement, little endian

@@ -2,17 +2,17 @@
 <html lang="en-us"
   dir="ltr">
 
-<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+<head>
   <meta charset="utf-8">
 <meta name="viewport" content="width=device-width">
 
 
 
-<link rel="icon" type="image/ico" href="http://localhost:1313//favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313//favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313//favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="192x192" href="http://localhost:1313//android-chrome-192x192.png">
-<link rel="apple-touch-icon" sizes="180x180" href="http://localhost:1313//apple-touch-icon.png">
+<link rel="icon" type="image/ico" href="https://ulexec.github.io//favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://ulexec.github.io//favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://ulexec.github.io//favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="https://ulexec.github.io//android-chrome-192x192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="https://ulexec.github.io//apple-touch-icon.png">
 
 <meta name="description" content=""/>
 
@@ -24,9 +24,9 @@
     
 </title>
 
-<link rel="canonical" href="http://localhost:1313/post/2017-02-11-codegatectf2017-angrybird/"/>
+<link rel="canonical" href="https://ulexec.github.io/post/2017-02-11-codegatectf2017-angrybird/"/>
 
-<meta property="og:url" content="http://localhost:1313/post/2017-02-11-codegatectf2017-angrybird/">
+<meta property="og:url" content="https://ulexec.github.io/post/2017-02-11-codegatectf2017-angrybird/">
   <meta property="og:site_name" content="U L E X E C">
   <meta property="og:title" content="CodeGateCTF - Angrybird">
   <meta property="og:description" content="Angrybird was the first challenge that I solved on the 2017 CodeGate2017 CTF. There was no description for the challenge just a binary.
@@ -52,7 +52,11 @@ if we have a closer look at the call graph, every basic block is composed of a s
 
 
 
-<link rel="stylesheet" href="/assets/combined.min.73998ea9546c981e6dd196fa66ae68c6effbafa6ccc976e3848e2d48ebbf952b.css" media="all">
+<link rel="stylesheet" href="/assets/combined.min.c1b82ba60f4eedeb18ec02f88bd00dcd2ef99f4d118b3ecdf36445a0bdba5b96.css" media="all">
+
+
+
+
 
 
 
@@ -81,12 +85,12 @@ $(document).ready(function () {
         var OGarray = originalText.split(''); 
         var obfuscatedText;
         var revealIndex = 0; 
-        var duration = 3000; 
-        var intervalTime = 80; 
-        var delayBeforeStart = 500; 
+        var intervalTime = 5; 
+        var delayBeforeStart = 400; 
         var phase = 1; 
-        var convertedIndices = new Set(); 
+        var convertedIndices = new Map(); 
         var interval; 
+        const hexTransformations = 15; 
 
         
         function willOverflow(text) {
@@ -123,29 +127,32 @@ $(document).ready(function () {
         }
 
         function gradualHexConversionStep() {
-            if (convertedIndices.size < OGarray.length) {
-                let index;
-                do {
-                    index = Math.floor(Math.random() * OGarray.length);
-                } while (convertedIndices.has(index));
+            let unfinishedIndices = Array.from({length: OGarray.length}, (_, i) => i).filter(i => {
+                let count = convertedIndices.get(i) || 0;
+                return count < hexTransformations;
+            });
 
-                let tempText = [...obfuscatedText];
-                tempText[index] = getRandomHexChar(); 
+            if (unfinishedIndices.length > 0) {
+                let randomIndex = unfinishedIndices[Math.floor(Math.random() * unfinishedIndices.length)];
+                let currentCount = convertedIndices.get(randomIndex) || 0;
 
-                if (!willOverflow(tempText.join(''))) {
-                    obfuscatedText[index] = tempText[index];
-                    convertedIndices.add(index);
-                    $('.code').text(obfuscatedText.join(''));
+                if (currentCount < hexTransformations) {
+                    let tempText = [...obfuscatedText];
+                    tempText[randomIndex] = getRandomHexChar(); 
+
+                    if (!willOverflow(tempText.join(''))) {
+                        obfuscatedText[randomIndex] = tempText[randomIndex];
+                        convertedIndices.set(randomIndex, currentCount + 1);
+                        $('.code').text(obfuscatedText.join(''));
+                    }
                 }
-            }
-
-            if (convertedIndices.size >= OGarray.length) {
+            } else {
                 clearInterval(interval);
                 setTimeout(() => {
                     phase = 3;
                     revealIndex = 0;
-                    interval = setInterval(decryptStep, intervalTime);
-                }, 9);
+                    interval = setInterval(decryptStep, 50);
+                }, 0);
             }
         }
 
@@ -185,6 +192,8 @@ $(document).ready(function () {
     start();
 });
 
+
+
 </script>
 
 <div class="header">
@@ -192,7 +201,7 @@ $(document).ready(function () {
     
 
     <h1 class="header-title">
-        <div  class="code" onload="start()" href="http://localhost:1313/">U L E X E C</div>
+        <div  class="code" onload="start()" href="https://ulexec.github.io/">U L E X E C</div>
     </h1>
 
     <div class="flex">
@@ -387,7 +396,7 @@ $(document).ready(function () {
 </figure>
 </p>
 <p>When I attempted to execute the file, I found out that it wil not execute. The reason for this is because the functions at the beginning of <code>main</code> are in charge to avoid execution of the program. One can see things like:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-nasm" data-lang="nasm"><span style="display:flex;"><span>	<span style="color:#50fa7b">mov</span>		<span style="color:#8be9fd;font-style:italic">eax</span>, <span style="color:#bd93f9">0</span>
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-nasm" data-lang="nasm"><span style="display:flex;"><span>	<span style="color:#50fa7b">mov</span>		<span style="color:#8be9fd;font-style:italic">eax</span>, <span style="color:#bd93f9">0</span>
 </span></span><span style="display:flex;"><span>	<span style="color:#50fa7b">test</span>		<span style="color:#8be9fd;font-style:italic">eax</span>, <span style="color:#8be9fd;font-style:italic">eax</span>
 </span></span><span style="display:flex;"><span>	<span style="color:#50fa7b">jz</span> 		<span style="color:#8be9fd;font-style:italic">_exit</span></span></span></code></pre></div>
 Anyways, at the time of the challenge I was too lazy to patch the binary to debug it, Also the idea of going trough every single block was overwhelming.
@@ -399,7 +408,7 @@ I decided to follow my intuition and try some <code>symbolic execution magic</co
 <p>Okey, we know where to start and where to go. However it would be nice to feed the symbolic engine a series of states to avoid in order to process the search faster.</p>
 <p>The approach I followed to choose these states was to find the xrefs of the <code>_exit</code> function. This is because this function is always called if any of the checks fail.</p>
 <p>This being said and with a bit of vim magic I came up with the following python script:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff79c6">import</span> sys
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#ff79c6">import</span> sys
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">import</span> angr
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">import</span> simuvex
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">import</span> claripy

@@ -2,17 +2,17 @@
 <html lang="en-us"
   dir="ltr">
 
-<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+<head>
   <meta charset="utf-8">
 <meta name="viewport" content="width=device-width">
 
 
 
-<link rel="icon" type="image/ico" href="http://localhost:1313//favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313//favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313//favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="192x192" href="http://localhost:1313//android-chrome-192x192.png">
-<link rel="apple-touch-icon" sizes="180x180" href="http://localhost:1313//apple-touch-icon.png">
+<link rel="icon" type="image/ico" href="https://ulexec.github.io//favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://ulexec.github.io//favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://ulexec.github.io//favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="https://ulexec.github.io//android-chrome-192x192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="https://ulexec.github.io//apple-touch-icon.png">
 
 <meta name="description" content=""/>
 
@@ -24,9 +24,9 @@
     
 </title>
 
-<link rel="canonical" href="http://localhost:1313/post/2017-11-06-hitconctf2017-everlasting-imaginative-void/"/>
+<link rel="canonical" href="https://ulexec.github.io/post/2017-11-06-hitconctf2017-everlasting-imaginative-void/"/>
 
-<meta property="og:url" content="http://localhost:1313/post/2017-11-06-hitconctf2017-everlasting-imaginative-void/">
+<meta property="og:url" content="https://ulexec.github.io/post/2017-11-06-hitconctf2017-everlasting-imaginative-void/">
   <meta property="og:site_name" content="U L E X E C">
   <meta property="og:title" content="Hitcon2017CTF - 家徒四壁~Everlasting Imaginative Void~">
   <meta property="og:description" content="Everlasting Imaginative void was a Hitcon2017’s reversing challenge worthing 300 points. The challenge description was the following:
@@ -54,7 +54,11 @@ n4x0r@pwn1e~$ ./void-1b63cbab5d58da4294c2f97d6b60f568 blabla hitcon{blabla} Ok, 
 
 
 
-<link rel="stylesheet" href="/assets/combined.min.73998ea9546c981e6dd196fa66ae68c6effbafa6ccc976e3848e2d48ebbf952b.css" media="all">
+<link rel="stylesheet" href="/assets/combined.min.c1b82ba60f4eedeb18ec02f88bd00dcd2ef99f4d118b3ecdf36445a0bdba5b96.css" media="all">
+
+
+
+
 
 
 
@@ -83,12 +87,12 @@ $(document).ready(function () {
         var OGarray = originalText.split(''); 
         var obfuscatedText;
         var revealIndex = 0; 
-        var duration = 3000; 
-        var intervalTime = 80; 
-        var delayBeforeStart = 500; 
+        var intervalTime = 5; 
+        var delayBeforeStart = 400; 
         var phase = 1; 
-        var convertedIndices = new Set(); 
+        var convertedIndices = new Map(); 
         var interval; 
+        const hexTransformations = 15; 
 
         
         function willOverflow(text) {
@@ -125,29 +129,32 @@ $(document).ready(function () {
         }
 
         function gradualHexConversionStep() {
-            if (convertedIndices.size < OGarray.length) {
-                let index;
-                do {
-                    index = Math.floor(Math.random() * OGarray.length);
-                } while (convertedIndices.has(index));
+            let unfinishedIndices = Array.from({length: OGarray.length}, (_, i) => i).filter(i => {
+                let count = convertedIndices.get(i) || 0;
+                return count < hexTransformations;
+            });
 
-                let tempText = [...obfuscatedText];
-                tempText[index] = getRandomHexChar(); 
+            if (unfinishedIndices.length > 0) {
+                let randomIndex = unfinishedIndices[Math.floor(Math.random() * unfinishedIndices.length)];
+                let currentCount = convertedIndices.get(randomIndex) || 0;
 
-                if (!willOverflow(tempText.join(''))) {
-                    obfuscatedText[index] = tempText[index];
-                    convertedIndices.add(index);
-                    $('.code').text(obfuscatedText.join(''));
+                if (currentCount < hexTransformations) {
+                    let tempText = [...obfuscatedText];
+                    tempText[randomIndex] = getRandomHexChar(); 
+
+                    if (!willOverflow(tempText.join(''))) {
+                        obfuscatedText[randomIndex] = tempText[randomIndex];
+                        convertedIndices.set(randomIndex, currentCount + 1);
+                        $('.code').text(obfuscatedText.join(''));
+                    }
                 }
-            }
-
-            if (convertedIndices.size >= OGarray.length) {
+            } else {
                 clearInterval(interval);
                 setTimeout(() => {
                     phase = 3;
                     revealIndex = 0;
-                    interval = setInterval(decryptStep, intervalTime);
-                }, 9);
+                    interval = setInterval(decryptStep, 50);
+                }, 0);
             }
         }
 
@@ -187,6 +194,8 @@ $(document).ready(function () {
     start();
 });
 
+
+
 </script>
 
 <div class="header">
@@ -194,7 +203,7 @@ $(document).ready(function () {
     
 
     <h1 class="header-title">
-        <div  class="code" onload="start()" href="http://localhost:1313/">U L E X E C</div>
+        <div  class="code" onload="start()" href="https://ulexec.github.io/">U L E X E C</div>
     </h1>
 
     <div class="flex">
@@ -292,10 +301,10 @@ The challenge description was the following:</p>
 <p><code>Astonishingly impoverished elf</code></p>
 <p>Not much information.
 Executing a <code>file</code> command, we get the following information:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-perl" data-lang="perl"><span style="display:flex;"><span>n4x0r<span style="color:#8be9fd;font-style:italic">@pwn1e</span><span style="color:#ff79c6">~</span><span style="color:#8be9fd;font-style:italic">$</span> <span style="color:#8be9fd;font-style:italic">file</span> void<span style="color:#ff79c6">-</span><span style="color:#bd93f9">1</span>b63cbab5d58da4294c2f97d6b60f568 
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-perl" data-lang="perl"><span style="display:flex;"><span>n4x0r<span style="color:#8be9fd;font-style:italic">@pwn1e</span><span style="color:#ff79c6">~</span><span style="color:#8be9fd;font-style:italic">$</span> <span style="color:#8be9fd;font-style:italic">file</span> void<span style="color:#ff79c6">-</span><span style="color:#bd93f9">1</span>b63cbab5d58da4294c2f97d6b60f568 
 </span></span><span style="display:flex;"><span>void<span style="color:#ff79c6">-</span><span style="color:#bd93f9">1</span>b63cbab5d58da4294c2f97d6b60f568: ELF <span style="color:#bd93f9">64</span><span style="color:#ff79c6">-</span>bit LSB shared object, x86<span style="color:#ff79c6">-</span><span style="color:#bd93f9">64</span>, version <span style="color:#bd93f9">1</span> (SYSV), dynamically linked, interpreter <span style="color:#f1fa8c">/lib64/</span>ld<span style="color:#ff79c6">-</span>linux<span style="color:#ff79c6">-</span>x86<span style="color:#ff79c6">-</span><span style="color:#bd93f9">64</span><span style="color:#ff79c6">.</span>so<span style="color:#bd93f9">.2</span>, <span style="color:#ff79c6">for</span> GNU<span style="color:#ff79c6">/</span>Linux <span style="color:#bd93f9">2.6.32</span>, BuildID[sha1]<span style="color:#ff79c6">=</span><span style="color:#bd93f9">5</span>f8a87150720003c217508ffd74883c715ffe7c3, stripped</span></span></code></pre></div>
 If we execute the file we see the following:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>n4x0r@pwn1e<span style="color:#ff79c6">~</span>$ .<span style="color:#ff79c6">/</span><span style="color:#8be9fd">void</span><span style="color:#ff79c6">-</span><span style="color:#bd93f9">1</span>b63cbab5d58da4294c2f97d6b60f568
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>n4x0r@pwn1e<span style="color:#ff79c6">~</span>$ .<span style="color:#ff79c6">/</span><span style="color:#8be9fd">void</span><span style="color:#ff79c6">-</span><span style="color:#bd93f9">1</span>b63cbab5d58da4294c2f97d6b60f568
 </span></span><span style="display:flex;"><span>blabla
 </span></span><span style="display:flex;"><span>hitcon{blabla}</span></span></code></pre></div>
 Ok, Lets dig inside and see what we can find.
@@ -361,11 +370,11 @@ In my mind I thought about two potential possibilities:</p>
 </p>
 <p>The reason why there is not pivoting into PLT[0] for each PLT entry in <code>.plt.got</code> is because binary was linked with immediate binding as previously mentioned. Therefore, there is no need to jump back to resolver since all GOT entries will be resolved at load time.</p>
 <p>We can see the binary has been linked with immediate binding by looking at the <code>DYNAMIC</code> segment <code>FLAGS</code> entry:
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#bd93f9">0x000000000000001e</span> (FLAGS)              BIND_NOW</span></span></code></pre></div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#bd93f9">0x000000000000001e</span> (FLAGS)              BIND_NOW</span></span></code></pre></div>
 Therefore, GOT/PLT hooks are discartded at this point.
 The other technique that we have left is the Constructors/Destructors pointer injection.
 This technique is based on injecting an additional pointer to the <code>.init_array</code>, <code>.fini_array</code> sections for constructors and destructors respectively.</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>[Nr] Name              Type             Address           Offset
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span>[Nr] Name              Type             Address           Offset
 </span></span><span style="display:flex;"><span>       Size              EntSize          Flags  Link  Info  Align
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span> ...
@@ -376,7 +385,7 @@ This technique is based on injecting an additional pointer to the <code>.init_ar
 </span></span><span style="display:flex;"><span>       <span style="color:#bd93f9">000000000000000</span><span style="color:#bd93f9">8</span>  <span style="color:#bd93f9">000000000000000</span><span style="color:#bd93f9">8</span>  WA       <span style="color:#bd93f9">0</span>     <span style="color:#bd93f9">0</span>     <span style="color:#bd93f9">8</span></span></span></code></pre></div>
 We can see that the correspondent sizes of those sections seem to be correct. However, once one gets to know the purpose of sections and segments and the loading process of ELF files, one realizes that sections are complete rubish from an analysis standpoint. Section information can be easily crafted and they may not resemble the reality of the binary&rsquo;s layout. In addition, sections are only needed at compile time, but not at runtime. For runtime we have segments.</p>
 <p>If we take a look at the binary&rsquo;s <code>DYNAMIC</code> segment, it tell us a different story:</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#bd93f9">0x0000000000000019</span> (INIT_ARRAY)         <span style="color:#bd93f9">0x200dc8</span>
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#bd93f9">0x0000000000000019</span> (INIT_ARRAY)         <span style="color:#bd93f9">0x200dc8</span>
 </span></span><span style="display:flex;"><span><span style="color:#bd93f9">0x000000000000001b</span> (INIT_ARRAYSZ)       <span style="color:#bd93f9">8</span> (bytes)
 </span></span><span style="display:flex;"><span><span style="color:#bd93f9">0x000000000000001a</span> (FINI_ARRAY)         <span style="color:#bd93f9">0x200dd0</span>
 </span></span><span style="display:flex;"><span><span style="color:#bd93f9">0x000000000000001c</span> (FINI_ARRAYSZ)       <span style="color:#bd93f9">16</span> (bytes)</span></span></code></pre></div>
@@ -568,7 +577,7 @@ After stub if finally written, we end up in the following routine:</p>
 
 In this routine, 10 rounds of aes encription are performed using the Intel&rsquo;s processors AES instruction set. A nice refresher of these instructions can be found <a href="https://github.com/n4x0r/n4x0r.github.io/raw/master/images/HitconCTF7/Use_of_the_AES_Instruction_Set.pdf">here</a>. At the end of the 10 rounds, the computed ciphertext from our input gets compared against a hardcoded ciphertext. This comparison is done with the instruction <code>ucomisd</code>. If check holds, the program will print <code>Good!</code> string by jumping to the sycall gate previously shown (the mprotect one), changing its arguments so that it executes a write instead of mprotect syscall.</p>
 <p>Something funny about this challenge is that the <code>ucomisd</code> instruction only compares the lower part of xmm registers. That is, the lowest 64 bits. Is quite obvious that the developer made an implementation mistake by using this instruction to compare the encription result. Just for the sake of curiosity, I have researched which instructions should have been used. One solution could have been the following</p>
-<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-nasm" data-lang="nasm"><span style="display:flex;"><span><span style="color:#50fa7b">psubd</span>  <span style="color:#8be9fd;font-style:italic">xmm0</span>, <span style="color:#8be9fd;font-style:italic">xmm1</span>	    
+<p><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-nasm" data-lang="nasm"><span style="display:flex;"><span><span style="color:#50fa7b">psubd</span>  <span style="color:#8be9fd;font-style:italic">xmm0</span>, <span style="color:#8be9fd;font-style:italic">xmm1</span>	    
 </span></span><span style="display:flex;"><span><span style="color:#50fa7b">ptest</span>  <span style="color:#8be9fd;font-style:italic">xmm0</span>, <span style="color:#8be9fd;font-style:italic">xmm0</span>       
 </span></span><span style="display:flex;"><span><span style="color:#50fa7b">jz</span>     <span style="color:#8be9fd;font-style:italic">_same</span>     </span></span></code></pre></div>
 Furthermore, something important to note about this aes routine, is that round-keys are actually hardcoded at addresses pointed by <code>rsi</code> (at the beginning of routine), so round keys can be restored to perform the <code>Inverse Mix Column</code> transformation in order to use them for decription. In order to do this we can use the <code>aesimc</code> instruction (note that aesimc should not be used on the first and last round key). Furthermore, original ciphertext can also be aquired by just getting the result of the <code>xmm0</code> register after <code>aesenclast</code> instruction at the end of the 10 rounds, since it will get compared against the computed ciphertext derived from our input in <code>xmm1</code>.</p>
@@ -599,7 +608,7 @@ Furthermore, something important to note about this aes routine, is that round-k
 Having the inversed key rounds and the original ciphertext, we can reconstruct the decription routine.
 The following code replicates the decription routine:</p>
 <p>{% raw %}
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:2;-o-tab-size:2;tab-size:2;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;stdio.h&gt;</span><span style="color:#ff79c6">
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;stdio.h&gt;</span><span style="color:#ff79c6">
 </span></span></span><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;string.h&gt;</span><span style="color:#ff79c6">
 </span></span></span><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;stdint.h&gt;</span><span style="color:#ff79c6">
 </span></span></span><span style="display:flex;"><span><span style="color:#ff79c6">#include</span> <span style="color:#ff79c6">&lt;stdlib.h&gt;</span><span style="color:#ff79c6">
