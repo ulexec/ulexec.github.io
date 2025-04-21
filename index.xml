@@ -37,7 +37,7 @@
       <description>&lt;p&gt;My name is Ignacio Sanmillan, I’m a Security Researcher mostly focused in *OS and browser security.&lt;/p&gt;&#xA;&lt;p&gt;I´m available at Signal, Telegram and Twitter for any enquiries.&lt;/p&gt;</description>
     </item>
     <item>
-      <title>General Notes on Code Auditing</title>
+      <title>Notes on C/C&#43;&#43; Code Auditing</title>
       <link>https://ulexec.github.io/post/2025-03-01-codeauditing/</link>
       <pubDate>Sat, 01 Mar 2025 00:00:00 +0000</pubDate>
       <guid>https://ulexec.github.io/post/2025-03-01-codeauditing/</guid>
