@@ -2653,6 +2653,46 @@ First an integer overflow can succesfully be abused to cause some sort of under-
 <ul>
 <li><code>copy(dest, src, ACID1)</code></li>
 </ul>
+<p>There are two equations to compute an overflowed value. These differ for signed and unsigned integers. Where:</p>
+<ul>
+<li>$ R $  is the result after the overflow,</li>
+<li>$ B $ is the bit width (e.g. 8, 16, 32, 64).</li>
+<li>$ a $ is an unknown operand.</li>
+<li>$ b $ is a known operand.</li>
+</ul>
+<table style="border-collapse: collapse; width: 100%;">
+  <thead>
+    <tr>
+      <th style="padding: 12px; text-align: left;">Operation</th>
+      <th style="padding: 12px; text-align: left;">Unsigned Overflow</th>
+      <th style="padding: 12px; text-align: left;">Signed Overflow</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="padding: 0px; vertical-align: top;">Addition</td>
+      <td style="padding: 0px; vertical-align: top;">$a = (R - b) \bmod 2^B$</td>
+      <td style="padding: 0px; vertical-align: top;">$a = \left( (R - b) + 2^{B-1} \right) \bmod 2^B - 2^{B-1}$</td>
+    </tr>
+    <tr>
+      <td style="padding: 0px; vertical-align: top;">Subtraction</td>
+      <td style="padding: 0px; vertical-align: top;">$a = (R + b) \bmod 2^B$</td>
+      <td style="padding: 0px; vertical-align: top;">$a = \left( (R + b) + 2^{B-1} \right) \bmod 2^B - 2^{B-1}$</td>
+    </tr>
+    <tr>
+      <td style="padding: 0px; vertical-align: top;">Product</td>
+      <td style="padding: 0px; vertical-align: top;">$a = (R \cdot b^{-1}) \bmod 2^B$ <br> (assuming $b$ invertible modulo $2^B$)</td>
+      <td style="padding: 0px; vertical-align: top;">$a = \left( (R \cdot b^{-1}) + 2^{B-1} \right) \bmod 2^B - 2^{B-1}$ <br> (assuming $b$ invertible modulo $2^B$)</td>
+    </tr>
+    <tr>
+      <td style="padding: 0px; vertical-align: top;">Division</td>
+      <td style="padding: 12px; vertical-align: top;">No overflow (except division by zero - often results in exception)</td>
+      <td style="padding: 12px; vertical-align: top;">$\displaystyle \frac{-2^{B-1}}{-1} = 2^{B-1}$; <br> signed overflow if $a = -2^{B-1}$ and $b = -1$, result out of the signed range <br> $-2^{B-1} \leq \text{value} \leq 2^{B-1} - 1$</td>
+    </tr>
+  </tbody>
+</table>
+<blockquote>
+<p>Note: The note <strong>“assuming \(b\) invertible modulo \(2^B\)”</strong> means that the formula to solve \(a\) from multiplication only applies when \(b\) is <strong>odd</strong> (i.e., coprime with \(2^B\)) so that its modular inverse \(b^{-1}\) exists.</p></blockquote>
 <h3 class="heading" id="examples">
   Examples
   <a class="anchor" href="#examples">#</a>
@@ -7058,6 +7098,26 @@ details summary {
 
   </footer>
 
+  
+  <link rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css">
+<script defer
+  src="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.js"></script>
+
+<script defer
+  src="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body);"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    renderMathInElement(document.body, {
+      delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "$", right: "$", display: false }
+      ]
+    });
+  });
+</script>
   
 
 </body>
