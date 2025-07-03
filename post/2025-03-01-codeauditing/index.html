@@ -2653,7 +2653,7 @@ First an integer overflow can succesfully be abused to cause some sort of under-
 <ul>
 <li><code>copy(dest, src, ACID1)</code></li>
 </ul>
-<p>There are two equations to compute an overflowed value. These differ for signed and unsigned integers. Where:</p>
+<p>There are a series of equations to compute an overflowed value depending of the operator in question and wether the operands are signed or unsigned integers. Where:</p>
 <ul>
 <li>$ R $  is the result after the overflow,</li>
 <li>$ B $ is the bit width (e.g. 8, 16, 32, 64).</li>
@@ -2687,7 +2687,7 @@ First an integer overflow can succesfully be abused to cause some sort of under-
     <tr>
       <td style="padding: 0px; vertical-align: top;">Division</td>
       <td style="padding: 12px; vertical-align: top;">No overflow (except division by zero - often results in exception)</td>
-      <td style="padding: 12px; vertical-align: top;">$\displaystyle \frac{-2^{B-1}}{-1} = 2^{B-1}$; <br> signed overflow if $a = -2^{B-1}$ and $b = -1$, result out of the signed range <br> $-2^{B-1} \leq \text{value} \leq 2^{B-1} - 1$</td>
+      <td style="padding: 12px; vertical-align: top;">$\displaystyle \frac{-2^{B-1}}{-1} = 2^{B-1}$; <br> signed overflow if $a = -2^{B-1}$ and $b = -1$, result out of the signed range <br> $-2^{B-1} \leq \text{value} \leq 2^{B-1} - 1$ <br \> TLDR: when you divide the smallest representable signed integer by -1, the value remains unchanged.</td>
     </tr>
   </tbody>
 </table>
