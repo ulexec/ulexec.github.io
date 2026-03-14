@@ -74,124 +74,130 @@
     <header>
       
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
 <script>
-$(document).ready(function () {
-    function start() {
-        var originalText = $('.code').text().trim(); 
-        var OGarray = originalText.split(''); 
-        var obfuscatedText;
-        var revealIndex = 0; 
-        var intervalTime = 5; 
-        var delayBeforeStart = 400; 
-        var phase = 1; 
-        var convertedIndices = new Map(); 
-        var interval; 
-        const hexTransformations = 15; 
+document.addEventListener('DOMContentLoaded', function () {
+    var el = document.querySelector('.code');
+    if (!el) return;
 
-        
-        function willOverflow(text) {
-            let testElement = $('<span>')
-                .text(text)
-                .css({
-                    visibility: 'hidden',
-                    whiteSpace: 'nowrap',
-                    position: 'absolute'
-                })
-                .appendTo('body');
+    var originalText = el.textContent.trim();
+    var chars = originalText.split('');
+    var finalLen = chars.length;
 
-            let overflows = testElement.width() > $('.code').width();
-            testElement.remove();
-            return overflows;
+    var hexPool = '0123456789ABCDEFabcdef';
+
+    
+    var startLen = Math.max(1, finalLen - 2 - Math.floor(Math.random() * 3));
+    var shrinkDuration = 600;
+
+    
+    
+    
+    
+    
+    var scrambleDuration = 700;
+    
+    var flickerPerChar = 300;
+    
+    var charDelay = 80;
+
+    
+    var display = [];
+    for (var i = 0; i < startLen; i++) {
+        display.push(hexPool[Math.floor(Math.random() * hexPool.length)]);
+    }
+    el.textContent = display.join('');
+
+    var startTime = null;
+    var lastFrame = 0;
+    var solvedCount = 0;
+    var solved = new Array(finalLen).fill(false);
+    var charSolveStart = new Array(finalLen); 
+
+    
+    var growEnd = shrinkDuration;
+    var solvePhaseStart = growEnd + scrambleDuration;
+    for (var i = 0; i < finalLen; i++) {
+        if (chars[i] === ' ') {
+            solved[i] = true;
+            solvedCount++;
+            charSolveStart[i] = 0;
+        } else {
+            charSolveStart[i] = solvePhaseStart + i * charDelay;
         }
-
-        
-        function getRandomASCII(len) {
-            let chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&';
-            let asciiStr = Array.from({ length: len }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-            return willOverflow(asciiStr) ? originalText : asciiStr;
-        }
-
-        
-        function getRandomHexChar() {
-            let hexChars = '0123456789ABCDEF';
-            return hexChars[Math.floor(Math.random() * hexChars.length)];
-        }
-
-        function generateInitialObfuscation() {
-            obfuscatedText = getRandomASCII(OGarray.length).split('');
-            $('.code').text(obfuscatedText.join(''));
-        }
-
-        function gradualHexConversionStep() {
-            let unfinishedIndices = Array.from({length: OGarray.length}, (_, i) => i).filter(i => {
-                let count = convertedIndices.get(i) || 0;
-                return count < hexTransformations;
-            });
-
-            if (unfinishedIndices.length > 0) {
-                let randomIndex = unfinishedIndices[Math.floor(Math.random() * unfinishedIndices.length)];
-                let currentCount = convertedIndices.get(randomIndex) || 0;
-
-                if (currentCount < hexTransformations) {
-                    let tempText = [...obfuscatedText];
-                    tempText[randomIndex] = getRandomHexChar(); 
-
-                    if (!willOverflow(tempText.join(''))) {
-                        obfuscatedText[randomIndex] = tempText[randomIndex];
-                        convertedIndices.set(randomIndex, currentCount + 1);
-                        $('.code').text(obfuscatedText.join(''));
-                    }
-                }
-            } else {
-                clearInterval(interval);
-                setTimeout(() => {
-                    phase = 3;
-                    revealIndex = 0;
-                    interval = setInterval(decryptStep, 50);
-                }, 0);
-            }
-        }
-
-        function decryptStep() {
-            if (revealIndex < OGarray.length) {
-                let tempText = [...obfuscatedText];
-                tempText[revealIndex] = OGarray[revealIndex]; 
-
-                if (!willOverflow(tempText.join(''))) {
-                    obfuscatedText[revealIndex] = tempText[revealIndex];
-                    $('.code').text(obfuscatedText.join(''));
-                    revealIndex++;
-                }
-            }
-
-            if (revealIndex >= OGarray.length) {
-                clearInterval(interval);
-                $('.code').text(originalText); 
-            }
-        }
-
-        generateInitialObfuscation();
-
-        setTimeout(() => {
-            interval = setInterval(() => {
-                if (phase === 2) {
-                    gradualHexConversionStep();
-                }
-            }, intervalTime);
-
-            setTimeout(() => {
-                phase = 2;
-            }, 0);
-        }, delayBeforeStart);
     }
 
-    start();
+    function frame(ts) {
+        if (!startTime) startTime = ts;
+        if (ts - lastFrame < 50) { requestAnimationFrame(frame); return; }
+        lastFrame = ts;
+
+        var elapsed = ts - startTime;
+
+        
+        if (elapsed < shrinkDuration) {
+            var t = elapsed / shrinkDuration;
+            var targetLen = Math.round(startLen + (finalLen - startLen) * t * t);
+
+            while (display.length < targetLen) {
+                display.splice(Math.floor(Math.random() * (display.length + 1)), 0,
+                    hexPool[Math.floor(Math.random() * hexPool.length)]);
+            }
+            for (var i = 0; i < display.length; i++) {
+                display[i] = hexPool[Math.floor(Math.random() * hexPool.length)];
+            }
+
+            el.textContent = display.join('');
+            requestAnimationFrame(frame);
+            return;
+        }
+
+        
+        if (display.length !== finalLen) {
+            display = new Array(finalLen);
+            for (var i = 0; i < finalLen; i++) {
+                display[i] = chars[i] === ' ' ? ' ' : hexPool[Math.floor(Math.random() * hexPool.length)];
+            }
+        }
+
+        
+        for (var i = 0; i < finalLen; i++) {
+            if (solved[i]) {
+                display[i] = chars[i];
+                continue;
+            }
+
+            if (elapsed >= charSolveStart[i] + flickerPerChar) {
+                
+                solved[i] = true;
+                solvedCount++;
+                display[i] = chars[i];
+            } else if (elapsed >= charSolveStart[i]) {
+                
+                var ft = (elapsed - charSolveStart[i]) / flickerPerChar;
+                display[i] = Math.random() < ft * 0.5
+                    ? chars[i]
+                    : hexPool[Math.floor(Math.random() * hexPool.length)];
+            } else {
+                
+                if (Math.random() > 0.4) {
+                    display[i] = hexPool[Math.floor(Math.random() * hexPool.length)];
+                }
+            }
+        }
+
+        el.textContent = display.join('');
+
+        if (solvedCount < finalLen) {
+            requestAnimationFrame(frame);
+        } else {
+            el.textContent = originalText;
+        }
+    }
+
+    setTimeout(function () {
+        requestAnimationFrame(frame);
+    }, 400);
 });
-
-
-
 </script>
 
 <div class="header">
@@ -308,7 +314,7 @@ $(document).ready(function () {
 <li><strong><code>SACI</code></strong>: Semi-Attacker-Controlled Input</li>
 </ul>
 <p>These two abbreviations will help to define what variables/data/memory an attacker can potentially control, and to what capacity in sample code snippets.</p>
-<h2 class="heading" id="hahahugoshortcode18s0hbhb">
+<h2 class="heading" id="hahahugoshortcode17s0hbhb">
   <details>
     <summary>C String Manipulation Issues</summary>
     <div class="details-content">
@@ -660,9 +666,9 @@ details summary {
 }
 </style>
 
-  <a class="anchor" href="#hahahugoshortcode18s0hbhb">#</a>
+  <a class="anchor" href="#hahahugoshortcode17s0hbhb">#</a>
 </h2>
-<h2 class="heading" id="hahahugoshortcode18s1hbhb">
+<h2 class="heading" id="hahahugoshortcode17s1hbhb">
   <details>
     <summary>Integer Manipulation Issues</summary>
     <div class="details-content">
@@ -1392,9 +1398,9 @@ details summary {
 }
 </style>
 
-  <a class="anchor" href="#hahahugoshortcode18s1hbhb">#</a>
+  <a class="anchor" href="#hahahugoshortcode17s1hbhb">#</a>
 </h2>
-<h2 class="heading" id="hahahugoshortcode18s2hbhb">
+<h2 class="heading" id="hahahugoshortcode17s2hbhb">
   <details>
     <summary>Stack Linear Buffer Overflows</summary>
     <div class="details-content">
@@ -1836,9 +1842,9 @@ details summary {
 }
 </style>
 
-  <a class="anchor" href="#hahahugoshortcode18s2hbhb">#</a>
+  <a class="anchor" href="#hahahugoshortcode17s2hbhb">#</a>
 </h2>
-<h2 class="heading" id="hahahugoshortcode18s3hbhb">
+<h2 class="heading" id="hahahugoshortcode17s3hbhb">
   <details>
     <summary>Heap Linear Buffer Overflows</summary>
     <div class="details-content">
@@ -2137,9 +2143,9 @@ details summary {
 }
 </style>
 
-  <a class="anchor" href="#hahahugoshortcode18s3hbhb">#</a>
+  <a class="anchor" href="#hahahugoshortcode17s3hbhb">#</a>
 </h2>
-<h2 class="heading" id="hahahugoshortcode18s4hbhb">
+<h2 class="heading" id="hahahugoshortcode17s4hbhb">
   <details>
     <summary>Non Linear Overflows (OOB)</summary>
     <div class="details-content">
@@ -2619,9 +2625,9 @@ details summary {
 }
 </style>
 
-  <a class="anchor" href="#hahahugoshortcode18s4hbhb">#</a>
+  <a class="anchor" href="#hahahugoshortcode17s4hbhb">#</a>
 </h2>
-<h2 class="heading" id="hahahugoshortcode18s5hbhb">
+<h2 class="heading" id="hahahugoshortcode17s5hbhb">
   <details>
     <summary>Integer Overflows/Underflows</summary>
     <div class="details-content">
@@ -3313,9 +3319,9 @@ details summary {
 }
 </style>
 
-  <a class="anchor" href="#hahahugoshortcode18s5hbhb">#</a>
+  <a class="anchor" href="#hahahugoshortcode17s5hbhb">#</a>
 </h2>
-<h2 class="heading" id="hahahugoshortcode18s6hbhb">
+<h2 class="heading" id="hahahugoshortcode17s6hbhb">
   <details>
     <summary>Uninitialized Data Access</summary>
     <div class="details-content">
@@ -3723,9 +3729,9 @@ details summary {
 }
 </style>
 
-  <a class="anchor" href="#hahahugoshortcode18s6hbhb">#</a>
+  <a class="anchor" href="#hahahugoshortcode17s6hbhb">#</a>
 </h2>
-<h2 class="heading" id="hahahugoshortcode18s7hbhb">
+<h2 class="heading" id="hahahugoshortcode17s7hbhb">
   <details>
     <summary>Information Disclosure</summary>
     <div class="details-content">
@@ -3827,9 +3833,9 @@ details summary {
 }
 </style>
 
-  <a class="anchor" href="#hahahugoshortcode18s7hbhb">#</a>
+  <a class="anchor" href="#hahahugoshortcode17s7hbhb">#</a>
 </h2>
-<h2 class="heading" id="hahahugoshortcode18s8hbhb">
+<h2 class="heading" id="hahahugoshortcode17s8hbhb">
   <details>
     <summary>Race Conditions</summary>
     <div class="details-content">
@@ -4179,9 +4185,9 @@ details summary {
 }
 </style>
 
-  <a class="anchor" href="#hahahugoshortcode18s8hbhb">#</a>
+  <a class="anchor" href="#hahahugoshortcode17s8hbhb">#</a>
 </h2>
-<h2 class="heading" id="hahahugoshortcode18s9hbhb">
+<h2 class="heading" id="hahahugoshortcode17s9hbhb">
   <details>
     <summary>Use-After-Frees</summary>
     <div class="details-content">
@@ -4666,9 +4672,9 @@ details summary {
 }
 </style>
 
-  <a class="anchor" href="#hahahugoshortcode18s9hbhb">#</a>
+  <a class="anchor" href="#hahahugoshortcode17s9hbhb">#</a>
 </h2>
-<h2 class="heading" id="hahahugoshortcode18s10hbhb">
+<h2 class="heading" id="hahahugoshortcode17s10hbhb">
   <details>
     <summary>Type Confusion</summary>
     <div class="details-content">
@@ -5865,14 +5871,14 @@ details summary {
 }
 </style>
 
-  <a class="anchor" href="#hahahugoshortcode18s10hbhb">#</a>
+  <a class="anchor" href="#hahahugoshortcode17s10hbhb">#</a>
 </h2>
 <hr>
 <h2 class="heading" id="auditing-program-building-blocks">
   Auditing Program Building Blocks
   <a class="anchor" href="#auditing-program-building-blocks">#</a>
 </h2>
-<h3 class="heading" id="hahahugoshortcode18s11hbhb">
+<h3 class="heading" id="hahahugoshortcode17s11hbhb">
   <details>
     <summary>Auditing Variables</summary>
     <div class="details-content">
@@ -6094,9 +6100,9 @@ details summary {
 }
 </style>
 
-  <a class="anchor" href="#hahahugoshortcode18s11hbhb">#</a>
+  <a class="anchor" href="#hahahugoshortcode17s11hbhb">#</a>
 </h3>
-<h3 class="heading" id="hahahugoshortcode18s12hbhb">
+<h3 class="heading" id="hahahugoshortcode17s12hbhb">
   <details>
     <summary>Auditing Control Flow</summary>
     <div class="details-content">
@@ -6341,9 +6347,9 @@ details summary {
 }
 </style>
 
-  <a class="anchor" href="#hahahugoshortcode18s12hbhb">#</a>
+  <a class="anchor" href="#hahahugoshortcode17s12hbhb">#</a>
 </h3>
-<h3 class="heading" id="hahahugoshortcode18s13hbhb">
+<h3 class="heading" id="hahahugoshortcode17s13hbhb">
   <details>
     <summary>Auditing Memory Management</summary>
     <div class="details-content">
@@ -6852,9 +6858,9 @@ details summary {
 }
 </style>
 
-  <a class="anchor" href="#hahahugoshortcode18s13hbhb">#</a>
+  <a class="anchor" href="#hahahugoshortcode17s13hbhb">#</a>
 </h3>
-<h2 class="heading" id="hahahugoshortcode18s14hbhb">
+<h2 class="heading" id="hahahugoshortcode17s14hbhb">
   <details>
     <summary>Layered Code Auditing Baseline</summary>
     <div class="details-content">
@@ -7033,7 +7039,7 @@ details summary {
 }
 </style>
 
-  <a class="anchor" href="#hahahugoshortcode18s14hbhb">#</a>
+  <a class="anchor" href="#hahahugoshortcode17s14hbhb">#</a>
 </h2>
 
     

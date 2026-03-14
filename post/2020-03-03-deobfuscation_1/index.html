@@ -75,124 +75,130 @@ Introduction # There are close to 31 known code transformations. However, In thi
     <header>
       
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
 <script>
-$(document).ready(function () {
-    function start() {
-        var originalText = $('.code').text().trim(); 
-        var OGarray = originalText.split(''); 
-        var obfuscatedText;
-        var revealIndex = 0; 
-        var intervalTime = 5; 
-        var delayBeforeStart = 400; 
-        var phase = 1; 
-        var convertedIndices = new Map(); 
-        var interval; 
-        const hexTransformations = 15; 
+document.addEventListener('DOMContentLoaded', function () {
+    var el = document.querySelector('.code');
+    if (!el) return;
 
-        
-        function willOverflow(text) {
-            let testElement = $('<span>')
-                .text(text)
-                .css({
-                    visibility: 'hidden',
-                    whiteSpace: 'nowrap',
-                    position: 'absolute'
-                })
-                .appendTo('body');
+    var originalText = el.textContent.trim();
+    var chars = originalText.split('');
+    var finalLen = chars.length;
 
-            let overflows = testElement.width() > $('.code').width();
-            testElement.remove();
-            return overflows;
+    var hexPool = '0123456789ABCDEFabcdef';
+
+    
+    var startLen = Math.max(1, finalLen - 2 - Math.floor(Math.random() * 3));
+    var shrinkDuration = 600;
+
+    
+    
+    
+    
+    
+    var scrambleDuration = 700;
+    
+    var flickerPerChar = 300;
+    
+    var charDelay = 80;
+
+    
+    var display = [];
+    for (var i = 0; i < startLen; i++) {
+        display.push(hexPool[Math.floor(Math.random() * hexPool.length)]);
+    }
+    el.textContent = display.join('');
+
+    var startTime = null;
+    var lastFrame = 0;
+    var solvedCount = 0;
+    var solved = new Array(finalLen).fill(false);
+    var charSolveStart = new Array(finalLen); 
+
+    
+    var growEnd = shrinkDuration;
+    var solvePhaseStart = growEnd + scrambleDuration;
+    for (var i = 0; i < finalLen; i++) {
+        if (chars[i] === ' ') {
+            solved[i] = true;
+            solvedCount++;
+            charSolveStart[i] = 0;
+        } else {
+            charSolveStart[i] = solvePhaseStart + i * charDelay;
         }
-
-        
-        function getRandomASCII(len) {
-            let chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&';
-            let asciiStr = Array.from({ length: len }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-            return willOverflow(asciiStr) ? originalText : asciiStr;
-        }
-
-        
-        function getRandomHexChar() {
-            let hexChars = '0123456789ABCDEF';
-            return hexChars[Math.floor(Math.random() * hexChars.length)];
-        }
-
-        function generateInitialObfuscation() {
-            obfuscatedText = getRandomASCII(OGarray.length).split('');
-            $('.code').text(obfuscatedText.join(''));
-        }
-
-        function gradualHexConversionStep() {
-            let unfinishedIndices = Array.from({length: OGarray.length}, (_, i) => i).filter(i => {
-                let count = convertedIndices.get(i) || 0;
-                return count < hexTransformations;
-            });
-
-            if (unfinishedIndices.length > 0) {
-                let randomIndex = unfinishedIndices[Math.floor(Math.random() * unfinishedIndices.length)];
-                let currentCount = convertedIndices.get(randomIndex) || 0;
-
-                if (currentCount < hexTransformations) {
-                    let tempText = [...obfuscatedText];
-                    tempText[randomIndex] = getRandomHexChar(); 
-
-                    if (!willOverflow(tempText.join(''))) {
-                        obfuscatedText[randomIndex] = tempText[randomIndex];
-                        convertedIndices.set(randomIndex, currentCount + 1);
-                        $('.code').text(obfuscatedText.join(''));
-                    }
-                }
-            } else {
-                clearInterval(interval);
-                setTimeout(() => {
-                    phase = 3;
-                    revealIndex = 0;
-                    interval = setInterval(decryptStep, 50);
-                }, 0);
-            }
-        }
-
-        function decryptStep() {
-            if (revealIndex < OGarray.length) {
-                let tempText = [...obfuscatedText];
-                tempText[revealIndex] = OGarray[revealIndex]; 
-
-                if (!willOverflow(tempText.join(''))) {
-                    obfuscatedText[revealIndex] = tempText[revealIndex];
-                    $('.code').text(obfuscatedText.join(''));
-                    revealIndex++;
-                }
-            }
-
-            if (revealIndex >= OGarray.length) {
-                clearInterval(interval);
-                $('.code').text(originalText); 
-            }
-        }
-
-        generateInitialObfuscation();
-
-        setTimeout(() => {
-            interval = setInterval(() => {
-                if (phase === 2) {
-                    gradualHexConversionStep();
-                }
-            }, intervalTime);
-
-            setTimeout(() => {
-                phase = 2;
-            }, 0);
-        }, delayBeforeStart);
     }
 
-    start();
+    function frame(ts) {
+        if (!startTime) startTime = ts;
+        if (ts - lastFrame < 50) { requestAnimationFrame(frame); return; }
+        lastFrame = ts;
+
+        var elapsed = ts - startTime;
+
+        
+        if (elapsed < shrinkDuration) {
+            var t = elapsed / shrinkDuration;
+            var targetLen = Math.round(startLen + (finalLen - startLen) * t * t);
+
+            while (display.length < targetLen) {
+                display.splice(Math.floor(Math.random() * (display.length + 1)), 0,
+                    hexPool[Math.floor(Math.random() * hexPool.length)]);
+            }
+            for (var i = 0; i < display.length; i++) {
+                display[i] = hexPool[Math.floor(Math.random() * hexPool.length)];
+            }
+
+            el.textContent = display.join('');
+            requestAnimationFrame(frame);
+            return;
+        }
+
+        
+        if (display.length !== finalLen) {
+            display = new Array(finalLen);
+            for (var i = 0; i < finalLen; i++) {
+                display[i] = chars[i] === ' ' ? ' ' : hexPool[Math.floor(Math.random() * hexPool.length)];
+            }
+        }
+
+        
+        for (var i = 0; i < finalLen; i++) {
+            if (solved[i]) {
+                display[i] = chars[i];
+                continue;
+            }
+
+            if (elapsed >= charSolveStart[i] + flickerPerChar) {
+                
+                solved[i] = true;
+                solvedCount++;
+                display[i] = chars[i];
+            } else if (elapsed >= charSolveStart[i]) {
+                
+                var ft = (elapsed - charSolveStart[i]) / flickerPerChar;
+                display[i] = Math.random() < ft * 0.5
+                    ? chars[i]
+                    : hexPool[Math.floor(Math.random() * hexPool.length)];
+            } else {
+                
+                if (Math.random() > 0.4) {
+                    display[i] = hexPool[Math.floor(Math.random() * hexPool.length)];
+                }
+            }
+        }
+
+        el.textContent = display.join('');
+
+        if (solvedCount < finalLen) {
+            requestAnimationFrame(frame);
+        } else {
+            el.textContent = originalText;
+        }
+    }
+
+    setTimeout(function () {
+        requestAnimationFrame(frame);
+    }, 400);
 });
-
-
-
 </script>
 
 <div class="header">
